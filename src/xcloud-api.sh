@@ -296,9 +296,9 @@ xcloud_wait_provisioned() {
     local elapsed=0
     while [ $elapsed -lt $timeout ]; do
         local status
-        status=$(xcloud_site "$site_uuid" | jq -r '.provisioned // false')
-        
-        if [ "$status" = "true" ]; then
+        status=$(xcloud_site "$site_uuid" | jq -r '.data.status // "unknown"')
+
+        if [ "$status" = "active" ]; then
             echo "✅ Site $site_uuid provisioned"
             return 0
         fi
