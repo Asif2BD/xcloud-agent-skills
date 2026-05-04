@@ -180,8 +180,7 @@ EOF
 EOF
 )
     fi
-    payload="${payload}"$'\n'"}"
-    
+
     _api_call PUT "/sites/$site_uuid/ssh" "$payload"
 }
 
