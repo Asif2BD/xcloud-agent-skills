@@ -168,12 +168,23 @@ class XCloudAPI:
         return self._request("GET", f"/servers/{server_uuid}")["data"]
 
     def get_server_php_versions(self, server_uuid: str) -> list:
-        """Get PHP versions available on a server"""
-        return self._request("GET", f"/servers/{server_uuid}/php-versions")["data"]
+        """Get PHP versions available on a server. Returns list of version strings e.g. ['8.2', '8.3']"""
+        data = self._request("GET", f"/servers/{server_uuid}/php-versions")["data"]
+        if isinstance(data, list) and data and isinstance(data[0], dict):
+            return [v["version"] for v in data]
+        return data
 
     def get_server_monitoring(self, server_uuid: str) -> Dict:
-        """Get monitoring stats for a server (cpu, memory, disk, uptime)"""
-        return self._request("GET", f"/servers/{server_uuid}/monitoring")["data"]
+        """Get monitoring stats for a server. Returns normalized dict with cpu_usage, memory_usage, disk_usage."""
+        raw = self._request("GET", f"/servers/{server_uuid}/monitoring")["data"]
+        return {
+            "cpu_usage": float(raw.get("cpu", {}).get("usedPercent", 0)),
+            "memory_usage": float(raw.get("memory", {}).get("percent", 0)),
+            "disk_usage": float((raw.get("disk") or [{}])[0].get("usedPercent", "0").strip("%") or 0),
+            "uptime": raw.get("cpu", {}).get("uptime", ""),
+            "recorded_at": raw.get("recorded_at", ""),
+            "raw": raw,
+        }
 
     def list_sites(self, page: int = 1, per_page: int = 100,
                    server_uuid: str = None, search: str = None,
