@@ -260,7 +260,7 @@ curl -sS -X POST \
   "https://app.xcloud.host/api/v1/servers/$SERVER_UUID/sudo-users" \
   -d '{
     "username": "deploy",
-    "password": "S3cur3P@ss!",
+    "password": "<replace-with-strong-password>",
     "ssh_public_keys": ["ssh-ed25519 AAAA... user@host"],
     "is_temporary": false
   }' | jq
@@ -344,7 +344,7 @@ curl -sS -X PUT \
   "https://app.xcloud.host/api/v1/sites/$SITE_UUID/ssh" \
   -d '{
     "authentication_mode": "password",
-    "password": "Str0ngP@ssw0rd!"
+    "password": "<replace-with-strong-password>"
   }' | jq
 ```
 
