@@ -248,7 +248,11 @@ class XCloudAPI:
     def get_site_ssh_config(self, site_uuid: str) -> Dict:
         """Get site SSH/SFTP configuration"""
         return self._request("GET", f"/sites/{site_uuid}/ssh")["data"]
-    
+
+    def get_site_domain(self, site_uuid: str) -> Dict:
+        """Get site domain info (primary domain, additional domains, environment)"""
+        return self._request("GET", f"/sites/{site_uuid}/domain")["data"]
+
     def list_blueprints(self, page: int = 1, per_page: int = 100) -> Dict:
         """List WordPress blueprints (pre-configured stacks)"""
         response = self._request("GET", "/blueprints",

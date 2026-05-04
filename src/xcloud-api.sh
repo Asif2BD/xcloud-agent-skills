@@ -191,7 +191,7 @@ EOF
 # Get domain configuration
 xcloud_domains() {
     local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/domains"
+    _api_call GET "/sites/$site_uuid/domain"
 }
 
 # Add domain
