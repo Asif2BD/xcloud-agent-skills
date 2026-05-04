@@ -166,7 +166,15 @@ class XCloudAPI:
     def get_server(self, server_uuid: str) -> Dict:
         """Get specific server"""
         return self._request("GET", f"/servers/{server_uuid}")["data"]
-    
+
+    def get_server_php_versions(self, server_uuid: str) -> list:
+        """Get PHP versions available on a server"""
+        return self._request("GET", f"/servers/{server_uuid}/php-versions")["data"]
+
+    def get_server_monitoring(self, server_uuid: str) -> Dict:
+        """Get monitoring stats for a server (cpu, memory, disk, uptime)"""
+        return self._request("GET", f"/servers/{server_uuid}/monitoring")["data"]
+
     def list_sites(self, page: int = 1, per_page: int = 100,
                    server_uuid: str = None, search: str = None,
                    site_type: str = None, status: str = None) -> Dict:
