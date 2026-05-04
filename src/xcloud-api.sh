@@ -147,7 +147,7 @@ xcloud_purge_cache() {
 # Get SSH configuration
 xcloud_ssh_config() {
     local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/ssh-config"
+    _api_call GET "/sites/$site_uuid/ssh"
 }
 
 # Update SSH configuration
@@ -182,7 +182,7 @@ EOF
     fi
     payload="${payload}"$'\n'"}"
     
-    _api_call PUT "/sites/$site_uuid/ssh-config" "$payload"
+    _api_call PUT "/sites/$site_uuid/ssh" "$payload"
 }
 
 # ============================================================================
