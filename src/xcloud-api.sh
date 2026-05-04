@@ -167,7 +167,7 @@ EOF
         payload=$(cat <<EOF
 {
     "authentication_mode": "public_key",
-    "ssh_keys": ["$ssh_key"]
+    "ssh_public_keys": ["$ssh_key"]
 }
 EOF
 )
