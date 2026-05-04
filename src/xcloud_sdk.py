@@ -449,28 +449,11 @@ class XCloudDeployer:
             f"Site provisioning timed out after {timeout}s"
         )
     
-    def enable_monitoring(self, site_uuid: str, 
+    def enable_monitoring(self, site_uuid: str,
                          check_interval: int = 300) -> Dict:
-        """
-        Enable monitoring for a site.
-        
-        Args:
-            site_uuid: Site UUID
-            check_interval: Health check interval (seconds)
-        
-        Returns:
-            Monitoring config
-        """
-        return {
-            "site_uuid": site_uuid,
-            "check_interval": check_interval,
-            "enabled": True,
-            "checks": [
-                {"type": "http", "endpoint": "/", "expected_status": 200},
-                {"type": "ssl", "check_expiration": True},
-                {"type": "database", "check_connectivity": True}
-            ]
-        }
+        raise NotImplementedError(
+            "enable_monitoring is not supported by the xCloud public API"
+        )
     
     def backup_all_sites(self, server_uuid: str = None) -> List[Dict]:
         """
