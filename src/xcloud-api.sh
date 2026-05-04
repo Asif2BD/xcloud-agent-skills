@@ -215,27 +215,24 @@ EOF
 # ENVIRONMENT & VARIABLES
 # ============================================================================
 
-# Get environment variables
-xcloud_variables() {
-    local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/variables"
-}
+# Not available in the xCloud public API — endpoint does not exist
+# xcloud_variables() {
+#     local site_uuid=$1
+#     _api_call GET "/sites/$site_uuid/variables"
+# }
 
-# Set environment variable
-xcloud_set_variable() {
-    local site_uuid=$1
-    local key=$2
-    local value=$3
-    
-    local payload=$(cat <<EOF
-{
-    "$key": "$value"
-}
-EOF
-)
-    
-    _api_call PUT "/sites/$site_uuid/variables" "$payload"
-}
+# xcloud_set_variable() {
+#     local site_uuid=$1
+#     local key=$2
+#     local value=$3
+#     local payload=$(cat <<EOF
+# {
+#     "$key": "$value"
+# }
+# EOF
+# )
+#     _api_call PUT "/sites/$site_uuid/variables" "$payload"
+# }
 
 # ============================================================================
 # SUDO USER OPERATIONS
@@ -388,8 +385,8 @@ export -f xcloud_ssh_config
 export -f xcloud_update_ssh
 export -f xcloud_domains
 export -f xcloud_add_domain
-export -f xcloud_variables
-export -f xcloud_set_variable
+# export -f xcloud_variables    # not available in public API
+# export -f xcloud_set_variable # not available in public API
 export -f xcloud_sudo_users
 export -f xcloud_add_sudo_user
 export -f xcloud_whoami
