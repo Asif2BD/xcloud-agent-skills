@@ -253,12 +253,7 @@ xcloud_add_sudo_user() {
     local username=$2
     local password=${3:-}
     
-    local payload=$(cat <<EOF
-{
-    "username": "$username"
-EOF
-)
-    
+    local payload
     if [ -n "$password" ]; then
         payload=$(cat <<EOF
 {
@@ -267,9 +262,15 @@ EOF
 }
 EOF
 )
+    else
+        payload=$(cat <<EOF
+{
+    "username": "$username"
+}
+EOF
+)
     fi
-    payload="${payload}"$'\n'"}"
-    
+
     _api_call POST "/sites/$site_uuid/sudo-users" "$payload"
 }
 
