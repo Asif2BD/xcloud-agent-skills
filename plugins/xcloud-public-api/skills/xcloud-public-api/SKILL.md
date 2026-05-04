@@ -74,11 +74,29 @@ Accept: application/json
 Content-Type: application/json
 ```
 
-Preferred env var when using terminal:
+Setting the token — choose one of these three persistent options:
 
-```bash
-export XCLOUD_API_TOKEN='...'
+**Option 1 — Claude Code `settings.json` (recommended when using this skill):**
+```json
+// ~/.claude/settings.json
+{
+  "env": {
+    "XCLOUD_API_TOKEN": "your-token-here"
+  }
+}
 ```
+
+**Option 2 — Token file (picked up automatically by `xcloud-api.sh`):**
+```bash
+mkdir -p ~/.xcloud && echo 'your-token-here' > ~/.xcloud/api-token && chmod 600 ~/.xcloud/api-token
+```
+
+**Option 3 — Shell profile (persists across terminal sessions):**
+```bash
+echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
+```
+
+> Note: `export XCLOUD_API_TOKEN='...'` in a terminal only lasts for that session. Use one of the three options above for persistence.
 
 Canonical curl wrapper:
 
@@ -89,7 +107,7 @@ curl -sS \
   -H "Content-Type: application/json"
 ```
 
-If the user asks you to use the API and no token is available, ask them for a token or ask where it is stored.
+If the user asks you to use the API and no token is set, show them the three options above and ask which they prefer.
 
 ### Scopes
 
