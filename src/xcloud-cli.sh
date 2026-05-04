@@ -378,10 +378,10 @@ ${BLUE}EXAMPLES:${NC}
   ./xcloud-cli.sh server list
 
   # Create a new WordPress site
-  ./xcloud-cli.sh site create example.com 26724fa4-f96e-4a55-b454-b701be6eb366
+  ./xcloud-cli.sh site create example.com xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
 
   # Monitor site provisioning
-  ./xcloud-cli.sh monitor site 9c070806-3f2b-4f04-8a2b-8d1851bcbd5b 5
+  ./xcloud-cli.sh monitor site xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx 5
 
 ${BLUE}ENVIRONMENT:${NC}
   XCLOUD_API_TOKEN  - Your xCloud API token (required)
