@@ -312,20 +312,18 @@ xcloud_wait_provisioned() {
     return 1
 }
 
-# Parse xCloud dashboard URL and extract IDs
+# Parse xCloud dashboard URL and extract server/site UUIDs
+# Supports URLs of the form: https://app.xcloud.host/servers/<uuid>/sites/<uuid>
 xcloud_parse_url() {
     local url=$1
-    
-    # Extract project ID
-    local project_id=$(echo "$url" | grep -oP 'project/\K[^/]+' || true)
-    # Extract service ID
-    local service_id=$(echo "$url" | grep -oP 'service/\K[^/?]+' || true)
-    # Extract environment ID from query param
-    local environment_id=$(echo "$url" | grep -oP 'environmentId=\K[^&]+' || true)
-    
-    echo "project=$project_id"
-    echo "service=$service_id"
-    echo "environment=$environment_id"
+
+    local server_uuid
+    server_uuid=$(echo "$url" | sed -n 's|.*/servers/\([^/?]*\).*|\1|p')
+    local site_uuid
+    site_uuid=$(echo "$url" | sed -n 's|.*/sites/\([^/?]*\).*|\1|p')
+
+    echo "server=$server_uuid"
+    echo "site=$site_uuid"
 }
 
 # Pretty print JSON response
