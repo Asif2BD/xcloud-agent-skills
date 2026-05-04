@@ -313,11 +313,11 @@ class XCloudAPI:
     
     def trigger_backup(self, site_uuid: str) -> Dict:
         """Trigger manual backup of a site"""
-        return self._request("POST", f"/sites/{site_uuid}/backup")["data"]
-    
+        return self._request("POST", f"/sites/{site_uuid}/backup")
+
     def purge_cache(self, site_uuid: str) -> Dict:
         """Purge full-page cache for a site"""
-        return self._request("POST", f"/sites/{site_uuid}/cache/purge")["data"]
+        return self._request("POST", f"/sites/{site_uuid}/cache/purge")
     
     def update_ssh_config(self, site_uuid: str,
                          auth_mode: str = "public_key",

@@ -66,8 +66,8 @@ class StateManager:
         self._save_state()
     
     def update(self, key: str, **kwargs):
-        """Update nested state"""
-        if key not in self.state:
+        """Update nested state (merges kwargs if existing value is a dict, replaces otherwise)"""
+        if key not in self.state or not isinstance(self.state[key], dict):
             self.state[key] = {}
         self.state[key].update(kwargs)
         self._save_state()
