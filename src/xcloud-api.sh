@@ -243,16 +243,16 @@ EOF
 
 # List sudo users
 xcloud_sudo_users() {
-    local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/sudo-users"
+    local server_uuid=$1
+    _api_call GET "/servers/$server_uuid/sudo-users"
 }
 
 # Add sudo user
 xcloud_add_sudo_user() {
-    local site_uuid=$1
+    local server_uuid=$1
     local username=$2
     local password=${3:-}
-    
+
     local payload
     if [ -n "$password" ]; then
         payload=$(cat <<EOF
@@ -271,7 +271,7 @@ EOF
 )
     fi
 
-    _api_call POST "/sites/$site_uuid/sudo-users" "$payload"
+    _api_call POST "/servers/$server_uuid/sudo-users" "$payload"
 }
 
 # ============================================================================
