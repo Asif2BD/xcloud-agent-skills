@@ -52,13 +52,8 @@ deployer = XCloudDeployer()
 # Get comprehensive fleet health
 health = deployer.get_fleet_health()
 
-print(f"✅ Servers: {health['servers']['total']} ({health['servers']['active']} active)")
+print(f"✅ Servers: {health['servers']['total']} ({health['servers']['provisioned']} provisioned)")
 print(f"✅ Sites: {health['sites']['total']} ({health['sites']['provisioned']} provisioned)")
-
-if health['issues']:
-    print(f"⚠️  Issues found:")
-    for issue in health['issues']:
-        print(f"  - {issue['domain']}: {issue['status']}")
 ```
 
 ---
