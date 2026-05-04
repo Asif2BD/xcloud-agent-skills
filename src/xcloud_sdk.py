@@ -61,7 +61,17 @@ class XCloudAPI:
         """
         self.token = token or os.getenv("XCLOUD_API_TOKEN")
         if not self.token:
-            raise XCloudAuthError("XCLOUD_API_TOKEN not set")
+            token_file = os.path.expanduser("~/.xcloud/api-token")
+            if os.path.exists(token_file):
+                with open(token_file) as f:
+                    self.token = f.read().strip()
+            else:
+                raise XCloudAuthError(
+                    "XCLOUD_API_TOKEN not set. Persist it via one of:\n"
+                    "  1. ~/.claude/settings.json: {\"env\": {\"XCLOUD_API_TOKEN\": \"your-token\"}}\n"
+                    "  2. Token file: mkdir -p ~/.xcloud && echo 'your-token' > ~/.xcloud/api-token\n"
+                    "  3. Shell profile: echo \"export XCLOUD_API_TOKEN='your-token'\" >> ~/.zshrc"
+                )
         
         self.session = requests.Session()
         self._set_headers()

@@ -19,6 +19,10 @@ _get_token() {
         cat "$XCLOUD_TOKEN_FILE"
     else
         echo "❌ Error: XCLOUD_API_TOKEN not set and $XCLOUD_TOKEN_FILE not found" >&2
+        echo "   Set it in one of these persistent ways:" >&2
+        echo "   1. ~/.claude/settings.json: { \"env\": { \"XCLOUD_API_TOKEN\": \"your-token\" } }" >&2
+        echo "   2. Token file: mkdir -p ~/.xcloud && echo 'your-token' > ~/.xcloud/api-token && chmod 600 ~/.xcloud/api-token" >&2
+        echo "   3. Shell profile: echo \"export XCLOUD_API_TOKEN='your-token'\" >> ~/.zshrc && source ~/.zshrc" >&2
         return 1
     fi
 }
