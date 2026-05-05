@@ -257,46 +257,44 @@ echo "📊 Results: $HEALTHY healthy | $RECOVERED auto-recovered | $FAILED faile
 
 ```python
 # Python version using SDK
-from xcloud_sdk import XCloudAPI, XCloudDeployer
-from xcloud_async import AsyncPoller, DeploymentTracker
+from xcloud_sdk import XCloudAPI
+from xcloud_async import DeploymentTracker
 import time
 
 api = XCloudAPI()
-deployer = XCloudDeployer(api)
-poller = AsyncPoller(api)
-tracker = DeploymentTracker()
 
 SITE_UUID = "your-site-uuid"
 DEPLOY_ID = f"deploy-{int(time.time())}"
+tracker = DeploymentTracker(deployment_id=DEPLOY_ID)
 
 print(f"🚀 Starting deployment {DEPLOY_ID}")
 
-# 1. Track deployment start
-tracker.start_deployment(DEPLOY_ID, site_uuid=SITE_UUID)
-
-# 2. Backup
+# 1. Backup
 print("Step 1: Creating backup...")
+backup_step = tracker.start_step("backup")
 api.trigger_backup(SITE_UUID)
-tracker.update_deployment(DEPLOY_ID, stage="backup_triggered")
-
-# 3. Wait for backup (or proceed with timeout)
 time.sleep(15)  # Give backup 15 seconds to initiate
+tracker.complete_step(backup_step, result="backup triggered")
 
-# 4. Deploy
+# 2. Deploy
 print("Step 2: Deploying application...")
-# Your deployment logic here
-# e.g., SSH + git pull, rsync, docker-compose up
-tracker.update_deployment(DEPLOY_ID, stage="deploying")
+deploy_step = tracker.start_step("deploy")
+# Your deployment logic here (e.g., SSH + git pull, rsync, docker-compose up)
+tracker.complete_step(deploy_step, result="deployed")
 
-# 5. Verify
+# 3. Verify
 print("Step 3: Verifying...")
+verify_step = tracker.start_step("verify")
 status = api.get_site_status(SITE_UUID)
-if status['status'] == 'provisioned':
-    tracker.complete_deployment(DEPLOY_ID, success=True)
+if status.get("status") == "active":
+    tracker.complete_step(verify_step, result=status)
     print(f"✅ Deployment {DEPLOY_ID} complete")
 else:
-    tracker.complete_deployment(DEPLOY_ID, success=False)
+    tracker.fail_step(verify_step, error=f"unexpected status: {status.get('status')}")
     print(f"❌ Deployment {DEPLOY_ID} failed - rollback from backup")
+
+summary = tracker.get_status()
+print(f"Steps: {summary['completed']} completed, {summary['failed']} failed")
 ```
 
 ---

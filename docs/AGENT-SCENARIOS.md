@@ -342,7 +342,6 @@ def check_ssl_expiry():
         
         try:
             # Get SSL certificate
-            cert = ssl.create_default_context().check_hostname = False
             context = ssl.create_default_context()
             context.check_hostname = False
             context.verify_mode = ssl.CERT_NONE

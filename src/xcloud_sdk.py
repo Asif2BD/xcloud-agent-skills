@@ -61,7 +61,17 @@ class XCloudAPI:
         """
         self.token = token or os.getenv("XCLOUD_API_TOKEN")
         if not self.token:
-            raise XCloudAuthError("XCLOUD_API_TOKEN not set")
+            token_file = os.path.expanduser("~/.xcloud/api-token")
+            if os.path.exists(token_file):
+                with open(token_file) as f:
+                    self.token = f.read().strip()
+            else:
+                raise XCloudAuthError(
+                    "XCLOUD_API_TOKEN not set. Persist it via one of:\n"
+                    "  1. ~/.claude/settings.json: {\"env\": {\"XCLOUD_API_TOKEN\": \"your-token\"}}\n"
+                    "  2. Token file: mkdir -p ~/.xcloud && echo 'your-token' > ~/.xcloud/api-token\n"
+                    "  3. Shell profile: echo \"export XCLOUD_API_TOKEN='your-token'\" >> ~/.zshrc"
+                )
         
         self.session = requests.Session()
         self._set_headers()
@@ -166,7 +176,26 @@ class XCloudAPI:
     def get_server(self, server_uuid: str) -> Dict:
         """Get specific server"""
         return self._request("GET", f"/servers/{server_uuid}")["data"]
-    
+
+    def get_server_php_versions(self, server_uuid: str) -> list:
+        """Get PHP versions available on a server. Returns list of version strings e.g. ['8.2', '8.3']"""
+        data = self._request("GET", f"/servers/{server_uuid}/php-versions")["data"]
+        if isinstance(data, list) and data and isinstance(data[0], dict):
+            return [v["version"] for v in data]
+        return data
+
+    def get_server_monitoring(self, server_uuid: str) -> Dict:
+        """Get monitoring stats for a server. Returns normalized dict with cpu_usage, memory_usage, disk_usage."""
+        raw = self._request("GET", f"/servers/{server_uuid}/monitoring")["data"]
+        return {
+            "cpu_usage": float(raw.get("cpu", {}).get("usedPercent", 0)),
+            "memory_usage": float(raw.get("memory", {}).get("percent", 0)),
+            "disk_usage": float((raw.get("disk") or [{}])[0].get("usedPercent", "0").strip("%") or 0),
+            "uptime": raw.get("cpu", {}).get("uptime", ""),
+            "recorded_at": raw.get("recorded_at", ""),
+            "raw": raw,
+        }
+
     def list_sites(self, page: int = 1, per_page: int = 100,
                    server_uuid: str = None, search: str = None,
                    site_type: str = None, status: str = None) -> Dict:
@@ -229,7 +258,11 @@ class XCloudAPI:
     def get_site_ssh_config(self, site_uuid: str) -> Dict:
         """Get site SSH/SFTP configuration"""
         return self._request("GET", f"/sites/{site_uuid}/ssh")["data"]
-    
+
+    def get_site_domain(self, site_uuid: str) -> Dict:
+        """Get site domain info (primary domain, additional domains, environment)"""
+        return self._request("GET", f"/sites/{site_uuid}/domain")["data"]
+
     def list_blueprints(self, page: int = 1, per_page: int = 100) -> Dict:
         """List WordPress blueprints (pre-configured stacks)"""
         response = self._request("GET", "/blueprints",
@@ -294,11 +327,11 @@ class XCloudAPI:
     
     def trigger_backup(self, site_uuid: str) -> Dict:
         """Trigger manual backup of a site"""
-        return self._request("POST", f"/sites/{site_uuid}/backup")["data"]
-    
+        return self._request("POST", f"/sites/{site_uuid}/backup")
+
     def purge_cache(self, site_uuid: str) -> Dict:
         """Purge full-page cache for a site"""
-        return self._request("POST", f"/sites/{site_uuid}/cache/purge")["data"]
+        return self._request("POST", f"/sites/{site_uuid}/cache/purge")
     
     def update_ssh_config(self, site_uuid: str,
                          auth_mode: str = "public_key",
@@ -441,28 +474,11 @@ class XCloudDeployer:
             f"Site provisioning timed out after {timeout}s"
         )
     
-    def enable_monitoring(self, site_uuid: str, 
+    def enable_monitoring(self, site_uuid: str,
                          check_interval: int = 300) -> Dict:
-        """
-        Enable monitoring for a site.
-        
-        Args:
-            site_uuid: Site UUID
-            check_interval: Health check interval (seconds)
-        
-        Returns:
-            Monitoring config
-        """
-        return {
-            "site_uuid": site_uuid,
-            "check_interval": check_interval,
-            "enabled": True,
-            "checks": [
-                {"type": "http", "endpoint": "/", "expected_status": 200},
-                {"type": "ssl", "check_expiration": True},
-                {"type": "database", "check_connectivity": True}
-            ]
-        }
+        raise NotImplementedError(
+            "enable_monitoring is not supported by the xCloud public API"
+        )
     
     def backup_all_sites(self, server_uuid: str = None) -> List[Dict]:
         """

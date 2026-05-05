@@ -74,11 +74,29 @@ Accept: application/json
 Content-Type: application/json
 ```
 
-Preferred env var when using terminal:
+Setting the token — choose one of these three persistent options:
 
-```bash
-export XCLOUD_API_TOKEN='...'
+**Option 1 — Claude Code `settings.json` (recommended when using this skill):**
+```json
+// ~/.claude/settings.json
+{
+  "env": {
+    "XCLOUD_API_TOKEN": "your-token-here"
+  }
+}
 ```
+
+**Option 2 — Token file (picked up automatically by `xcloud-api.sh`):**
+```bash
+mkdir -p ~/.xcloud && echo 'your-token-here' > ~/.xcloud/api-token && chmod 600 ~/.xcloud/api-token
+```
+
+**Option 3 — Shell profile (persists across terminal sessions):**
+```bash
+echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
+```
+
+> Note: `export XCLOUD_API_TOKEN='...'` in a terminal only lasts for that session. Use one of the three options above for persistence.
 
 Canonical curl wrapper:
 
@@ -89,7 +107,7 @@ curl -sS \
   -H "Content-Type: application/json"
 ```
 
-If the user asks you to use the API and no token is available, ask them for a token or ask where it is stored.
+If the user asks you to use the API and no token is set, show them the three options above and ask which they prefer.
 
 ### Scopes
 
@@ -260,7 +278,7 @@ curl -sS -X POST \
   "https://app.xcloud.host/api/v1/servers/$SERVER_UUID/sudo-users" \
   -d '{
     "username": "deploy",
-    "password": "S3cur3P@ss!",
+    "password": "<replace-with-strong-password>",
     "ssh_public_keys": ["ssh-ed25519 AAAA... user@host"],
     "is_temporary": false
   }' | jq
@@ -344,7 +362,7 @@ curl -sS -X PUT \
   "https://app.xcloud.host/api/v1/sites/$SITE_UUID/ssh" \
   -d '{
     "authentication_mode": "password",
-    "password": "Str0ngP@ssw0rd!"
+    "password": "<replace-with-strong-password>"
   }' | jq
 ```
 
@@ -434,17 +452,17 @@ curl -sS -H "Authorization: Bearer $XCLOUD_API_TOKEN" -H "Accept: application/js
 
 3. Correlate recent failed events with the site user from `GET /sites/{uuid}/ssh`.
 
-Live finding from this account: for `dev8.io`, the site returned nginx 502 while events repeatedly showed:
+Example finding: for `example.com`, the site returned nginx 502 while events repeatedly showed:
 
 ```text
-sudo: unknown user dev8
+sudo: unknown user mysite
 sudo: error initializing audit plugin sudoers_audit
 ```
 
 and `GET /sites/{uuid}/ssh` showed:
 
 ```json
-{ "site_user": "dev8" }
+{ "site_user": "mysite" }
 ```
 
 That strongly indicates the site's OS user is missing, which likely breaks PHP-FPM/pool execution for the site and surfaces as nginx 502.
