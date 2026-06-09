@@ -41,6 +41,11 @@ Transform from API reference to **production deployment platform** with tools bu
 
 ## Quick Start
 
+> **Using the Claude Code skills (v2.0.0)?** See the complete
+> [Skills Install & Usage Guide](docs/SKILLS-GUIDE.md) — install steps, per-skill
+> use cases, and examples for `xcloud-servers`, `xcloud-sites`,
+> `xcloud-wordpress`, `xcloud-ssl`, and `xcloud-account`.
+
 ### Installation
 
 **Via git:**
