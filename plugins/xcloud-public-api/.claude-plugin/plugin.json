@@ -1,7 +1,7 @@
 {
   "name": "xcloud-public-api",
-  "version": "1.2.0",
-  "description": "Interact with the xCloud Public API at https://app.xcloud.host/api/v1 — auth, curl patterns, polling, troubleshooting.",
+  "version": "2.0.0",
+  "description": "xCloud Public API skills, split by capability: xcloud-servers, xcloud-sites, xcloud-wordpress, xcloud-ssl, xcloud-account. Shared auth + curl wrapper.",
   "author": {
     "name": "xCloudDev",
     "url": "https://github.com/xCloudDev"

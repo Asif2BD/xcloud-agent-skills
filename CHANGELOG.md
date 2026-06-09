@@ -2,6 +2,29 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [2.0.0] - 2026-06-09
+
+### Changed (BREAKING)
+
+- Replaced the single `xcloud-public-api` skill with **five capability-domain
+  skills**: `xcloud-servers`, `xcloud-sites`, `xcloud-wordpress`, `xcloud-ssl`,
+  `xcloud-account`. The v1 single skill is preserved at the `v1.2.0` git tag.
+- Skills are organized by **capability, not URL root**; each description declares
+  what it does *not* own with `see xcloud-*` cross-links to keep trigger keywords
+  from colliding. See `docs/adr/0001-capability-domain-skills.md`.
+
+### Added
+
+- Coverage expanded to the full 117-operation surface (PHP versions, databases,
+  firewall/fail2ban, cron, snapshots, services, vulnerabilities, PageSpeed,
+  WordPress plugin/theme management, SSL certificate lifecycle, and more).
+- Shared plugin layer: one `scripts/xcloud.sh` + `reference/{auth,conventions}.md`
+  referenced by every skill via `${CLAUDE_PLUGIN_ROOT}` — no per-skill duplication.
+- Per-skill `tests/smoke.sh`; large domains carry `reference/<sub-resource>.md`
+  loaded on demand.
+- Base URL is environment-driven (`XCLOUD_API_BASE_URL`) — local (`xcloud.test`)
+  vs live (`app.xcloud.host`) needs no code change.
+
 ## [1.1.0] - 2026-04-22
 
 ### Added
