@@ -56,7 +56,7 @@ Find a site by domain (resolve its UUID first):
 
 ```bash
 "$XC" GET "/sites?search=example.com&per_page=20" \
-  | jq '(.data.items // .data.data // []) | map({uuid, domain: (.domain // .primary_domain), status, type})'
+  | jq '(.data.items // .data.data // []) | map({uuid, name, domain: .domain_name, status, type})'
 ```
 
 Status + recent events (the go-to triage pair):
