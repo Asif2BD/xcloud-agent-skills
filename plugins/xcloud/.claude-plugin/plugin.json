@@ -1,7 +1,7 @@
 {
-  "name": "xcloud-public-api",
-  "version": "2.0.0",
-  "description": "xCloud Public API skills, split by capability: xcloud-servers, xcloud-sites, xcloud-wordpress, xcloud-ssl, xcloud-account. Shared auth + curl wrapper.",
+  "name": "xcloud",
+  "version": "3.0.0",
+  "description": "xCloud Public API skills, split by capability: servers, sites, wordpress, ssl, account (invoked as xcloud:servers, xcloud:ssl, …). Shared auth + curl wrapper.",
   "author": {
     "name": "xCloudDev",
     "url": "https://github.com/xCloudDev"

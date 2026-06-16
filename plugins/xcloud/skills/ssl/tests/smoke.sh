@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# smoke.sh — read-only checks for the xcloud-ssl skill against the configured env.
+# smoke.sh — read-only checks for the xcloud:ssl skill against the configured env.
 #
 # Pass criteria per endpoint: HTTP 2xx, valid JSON, .success == true, .data present.
 # Only READ endpoints are exercised (no certs are installed/renewed/deleted).

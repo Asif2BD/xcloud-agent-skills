@@ -1,7 +1,7 @@
 ---
-name: xcloud-servers
-description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning a new WordPress site onto a server. Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see xcloud-sites), NOT SSL certs (see xcloud-ssl), NOT WordPress app management (see xcloud-wordpress).
-version: 2.0.0
+name: servers
+description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning a new WordPress site onto a server. Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see xcloud:sites), NOT SSL certs (see xcloud:ssl), NOT WordPress app management (see xcloud:wordpress).
+version: 3.0.0
 author: xCloudDev
 license: MIT
 ---
@@ -48,8 +48,8 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 | Reboot server | `POST /servers/{uuid}/reboot` |
 | Create WordPress site on server | `POST /servers/{uuid}/sites/wordpress` |
 
-**Not here:** site settings → `xcloud-sites`; SSL → `xcloud-ssl`; WordPress
-plugins/themes/updates → `xcloud-wordpress`.
+**Not here:** site settings → `xcloud:sites`; SSL → `xcloud:ssl`; WordPress
+plugins/themes/updates → `xcloud:wordpress`.
 
 ## Common reads
 
@@ -101,7 +101,7 @@ auto-generated credentials are returned only once.
   "ssl": {"provider": "letsencrypt"},
   "cache": {"full_page": true, "object_cache": true}
 }' | jq '.data'
-# then poll site provisioning:  GET /sites/{new_uuid}/status   (xcloud-sites)
+# then poll site provisioning:  GET /sites/{new_uuid}/status   (xcloud:sites)
 ```
 
 ## Pitfalls
@@ -109,6 +109,6 @@ auto-generated credentials are returned only once.
 - Server writes are async; success is returned before work completes — poll
   `GET /servers/{uuid}/tasks`.
 - WordPress creation lives here (the URL is `/servers/...`), but the resulting
-  site is then managed via `xcloud-sites` / `xcloud-wordpress`.
+  site is then managed via `xcloud:sites` / `xcloud:wordpress`.
 - `setting default PHP` and `patching PHP` do not enforce a `write:servers`
   scope line in the docs but still require server write permission in practice.

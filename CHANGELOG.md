@@ -2,6 +2,21 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [3.0.0] - 2026-06-16
+
+### Changed (BREAKING)
+
+- Renamed the plugin from `xcloud-public-api` to **`xcloud`**, and shortened each
+  skill's name to its bare capability. Skills are now invoked as **`xcloud:servers`**,
+  **`xcloud:sites`**, **`xcloud:ssl`**, **`xcloud:wordpress`**, and **`xcloud:account`**
+  (previously `xcloud-public-api:xcloud-servers`, etc.).
+- The plugin directory moved from `plugins/xcloud-public-api/` to `plugins/xcloud/`,
+  and each skill directory was shortened to match (`skills/servers/`, `skills/sites/`,
+  `skills/ssl/`, `skills/wordpress/`, `skills/account/`).
+- **Breaking:** the skill IDs changed. Users must reinstall the plugin
+  (`/plugin install xcloud`) and update any explicit skill references to the new
+  `xcloud:<capability>` form. No behavior or coverage changed — names only.
+
 ## [2.0.0] - 2026-06-09
 
 ### Changed (BREAKING)

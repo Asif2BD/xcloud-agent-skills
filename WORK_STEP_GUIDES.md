@@ -1,7 +1,7 @@
 # Work Step Guide — Adding New API Endpoints to the xCloud Agent Skill
 
 This guide explains, step by step, how to wire a **new xCloud Public API endpoint** into the
-`xcloud-public-api` agent skill so that a natural-language prompt triggers it correctly in
+`xcloud` agent skill so that a natural-language prompt triggers it correctly in
 Claude Code.
 
 Running example throughout:
@@ -51,7 +51,7 @@ export XCLOUD_API_TOKEN="7|xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 export XCLOUD_API_BASE_URL="http://xcloud.test"
 
 # Convenience alias for the curl wrapper used below
-SC=./plugins/xcloud-public-api/skills/xcloud-public-api/scripts/xcloud.sh
+SC=./plugins/xcloud/scripts/xcloud.sh
 ```
 
 ---
@@ -78,7 +78,7 @@ Everything downstream documents **this verified shape**, not an OpenAPI guess.
 
 ## Step 1 — Update the `description` (this is the trigger)
 
-File: `plugins/xcloud-public-api/skills/xcloud-public-api/SKILL.md` (frontmatter, line ~3).
+File: `plugins/xcloud/skills/servers/SKILL.md` (frontmatter, line ~3).
 
 This single line is the only thing in Claude's context until the skill loads. If it does not
 mention the new domain, the prompt may never fire the skill.
@@ -153,7 +153,7 @@ Then add a short vulnerability-triage section to `docs/ANALYZE.md`.
 
 ## Step 6 — Add a runbook (recommended, Tier 3)
 
-New file: `plugins/xcloud-public-api/skills/xcloud-public-api/runbooks/find-vulnerable-sites.md`.
+New file: `plugins/xcloud/skills/wordpress/runbooks/find-vulnerable-sites.md`.
 
 Runbooks load only when needed and give Claude a repeatable recipe.
 
@@ -207,7 +207,7 @@ $SC GET '/vulnerabilities?per_page=1' | jq -e '.success == true' >/dev/null \
 
 | File | Field |
 |------|-------|
-| `plugins/xcloud-public-api/skills/xcloud-public-api/SKILL.md` | `version: 1.3.0` |
+| `plugins/xcloud/skills/servers/SKILL.md` | `version: 1.3.0` |
 | `.claude-plugin/marketplace.json` | `"version": "1.3.0"` |
 | `.clawhubinfo.json` | version field |
 
@@ -219,7 +219,7 @@ $SC GET '/vulnerabilities?per_page=1' | jq -e '.success == true' >/dev/null \
 # Add a v1.3.0 entry to CHANGELOG.md describing the new vulnerability endpoints.
 git checkout -b feat/vuln-endpoints
 git add -A
-git commit -m "feat: add vulnerability endpoints to xcloud-public-api skill"
+git commit -m "feat: add vulnerability endpoints to xcloud skill"
 git push -u origin feat/vuln-endpoints
 ```
 
@@ -242,7 +242,7 @@ Find me the sites which have vulnerabilities
 
 Confirm the end-to-end flow:
 
-1. Claude loads the `xcloud-public-api` skill (trigger matched).
+1. Claude loads the `xcloud:wordpress` skill (trigger matched).
 2. It runs `xcloud.sh GET /vulnerabilities`.
 3. It returns the filtered table of vulnerable sites.
 

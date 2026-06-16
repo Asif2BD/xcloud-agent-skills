@@ -19,4 +19,4 @@ SITE_UUID='replace-me'
 
 - These are read-only in the public API today.
 - After a domain change, poll `/sites/{uuid}/domain/status` for propagation.
-- SSL for a domain is a separate concern — see `xcloud-ssl`.
+- SSL for a domain is a separate concern — see `xcloud:ssl`.

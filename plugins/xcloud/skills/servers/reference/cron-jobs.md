@@ -31,4 +31,4 @@ CRON_UUID='replace-me'
 "$XC" DELETE "/servers/$SERVER_UUID/cron-jobs/$CRON_UUID" | jq '.message'
 ```
 
-> Site-scoped cron is a different resource — see `xcloud-sites` (`reference/cron-jobs.md`).
+> Site-scoped cron is a different resource — see `xcloud:sites` (`reference/cron-jobs.md`).

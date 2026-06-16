@@ -10,8 +10,8 @@ live in `docs/adr/`.
 
 **Domain skill**:
 A skill owning one *capability* area of the API. There are exactly five:
-`xcloud-servers`, `xcloud-sites`, `xcloud-wordpress`, `xcloud-ssl`,
-`xcloud-account`.
+`xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`,
+`xcloud:account`.
 _Avoid_: module, package, sub-skill.
 
 **Shared layer**:
@@ -50,7 +50,7 @@ _Avoid_: admin, root user.
 
 **Vulnerability**:
 A security finding against a site (typically WordPress plugin/theme CVEs),
-surfaced by a scan. Owned by `xcloud-wordpress`.
+surfaced by a scan. Owned by `xcloud:wordpress`.
 _Avoid_: CVE, issue, threat.
 
 ### Environments

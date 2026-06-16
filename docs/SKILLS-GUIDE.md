@@ -1,7 +1,7 @@
 # xCloud Skills — Install & Usage Guide
 
 A step-by-step guide to installing and using the **xCloud Public API skills**
-(plugin `xcloud-public-api` v2.0.0) inside Claude Code.
+(plugin `xcloud` v3.0.0) inside Claude Code.
 
 The plugin ships **five skills**, each owning one capability area of the API.
 You don't call them directly — you describe what you want in plain language and
@@ -9,11 +9,11 @@ Claude picks the right skill automatically.
 
 | Skill | Owns | Typical asks |
 |---|---|---|
-| `xcloud-servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress provisioning | "reboot server X", "install PHP 8.3", "ban this IP" |
-| `xcloud-sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git | "back up example.com", "purge cache", "show site events" |
-| `xcloud-wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed | "update WooCommerce", "scan for vulnerabilities", "PageSpeed score" |
-| `xcloud-ssl` | SSL certificates: view, install, renew, status, delete | "renew SSL for example.com", "install a Let's Encrypt cert" |
-| `xcloud-account` | Current user, API tokens, Cloudflare integrations, blueprints, health | "who am I", "list my API tokens", "list blueprints" |
+| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress provisioning | "reboot server X", "install PHP 8.3", "ban this IP" |
+| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git | "back up example.com", "purge cache", "show site events" |
+| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed | "update WooCommerce", "scan for vulnerabilities", "PageSpeed score" |
+| `xcloud:ssl` | SSL certificates: view, install, renew, status, delete | "renew SSL for example.com", "install a Let's Encrypt cert" |
+| `xcloud:account` | Current user, API tokens, Cloudflare integrations, blueprints, health | "who am I", "list my API tokens", "list blueprints" |
 
 ---
 
@@ -25,7 +25,7 @@ In Claude Code:
 
 ```
 /plugin marketplace add xCloudDev/xcloud-agent-skills
-/plugin install xcloud-public-api
+/plugin install xcloud
 /reload-plugins
 ```
 
@@ -35,11 +35,13 @@ After reload, confirm the five skills are present:
 /plugin
 ```
 
-You should see `xcloud-servers`, `xcloud-sites`, `xcloud-wordpress`,
-`xcloud-ssl`, and `xcloud-account`.
+You should see `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`,
+`xcloud:ssl`, and `xcloud:account`.
 
-> Installing v2.0.0 replaces the old single `xcloud-public-api` skill. The v1
-> skill remains available at the `v1.2.0` git tag if you need it.
+> Installing v3.0.0 renames the plugin to `xcloud` and shortens the skill IDs to
+> `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`, and
+> `xcloud:account`. If you previously installed `xcloud-public-api`, reinstall.
+> The v1 single skill remains available at the `v1.2.0` git tag if you need it.
 
 ---
 
@@ -118,7 +120,7 @@ XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
 Each example shows the **prompt** you'd give Claude and the **call** the skill
 makes under the hood (`$XC` = the shared wrapper, `$SITE`/`$SRV` = a resolved UUID).
 
-### 5.1 `xcloud-servers`
+### 5.1 `xcloud:servers`
 
 Server infrastructure and server-level security.
 
@@ -149,7 +151,7 @@ Server infrastructure and server-level security.
 "$XC" POST "/servers/$SRV/database-users" '{"username":"app_user","password":"<secret>","databases":["app_prod"]}'
 ```
 
-### 5.2 `xcloud-sites`
+### 5.2 `xcloud:sites`
 
 Site lifecycle and delivery.
 
@@ -180,7 +182,7 @@ Site lifecycle and delivery.
 "$XC" PUT "/sites/$SITE/ssh" '{"authentication_mode":"public_key","ssh_public_keys":["ssh-ed25519 AAAA..."]}'
 ```
 
-### 5.3 `xcloud-wordpress`
+### 5.3 `xcloud:wordpress`
 
 WordPress app management, vulnerabilities, PageSpeed.
 
@@ -211,7 +213,7 @@ WordPress app management, vulnerabilities, PageSpeed.
 "$XC" POST "/sites/$SITE/magic-login" '{"login_as":"admin"}'
 ```
 
-### 5.4 `xcloud-ssl`
+### 5.4 `xcloud:ssl`
 
 SSL certificates and HTTPS.
 
@@ -234,7 +236,7 @@ SSL certificates and HTTPS.
 "$XC" GET "/sites/$SITE/ssl"
 ```
 
-### 5.5 `xcloud-account`
+### 5.5 `xcloud:account`
 
 Identity and org-level reads.
 
@@ -264,15 +266,15 @@ Identity and org-level reads.
 Skills are organized by **capability**, which sometimes differs from where the
 endpoint lives in the URL. A few rules to keep in mind:
 
-- **SSL** is always `xcloud-ssl`, even though certs hang off `/sites/...`.
-- **WordPress updates, vulnerabilities, and PageSpeed** are `xcloud-wordpress`,
+- **SSL** is always `xcloud:ssl`, even though certs hang off `/sites/...`.
+- **WordPress updates, vulnerabilities, and PageSpeed** are `xcloud:wordpress`,
   even for the site-level paths.
-- **Firewall and fail2ban** are `xcloud-servers` (server security), not a
+- **Firewall and fail2ban** are `xcloud:servers` (server security), not a
   separate security skill.
 - **Cron** exists on both servers and sites — say "server cron" or "site cron"
   if it's ambiguous.
 
-If Claude picks the wrong skill, name it explicitly: *"Using xcloud-ssl, renew
+If Claude picks the wrong skill, name it explicitly: *"Using xcloud:ssl, renew
 the cert for example.com."*
 
 ---
@@ -283,13 +285,13 @@ Each skill ships a read-only smoke test. To run one against your local
 environment:
 
 ```bash
-export CLAUDE_PLUGIN_ROOT="$PWD/plugins/xcloud-public-api"
+export CLAUDE_PLUGIN_ROOT="$PWD/plugins/xcloud"
 export XCLOUD_API_BASE_URL="http://xcloud.test"
 export XCLOUD_API_TOKEN="your-token"
 export XCLOUD_TEST_SITE_UUID="<a-real-site-uuid>"
 export XCLOUD_TEST_SERVER_UUID="<a-real-server-uuid>"
 
-bash plugins/xcloud-public-api/skills/xcloud-sites/tests/smoke.sh
+bash plugins/xcloud/skills/sites/tests/smoke.sh
 ```
 
 The tests only perform `GET` requests — they never mutate anything.
@@ -311,8 +313,8 @@ The tests only perform `GET` requests — they never mutate anything.
 
 ## Reference
 
-- Shared auth details: `plugins/xcloud-public-api/reference/auth.md`
-- Shared API conventions: `plugins/xcloud-public-api/reference/conventions.md`
+- Shared auth details: `plugins/xcloud/reference/auth.md`
+- Shared API conventions: `plugins/xcloud/reference/conventions.md`
 - Architecture rationale: `docs/adr/0001-capability-domain-skills.md`
 - Glossary: `CONTEXT.md`
 - Full API docs: `https://app.xcloud.host/api/v1/docs`

@@ -1,7 +1,7 @@
 ---
-name: xcloud-sites
-description: Manage xCloud sites — list/inspect sites, status, events, deployment logs, monitoring, backups, rescue, snapshots, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, git, and access logs. Use for any site lifecycle or delivery request. For SSL/certs see xcloud-ssl; for WordPress plugins/updates/vulnerabilities/PageSpeed see xcloud-wordpress; for server-level infra see xcloud-servers.
-version: 2.0.0
+name: sites
+description: Manage xCloud sites — list/inspect sites, status, events, deployment logs, monitoring, backups, rescue, snapshots, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, git, and access logs. Use for any site lifecycle or delivery request. For SSL/certs see xcloud:ssl; for WordPress plugins/updates/vulnerabilities/PageSpeed see xcloud:wordpress; for server-level infra see xcloud:servers.
+version: 3.0.0
 author: xCloudDev
 license: MIT
 ---
@@ -47,8 +47,8 @@ Scopes: reads need `read:sites`, writes need `write:sites`.
 | Custom nginx / site scripts / IP access | `GET /sites/{uuid}/{custom-nginx,site-scripts,ip-access}` |
 | Rescue site | `POST /sites/{uuid}/rescue` |
 
-**Not here:** SSL → `xcloud-ssl`; WordPress/vulns/pagespeed → `xcloud-wordpress`;
-servers → `xcloud-servers`.
+**Not here:** SSL → `xcloud:ssl`; WordPress/vulns/pagespeed → `xcloud:wordpress`;
+servers → `xcloud:servers`.
 
 ## Common reads
 

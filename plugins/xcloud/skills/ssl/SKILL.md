@@ -1,7 +1,7 @@
 ---
-name: xcloud-ssl
-description: SSL certificates and HTTPS for xCloud sites — view, list, install (Let's Encrypt / custom / Cloudflare), renew, check status, and delete certificates. Use for any cert or HTTPS request on a site. NOT general site lifecycle (see xcloud-sites), NOT WordPress updates or vulnerability scans (see xcloud-wordpress), NOT server firewall/fail2ban (see xcloud-servers).
-version: 2.0.0
+name: ssl
+description: SSL certificates and HTTPS for xCloud sites — view, list, install (Let's Encrypt / custom / Cloudflare), renew, check status, and delete certificates. Use for any cert or HTTPS request on a site. NOT general site lifecycle (see xcloud:sites), NOT WordPress updates or vulnerability scans (see xcloud:wordpress), NOT server firewall/fail2ban (see xcloud:servers).
+version: 3.0.0
 author: xCloudDev
 license: MIT
 ---
@@ -36,12 +36,12 @@ Set `XCLOUD_API_BASE_URL=http://xcloud.test` for local, unset (or
 | Get certificate status | `GET /ssl-certificates/{uuid}/status` | `read:sites` |
 | Delete a certificate | `DELETE /ssl-certificates/{uuid}` | `write:sites` |
 
-**Not here:** site backups/domains/cache/SSH → `xcloud-sites`; WordPress plugin
-vulnerabilities → `xcloud-wordpress`; server firewall/fail2ban → `xcloud-servers`.
+**Not here:** site backups/domains/cache/SSH → `xcloud:sites`; WordPress plugin
+vulnerabilities → `xcloud:wordpress`; server firewall/fail2ban → `xcloud:servers`.
 
 ## Workflow
 
-1. Resolve the site UUID first (via `xcloud-sites`: `GET /sites?search=<domain>`).
+1. Resolve the site UUID first (via `xcloud:sites`: `GET /sites?search=<domain>`).
 2. Inspect current SSL before changing it.
 3. Installs/renewals are async — poll certificate status afterward.
 

@@ -24,4 +24,4 @@ SITE_UUID='replace-me'
 ```
 
 > Server-scoped cron (with an explicit `user`) is a different resource — see
-> `xcloud-servers` (`reference/cron-jobs.md`).
+> `xcloud:servers` (`reference/cron-jobs.md`).

@@ -1,7 +1,7 @@
 ---
-name: xcloud-wordpress
-description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings, and run PageSpeed Insights scans. Use for WordPress app management, security scans, or site performance. For SSL see xcloud-ssl; for site backups/domains/cache see xcloud-sites; for server infra see xcloud-servers.
-version: 2.0.0
+name: wordpress
+description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings, and run PageSpeed Insights scans. Use for WordPress app management, security scans, or site performance. For SSL see xcloud:ssl; for site backups/domains/cache see xcloud:sites; for server infra see xcloud:servers.
+version: 3.0.0
 author: xCloudDev
 license: MIT
 ---
@@ -37,8 +37,8 @@ Scopes: reads need `read:sites`, writes need `write:sites`.
 | Toggle WP_DEBUG | `POST /sites/{uuid}/wp-debug` |
 | Magic login URL | `POST /sites/{uuid}/magic-login` |
 
-**Not here:** SSL → `xcloud-ssl`; backups/domains/cache/SSH → `xcloud-sites`;
-server infra → `xcloud-servers`.
+**Not here:** SSL → `xcloud:ssl`; backups/domains/cache/SSH → `xcloud:sites`;
+server infra → `xcloud:servers`.
 
 ## Examples
 
@@ -66,7 +66,7 @@ Generate a one-time admin magic-login URL:
 
 `vulnerabilities` and `pagespeed` are addressed at `/sites/{uuid}/…` and work on
 any site, but are owned here because they are predominantly WordPress concerns.
-A non-WordPress "scan my site" request still routes here via the `xcloud-sites`
+A non-WordPress "scan my site" request still routes here via the `xcloud:sites`
 cross-link.
 
 ## Pitfalls

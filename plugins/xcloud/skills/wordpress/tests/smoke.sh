@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# smoke.sh — read-only checks for xcloud-wordpress. No mutations.
+# smoke.sh — read-only checks for xcloud:wordpress. No mutations.
 # Usage: XCLOUD_API_TOKEN=... XCLOUD_TEST_SITE_UUID=... ./smoke.sh   (site must be WordPress)
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

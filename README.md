@@ -41,10 +41,10 @@ Transform from API reference to **production deployment platform** with tools bu
 
 ## Quick Start
 
-> **Using the Claude Code skills (v2.0.0)?** See the complete
+> **Using the Claude Code skills (v3.0.0)?** See the complete
 > [Skills Install & Usage Guide](docs/SKILLS-GUIDE.md) — install steps, per-skill
-> use cases, and examples for `xcloud-servers`, `xcloud-sites`,
-> `xcloud-wordpress`, `xcloud-ssl`, and `xcloud-account`.
+> use cases, and examples for `xcloud:servers`, `xcloud:sites`,
+> `xcloud:wordpress`, `xcloud:ssl`, and `xcloud:account`.
 
 ### Installation
 
@@ -62,7 +62,7 @@ cd xcloud-agent-skills
 **For other frameworks:**
 ```bash
 # Copy the skill directory to your agent's skills path
-cp -r plugins/xcloud-public-api/skills/xcloud-public-api /your/agent/skills/
+cp -r plugins/xcloud/skills/servers /your/agent/skills/
 ```
 
 ### Setup
