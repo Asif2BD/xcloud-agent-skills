@@ -82,43 +82,70 @@ That's it — everything below is just talking to Claude.
 
 ## Example requests
 
-You don't name skills or endpoints — you describe what you want in plain
-language and Claude picks the right skill and chains the steps.
+You don't name skills or endpoints — describe what you want in plain language and
+Claude picks the right skill and chains the steps. Hover any request below and use
+the copy button.
 
-**One-liners:**
+**One-liners**
 
-- *"List my xCloud servers."*
-- *"Is example.com up right now?"*
-- *"Renew the SSL certificate for shop.example.com."*
-- *"Update all plugins on example.com, but back up first."*
-- *"Scan example.com for vulnerabilities and show me the critical ones."*
-- *"Something's hammering my server from 203.0.113.7 — block it."*
+\`\`\`text
+List my xCloud servers.
+\`\`\`
 
-**Multi-step workflows** (each is a single request — Claude does the chaining):
+\`\`\`text
+Is example.com up right now?
+\`\`\`
 
-- **Monday-morning health audit** — *"Audit example.com — is it up, is SSL
-  healthy, any vulnerabilities, and how's performance?"*
-  Checks the site is serving, inspects SSL expiry, runs a vulnerability scan, and
-  runs a PageSpeed scan, then returns one summary.
+\`\`\`text
+Renew the SSL certificate for shop.example.com.
+\`\`\`
 
-- **Safe WordPress update** — *"WooCommerce has an update — apply it to
-  example.com, but back up first and tell me if anything looks off."*
-  Takes a labelled backup and waits for it, applies the update, then confirms the
-  site is still healthy. Follow up with *"restore the backup you just took"* to
-  roll back.
+\`\`\`text
+Update all plugins on example.com, but back up first.
+\`\`\`
 
-- **New site go-live** — *"I just provisioned shop.example.com — set up HTTPS and
-  confirm it's serving."*
-  Installs a Let's Encrypt certificate, waits for issuance, verifies HTTPS, and
-  runs a baseline PageSpeed scan.
+\`\`\`text
+Scan example.com for vulnerabilities and show me the critical ones.
+\`\`\`
 
-- **Triage a site that's down** — *"example.com is throwing 502 errors — what's
-  going on?"*
-  Pulls site status, recent events, and SSH/user config to spot the usual
-  culprits (stopped service, missing OS user, failed deploy).
+\`\`\`text
+Something's hammering my server from 203.0.113.7 — block it.
+\`\`\`
+
+**Multi-step workflows** — each is a single request; Claude does the chaining.
+
+*Monday-morning health audit* — checks the site is serving, inspects SSL expiry,
+runs a vulnerability scan, and runs a PageSpeed scan, then returns one summary.
+
+\`\`\`text
+Audit example.com — is it up, is SSL healthy, any vulnerabilities, and how's performance?
+\`\`\`
+
+*Safe WordPress update* — takes a labelled backup and waits for it, applies the
+update, then confirms the site is still healthy. Follow up with *"restore the
+backup you just took"* to roll back.
+
+\`\`\`text
+WooCommerce has an update — apply it to example.com, but back up first and tell me if anything looks off.
+\`\`\`
+
+*New site go-live* — installs a Let's Encrypt certificate, waits for issuance,
+verifies HTTPS, and runs a baseline PageSpeed scan.
+
+\`\`\`text
+I just provisioned shop.example.com — set up HTTPS and confirm it's serving.
+\`\`\`
+
+*Triage a site that's down* — pulls site status, recent events, and SSH/user
+config to spot the usual culprits (stopped service, missing OS user, failed
+deploy).
+
+\`\`\`text
+example.com is throwing 502 errors — what's going on?
+\`\`\`
 
 > If Claude ever reaches for the wrong area, name it:
-> *"Using xcloud:ssl, renew the cert for example.com."*
+> \`Using xcloud:ssl, renew the cert for example.com.\`
 
 ## Authentication & token
 
