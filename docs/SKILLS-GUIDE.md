@@ -261,7 +261,74 @@ Identity and org-level reads.
 
 ---
 
-## 6. How requests get routed (and avoiding surprises)
+## 6. Real-world workflows (how users actually use it)
+
+The examples above are single calls. In practice a user drives Claude through a
+whole task in plain language, and Claude chains the skills for them. Three common
+end-to-end flows:
+
+### 6.1 Monday-morning health audit
+
+> "Audit example.com: is it up, is SSL healthy, any vulnerabilities, and how's
+> performance?"
+
+Claude resolves the site UUID once, then fans out across **three** skills:
+
+```bash
+# xcloud:sites  — is it alive?
+"$XC" GET "/sites/$SITE/status"
+# xcloud:ssl    — cert valid / expiring?
+"$XC" GET "/sites/$SITE/ssl"
+# xcloud:wordpress — security + speed
+"$XC" POST "/sites/$SITE/vulnerability-scan"
+"$XC" GET  "/sites/$SITE/vulnerabilities/count"
+"$XC" POST "/sites/$SITE/pagespeed/scan"
+"$XC" GET  "/sites/$SITE/pagespeed"
+```
+
+You get one consolidated summary: uptime, days-to-cert-expiry, critical CVE
+count, PageSpeed score — without naming a single endpoint.
+
+### 6.2 Safe WordPress update
+
+> "WooCommerce has an update — apply it to example.com but back up first and
+> tell me if anything looks off."
+
+```bash
+# 1. snapshot first (xcloud:sites)
+"$XC" POST "/sites/$SITE/backup" '{"label":"pre-woo-update"}'
+"$XC" GET  "/sites/$SITE/backup-status"          # wait for "completed"
+# 2. update with built-in pre-update backup (xcloud:wordpress)
+"$XC" POST "/sites/$SITE/wordpress/update" \
+  '{"type":"plugin","slugs":["woocommerce"],"backup_before_update":true}'
+# 3. confirm the site still serves (xcloud:sites)
+"$XC" GET "/sites/$SITE/status"
+```
+
+If status comes back unhealthy, Claude surfaces it immediately and you can ask
+it to restore the snapshot — one prompt, two skills, a rollback path.
+
+### 6.3 New site go-live
+
+> "I just provisioned shop.example.com — set up HTTPS and confirm it's serving."
+
+```bash
+# 1. install Let's Encrypt cert (xcloud:ssl)
+"$XC" POST "/sites/$SITE/ssl-certificates" '{"provider":"xcloud"}'
+"$XC" GET  "/sites/$SITE/ssl"                    # wait for issued/active
+# 2. verify delivery (xcloud:sites)
+"$XC" GET "/sites/$SITE/status"
+# 3. baseline performance (xcloud:wordpress)
+"$XC" POST "/sites/$SITE/pagespeed/scan"
+```
+
+The point: users think in **tasks** ("go live", "audit", "update safely"), not
+endpoints. The skills are sliced so one task maps cleanly onto one short
+conversation.
+
+---
+
+## 7. How requests get routed (and avoiding surprises)
 
 Skills are organized by **capability**, which sometimes differs from where the
 endpoint lives in the URL. A few rules to keep in mind:
@@ -279,7 +346,7 @@ the cert for example.com."*
 
 ---
 
-## 7. Running the smoke tests (optional)
+## 8. Running the smoke tests (optional)
 
 Each skill ships a read-only smoke test. To run one against your local
 environment:
@@ -298,7 +365,7 @@ The tests only perform `GET` requests — they never mutate anything.
 
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Symptom | Cause | Fix |
 |---|---|---|
