@@ -42,5 +42,89 @@
         },
       });
     </script>
+
+    <!-- Copy buttons for code blocks in the guide (Scalar only adds them to
+         request samples, which this guide-only page has none of). -->
+    <style>
+      pre.xc-has-copy { position: relative; }
+      .xc-copy-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        padding: 2px 10px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #fff;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 6px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 0.15s ease, background 0.15s ease;
+      }
+      pre.xc-has-copy:hover .xc-copy-btn,
+      .xc-copy-btn:focus { opacity: 1; }
+      .xc-copy-btn:hover { background: rgba(255, 255, 255, 0.22); }
+    </style>
+    <script>
+      (function () {
+        function copyText(text) {
+          if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+          }
+          return new Promise(function (resolve, reject) {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); resolve(); }
+            catch (e) { reject(e); }
+            finally { document.body.removeChild(ta); }
+          });
+        }
+        function addButton(pre) {
+          if (pre.classList.contains('xc-has-copy')) return;
+          pre.classList.add('xc-has-copy');
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'xc-copy-btn';
+          btn.textContent = 'Copy';
+          btn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var code = pre.querySelector('code') || pre;
+            copyText(code.innerText.replace(/\s+$/, '')).then(function () {
+              btn.textContent = 'Copied';
+              setTimeout(function () { btn.textContent = 'Copy'; }, 1500);
+            });
+          });
+          pre.appendChild(btn);
+        }
+        function collectPres(root, acc) {
+          root.querySelectorAll('pre').forEach(function (p) { acc.push(p); });
+          root.querySelectorAll('*').forEach(function (el) {
+            if (el.shadowRoot) collectPres(el.shadowRoot, acc);
+          });
+        }
+        var scheduled = false;
+        function scan() {
+          scheduled = false;
+          var pres = [];
+          collectPres(document, pres);
+          pres.forEach(addButton);
+        }
+        function schedule() {
+          if (scheduled) return;
+          scheduled = true;
+          requestAnimationFrame(scan);
+        }
+        window.addEventListener('load', function () {
+          schedule();
+          new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+        });
+      })();
+    </script>
   </body>
 </html>
