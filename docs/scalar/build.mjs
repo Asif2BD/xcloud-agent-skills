@@ -166,10 +166,9 @@ const doc = {
     title: 'xCloud Agent Skills',
     version: '3.0.0',
     description: INFO_DESCRIPTION,
-    contact: { name: 'xCloud', url: 'https://xcloud.host/support' },
-    license: { name: 'MIT', url: 'https://github.com/xCloudDev/xcloud-agent-skills/blob/main/LICENSE' },
   },
-  externalDocs: { description: 'xCloud API', url: XCLOUD_API_DOCS_URL },
+  // No contact / license / externalDocs — they render in Scalar's right column,
+  // which we don't want. The "xCloud API" link lives in the description body.
   // Intentionally empty: this is a guide/landing page, not an endpoint reference.
   paths: {},
 };
