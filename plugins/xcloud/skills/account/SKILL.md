@@ -18,6 +18,12 @@ read the shared layer first:
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
 ```
 
+## Response format
+
+Brand every user-facing reply (see `reference/conventions.md` →
+**Response format**): open with `☁️ **xCloud · Account**`, give the trimmed
+result, and close with a `_via xcloud:account_` line.
+
 ## What this skill owns
 
 | Operation | Method + path | Scope |

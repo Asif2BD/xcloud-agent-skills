@@ -24,6 +24,12 @@ XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
 Set `XCLOUD_API_BASE_URL=http://xcloud.test` for local, unset (or
 `https://app.xcloud.host`) for live.
 
+## Response format
+
+Brand every user-facing reply (see `reference/conventions.md` →
+**Response format**): open with `☁️ **xCloud · SSL** — <site domain>`, give the
+trimmed result, and close with a `_via xcloud:ssl_` line.
+
 ## What this skill owns
 
 | Operation | Method + path | Scope |
