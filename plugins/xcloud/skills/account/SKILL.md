@@ -24,6 +24,10 @@ Brand every user-facing reply (see `reference/conventions.md` →
 **Response format**): open with `☁️ **xCloud · Account**`, give the trimmed
 result, and close with a `_via xcloud:account_` line.
 
+Narrate each call (see **Progress narration**): before every `$XC` call print one
+line of what xCloud is doing, e.g. `☁️ xCloud is fetching your account…`; the
+first call of a task opens with `☁️ Starting an xCloud session…`.
+
 ## What this skill owns
 
 | Operation | Method + path | Scope |

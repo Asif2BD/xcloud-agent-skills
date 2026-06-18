@@ -80,3 +80,34 @@ Certificate valid · Let's Encrypt · expires in 58 days (2026-08-15)
 
 _via xcloud:ssl_
 ```
+
+## Progress narration
+
+Make the xCloud service **visible at every step**. Before each call through the
+wrapper, print one short, present-tense line saying what xCloud is doing — so the
+user sees that each piece of the answer came from a live xCloud API call.
+
+- **Open the task** with a session line on the first call (the identity / first
+  lookup): `☁️ Starting an xCloud session…`
+- **Before every subsequent call**, emit one line naming the action and the
+  resource in plain language — not the raw method/path:
+  - `☁️ xCloud is fetching your server \`faisal-personal\`…`
+  - `☁️ xCloud is finding WordPress sites on \`faisal-personal\`…`
+  - `☁️ xCloud is renewing the SSL certificate for \`shop.example.com\`…`
+- **One line per API call.** Then run the call. When all calls are done,
+  summarize once in the **Response format** above (header + footer).
+
+Example — prompt *"Find the WordPress sites under faisal-personal server"*:
+
+```text
+☁️ Starting an xCloud session…
+☁️ xCloud is fetching your server `faisal-personal`…
+☁️ xCloud is finding WordPress sites on `faisal-personal`…
+
+☁️ **xCloud · Sites** — faisal-personal
+
+• shop.example.com — WordPress, PHP 8.3, active
+• blog.example.com — WordPress, PHP 8.2, active
+
+_via xcloud:sites_
+```

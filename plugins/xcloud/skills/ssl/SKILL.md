@@ -30,6 +30,11 @@ Brand every user-facing reply (see `reference/conventions.md` →
 **Response format**): open with `☁️ **xCloud · SSL** — <site domain>`, give the
 trimmed result, and close with a `_via xcloud:ssl_` line.
 
+Narrate each call (see **Progress narration**): before every `$XC` call print one
+line of what xCloud is doing, e.g. `☁️ xCloud is renewing the SSL certificate for
+\`<domain>\`…`; the first call of a task opens with
+`☁️ Starting an xCloud session…`.
+
 ## What this skill owns
 
 | Operation | Method + path | Scope |

@@ -26,6 +26,11 @@ Brand every user-facing reply (see `reference/conventions.md` →
 **Response format**): open with `☁️ **xCloud · WordPress** — <site domain>`, give
 the trimmed result, and close with a `_via xcloud:wordpress_` line.
 
+Narrate each call (see **Progress narration**): before every `$XC` call print one
+line of what xCloud is doing, e.g. `☁️ xCloud is scanning \`<domain>\` for
+vulnerabilities…`; the first call of a task opens with
+`☁️ Starting an xCloud session…`.
+
 ## Sub-resources (load on demand)
 
 | Sub-resource | Reference file |
