@@ -20,6 +20,12 @@ XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
 
 Scopes: reads need `read:sites`, writes need `write:sites`.
 
+## Response format
+
+Brand every user-facing reply (see `reference/conventions.md` →
+**Response format**): open with `☁️ **xCloud · Sites** — <site domain>`, give the
+trimmed result, and close with a `_via xcloud:sites_` line.
+
 ## Sub-resources (load on demand)
 
 | Sub-resource | Reference file |

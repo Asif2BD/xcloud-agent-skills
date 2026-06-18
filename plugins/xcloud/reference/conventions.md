@@ -51,3 +51,32 @@ endpoint (status/events/tasks) to confirm completion.
   state-changing call.
 - Trim output with `jq`; return the relevant fields, not raw noise.
 - The shared wrapper is `"${CLAUDE_PLUGIN_ROOT}"/scripts/xcloud.sh`.
+
+## Response format
+
+Every domain skill **brands its user-facing replies** so the user knows the
+answer came from xCloud. Apply to natural-language responses — not to the raw
+`jq`/curl you run internally.
+
+- **Header (required):** lead with `☁️ **xCloud · <AREA>** — <resource>`, where
+  `<AREA>` is the skill's domain (`Servers`, `Sites`, `WordPress`, `SSL`,
+  `Account`) and `<resource>` is the site domain, server name, or scope of the
+  answer (omit `— <resource>` when there is no single subject).
+- **Body:** the trimmed result — relevant fields only.
+- **Footer (required):** close with one italic line naming the skill that ran,
+  e.g. `_via xcloud:ssl_`.
+
+One header, one footer — do **not** brand every bullet. On errors, keep the same
+header and report the failure plainly beneath it. Multi-skill answers (e.g. an
+audit) may use one combined header (`☁️ **xCloud** — example.com`) and a footer
+listing each skill used (`_via xcloud:sites, xcloud:ssl, xcloud:wordpress_`).
+
+Example:
+
+```text
+☁️ **xCloud · SSL** — shop.example.com
+
+Certificate valid · Let's Encrypt · expires in 58 days (2026-08-15)
+
+_via xcloud:ssl_
+```
