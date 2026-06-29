@@ -28,6 +28,14 @@ All notable changes to the xCloud Public API skill are documented in this file.
   sub-resources as **SKIP** instead of **FAIL** — applied to server `databases`,
   site `backups`/`cache`, the WordPress `pagespeed` latest scan, and site `ssl`.
   Summary lines now report passed/skipped/failed.
+- **Removed non-standard SKILL.md frontmatter keys** (`version`/`author`/
+  `license`) from all five skills — `name`/`description` only, per the SKILL.md
+  schema. Version/author/license now have a single source of truth in
+  `plugin.json`, avoiding drift across six files on each release.
+- **Reconciled `requirements.txt`** with `.clawhubinfo.json`'s stated versions:
+  `requests>=2.28.0`, `backoff>=2.2.0`.
+- **Documented `XCLOUD_API_BASE_URL`** in `.env.example` (commented), so local /
+  white-label hosts are discoverable without reading the source.
 - **Public identity realigned to the skills.** The README now leads with the five
   `xcloud:*` skills, install, and usage; the Python SDK/CLI is reframed as a
   legacy `src/` track. `.clawhubinfo.json` bumped to `3.0.0`, its stale
