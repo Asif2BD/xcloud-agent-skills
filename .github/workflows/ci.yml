@@ -1,0 +1,73 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint shell + validate manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Syntax-check all shell scripts (bash -n)
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r -d '' f; do
+            if bash -n "$f"; then echo "ok   $f"; else echo "FAIL $f"; fail=1; fi
+          done < <(find . -name '*.sh' -not -path './.git/*' -print0)
+          exit "$fail"
+
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y shellcheck
+          shellcheck -S warning $(find plugins -name '*.sh')
+
+      - name: Validate JSON manifests
+        run: |
+          for f in .claude-plugin/marketplace.json \
+                   plugins/xcloud/.claude-plugin/plugin.json \
+                   .clawhubinfo.json; do
+            python3 -c "import json,sys; json.load(open('$f')); print('valid', '$f')"
+          done
+
+  smoke:
+    name: Read-only smoke suites
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run smoke suites (skipped when no token secret is configured)
+        env:
+          XCLOUD_API_TOKEN: ${{ secrets.XCLOUD_API_TOKEN }}
+          XCLOUD_API_BASE_URL: ${{ secrets.XCLOUD_API_BASE_URL }}
+          XCLOUD_TEST_SERVER_UUID: ${{ secrets.XCLOUD_TEST_SERVER_UUID }}
+          XCLOUD_TEST_SITE_UUID: ${{ secrets.XCLOUD_TEST_SITE_UUID }}
+          XCLOUD_TEST_WP_SITE_UUID: ${{ secrets.XCLOUD_TEST_WP_SITE_UUID }}
+        run: |
+          set -euo pipefail
+          if [ -z "${XCLOUD_API_TOKEN:-}" ]; then
+            echo "XCLOUD_API_TOKEN secret not configured — skipping live smoke suites."
+            exit 0
+          fi
+          export CLAUDE_PLUGIN_ROOT="$PWD/plugins/xcloud"
+          rc=0
+          if [ -n "${XCLOUD_TEST_SERVER_UUID:-}" ]; then
+            echo "== servers =="; plugins/xcloud/skills/servers/tests/smoke.sh || rc=1
+          fi
+          if [ -n "${XCLOUD_TEST_SITE_UUID:-}" ]; then
+            echo "== sites =="; plugins/xcloud/skills/sites/tests/smoke.sh || rc=1
+            echo "== ssl =="; plugins/xcloud/skills/ssl/tests/smoke.sh || rc=1
+          fi
+          echo "== account =="; plugins/xcloud/skills/account/tests/smoke.sh || rc=1
+          if [ -n "${XCLOUD_TEST_WP_SITE_UUID:-}" ]; then
+            echo "== wordpress =="; \
+              XCLOUD_TEST_SITE_UUID="$XCLOUD_TEST_WP_SITE_UUID" \
+              plugins/xcloud/skills/wordpress/tests/smoke.sh || rc=1
+          fi
+          exit "$rc"

@@ -1,283 +1,189 @@
-# xCloud Public API — Production Deployment Platform
+# xCloud Agent Skills
 
-Deploy WordPress sites, manage servers, and monitor infrastructure with xCloud. Now with production Python SDK, async helpers, CLI tools, and real-world agent scenarios.
+**Operate xCloud in plain language from any AI agent.** Ask *"reboot my Hermes
+server"*, *"renew SSL for example.com"*, or *"scan example.com for
+vulnerabilities and show me the criticals"* — the agent picks the right skill and
+chains the steps. No endpoints to memorize, no SDK to wire up.
 
-Transform from API reference to **production deployment platform** with tools built specifically for infrastructure automation.
+This repository ships the **`xcloud` Claude Code plugin** (v3.0.0): five
+capability skills that wrap the [xCloud Public API](https://app.xcloud.host/api/v1/docs).
 
-## Features
+> **New here?** Start with the [User Guide](docs/USER_GUIDE.md) (task-first) or
+> the [Install & Usage Guide](docs/SKILLS-GUIDE.md) (full install, per-skill
+> reference, smoke tests, routing rules).
 
-### 🐍 Python SDK (`src/xcloud_sdk.py`)
-- **XCloudAPI**: Low-level client with 20+ methods
-  - Server management (list, get, reboot)
-  - Site operations (create, backup, monitor, SSH config)
-  - Batch operations and health checks
-  - Built-in error handling & rate limiting
-  
-- **XCloudDeployer**: High-level automation
-  - Provision WordPress sites with polling
-  - Monitor fleet health
-  - Batch backup operations
-  - Capacity analysis
+## The five skills
 
-### ⚙️ Async Helpers (`src/xcloud_async.py`)
-- Reliable polling with configurable timeouts
-- Persistent state tracking across runs
-- Automatic rate limit backoff (60 req/min)
-- Batch operation support
-- Multi-step deployment tracking
+You never name them — the agent picks the right one from what you ask.
 
-### 🛠️ CLI Tool (`src/xcloud-cli.sh`)
-- 25+ interactive commands
-- Server and site management
-- Real-time monitoring
-- Health checks
-- Color-coded output
+| Skill | Owns |
+|---|---|
+| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress provisioning |
+| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git |
+| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed |
+| `xcloud:ssl` | SSL certificates: view, install, renew, status, delete |
+| `xcloud:account` | Current user, API tokens, Cloudflare integrations, blueprints, health |
 
-### 📚 Documentation
-- **AGENT-SCENARIOS.md**: Real-world use cases and code examples
-- **ERROR-HANDLING.md**: Recovery patterns for 12+ error types
-- **SECURITY.md**: Token management and best practices
-- **SKILL.md**: Official API reference (OpenAPI 3.0.3)
+Skills are organized by **capability, not URL root** — each declares what it does
+*not* own with `see xcloud:*` cross-links so trigger keywords don't collide. See
+[ADR 0001](docs/adr/0001-capability-domain-skills.md) for the rationale.
 
-## Quick Start
+## Install in Claude Code
 
-> **Using the Claude Code skills (v3.0.0)?** See the complete
-> [Skills Install & Usage Guide](docs/SKILLS-GUIDE.md) — install steps, per-skill
-> use cases, and examples for `xcloud:servers`, `xcloud:sites`,
-> `xcloud:wordpress`, `xcloud:ssl`, and `xcloud:account`.
+1. **Install the plugin:**
 
-### Installation
+   ```
+   /plugin marketplace add xCloudDev/xcloud-agent-skills
+   /plugin install xcloud@xcloud-agent-skills
+   /reload-plugins
+   ```
 
-**Via git:**
+2. **Add your API token.** Get one from the xCloud dashboard → **Profile → API
+   Tokens → Generate New Token** (choose scopes; copy it once). Add it to your
+   Claude Code settings:
+
+   ```json
+   { "env": { "XCLOUD_API_TOKEN": "your-token-here" } }
+   ```
+
+   Use `~/.claude/settings.json` (global) or a project-local
+   `.claude/settings.local.json` (keep it out of git). Restart Claude Code so it
+   picks up the token.
+
+3. **Check it works.** Ask Claude: *"Check my xCloud API connection."* A green
+   light means you're ready.
+
+### Other agent frameworks
+
+The skills are plain Markdown + a shared `bash`/`curl` wrapper, so they port to
+any agent that supports a skills directory:
+
 ```bash
 git clone https://github.com/xCloudDev/xcloud-agent-skills.git
-cd xcloud-agent-skills
+cp -r xcloud-agent-skills/plugins/xcloud/skills/* /your/agent/skills/
 ```
 
-**For Claude Code:**
-```
-/plugin marketplace add xCloudDev/xcloud-agent-skills
-```
+The shared layer (`plugins/xcloud/scripts/xcloud.sh`,
+`plugins/xcloud/reference/{auth,conventions}.md`) is referenced by every skill
+via `${CLAUDE_PLUGIN_ROOT}`.
 
-**For other frameworks:**
-```bash
-# Copy the skill directory to your agent's skills path
-cp -r plugins/xcloud/skills/servers /your/agent/skills/
-```
+## Example requests
 
-### Setup
+You describe what you want; Claude chains the steps.
 
-1. **Get API Token**
-   - Go to: https://app.xcloud.host/settings/api-tokens
-   - Create new token
-   - Copy token
-
-2. **Set Environment**
-   ```bash
-   export XCLOUD_API_TOKEN="your-token-here"
-   ```
-
-3. **Verify Connection**
-   ```bash
-   python3 -c "from src.xcloud_sdk import XCloudAPI; api = XCloudAPI(); print(api.get_user())"
-   ```
-
-## Examples
-
-### Python SDK
-
-```python
-from xcloud_sdk import XCloudAPI, XCloudDeployer
-
-# Initialize
-api = XCloudAPI()  # Reads XCLOUD_API_TOKEN
-deployer = XCloudDeployer(api)
-
-# List servers
-servers = api.list_servers()
-for server in servers['items']:
-    print(f"{server['name']}: {server['ip_address']}")
-
-# Create WordPress site and wait for provisioning
-site = deployer.create_site_with_poll(
-    domain="example.com",
-    server_uuid="server-uuid-here"
-)
-print(f"Site ready: {site['domain']}")
-
-# Get fleet health
-health = deployer.get_fleet_health()
-print(f"Total sites: {health['sites']['total']}")
-
-# Backup all sites
-results = deployer.backup_all_sites()
-for result in results:
-    print(f"{result['domain']}: {result['status']}")
+```text
+List my xCloud servers.
+Is example.com up right now?
+Renew the SSL certificate for shop.example.com.
+Update all plugins on example.com, but back up first.
+Scan example.com for vulnerabilities and show me the critical ones.
+Something's hammering my server from 203.0.113.7 — block it.
 ```
 
-### CLI Tool
+**Multi-step workflows** — each is a single request:
 
-```bash
-# List all servers
-./src/xcloud-cli.sh server list
-
-# Get server details
-./src/xcloud-cli.sh server get <server-uuid>
-
-# List sites
-./src/xcloud-cli.sh site list
-
-# Create WordPress site
-./src/xcloud-cli.sh site create example.com <server-uuid>
-
-# Monitor site provisioning
-./src/xcloud-cli.sh monitor site <site-uuid> 10
-
-# Trigger backup
-./src/xcloud-cli.sh site backup <site-uuid>
-
-# Get site status
-./src/xcloud-cli.sh site status <site-uuid>
+```text
+Audit example.com — is it up, is SSL healthy, any vulnerabilities, and how's performance?
+example.com is throwing 502 errors — what's going on?
+I just provisioned shop.example.com — set up HTTPS and confirm it's serving.
 ```
 
-### Async Polling
+> If Claude ever reaches for the wrong area, name it:
+> `Using xcloud:ssl, renew the cert for example.com.`
 
-```python
-from xcloud_async import AsyncPoller
+## Authentication & scopes
 
-poller = AsyncPoller(api, state_file="xcloud-ops.json")
+The skills authenticate with a
+[Sanctum personal access token](https://laravel.com/docs/sanctum) (Bearer auth).
+Generate one in the xCloud dashboard → **Profile → API Tokens → Generate New
+Token**, choosing scopes:
 
-# Wait for site to provision (up to 10 minutes)
-site = poller.poll_until_ready(
-    "site",
-    site_uuid,
-    timeout=600,
-    interval=15
-)
+| Scope | Grants |
+|---|---|
+| `read:sites` / `write:sites` | Reads / writes under `/sites/*` and `/ssl-certificates/*` |
+| `read:servers` / `write:servers` | Reads / writes under `/servers/*` |
+| `*` | Full access, including token management |
 
-# Track operation state
-poller.track_operation("deploy-001", status="started")
-# ... do work ...
-poller.track_operation("deploy-001", status="completed", result={...})
+Prefer the narrowest scopes that cover your use. The base URL is environment
+driven (`XCLOUD_API_BASE_URL`, default `https://app.xcloud.host`) — point it at a
+local or white-label host without touching any skill. Full details in
+[`plugins/xcloud/reference/auth.md`](plugins/xcloud/reference/auth.md).
 
-# Get operation status
-status = poller.get_operation("deploy-001")
-print(status)
-```
+## API reference
 
-## API Documentation
+Full REST reference — every endpoint, request/response schema, and an interactive
+try-it console:
 
-Full API reference: https://app.xcloud.host/api/v1/docs
-
+- **API docs**: https://app.xcloud.host/api/v1/docs
 - **Base URL**: `https://app.xcloud.host/api/v1`
-- **OpenAPI Version**: 3.0.3
-- **Rate Limit**: 60 requests/minute (authenticated)
-- **Authentication**: Bearer token (Sanctum)
-
-## Architecture
-
-```
-Your Application
-       ↓
-Python SDK (xcloud_sdk.py)
-       ↓
-Async Helpers (xcloud_async.py)
-       ↓
-xCloud Public API
-       ↓
-Servers & Sites
-```
-
-- **SDK Level**: High-level abstractions for common tasks
-- **Async Level**: Polling, state, rate limiting
-- **API Level**: Raw HTTP calls with error handling
-
-## Real-World Use Cases
-
-See `docs/AGENT-SCENARIOS.md` for detailed examples:
-
-- **Infrastructure Automation**: Provision staging sites on PR creation
-- **Monitoring**: Fleet health checks with auto-recovery
-- **Deployment**: Auto-backup before deployments
-- **Capacity Planning**: Track utilization across servers
-- **Cost Analysis**: Identify under-utilized resources
-- **Security**: Monitor site health and SSL status
-
-## Error Handling
-
-Comprehensive error recovery guide in `docs/ERROR-HANDLING.md` covers:
-- Authentication (401, 403)
-- Rate limiting (429)
-- Provisioning (502)
-- SSL certificates
-- Database connectivity
-- PHP execution
-- Network issues
-
-Each error includes:
-- Root cause analysis
-- Recovery code
-- Testing commands
-
-## Security
-
-**Token Management:**
-- Store in secure credential file, not env vars
-- Rotate tokens every 90 days
-- Use scoped tokens (not `*` scope)
-- Monitor for unauthorized access
-
-**Best Practices:**
-- Enable SSL certificate pinning
-- Use separate tokens for CI/CD
-- Audit API logs regularly
-- Implement backup encryption
-
-Full security guide: `SECURITY.md`
+- **Auth**: Bearer token (Sanctum)
+- **Rate limit**: 60 requests/minute authenticated (10/min unauthenticated)
 
 ## Testing
 
-Tested against:
-- ✅ Live xCloud API
-- ✅ 15+ servers
-- ✅ 45+ sites
-- ✅ All error scenarios
-- ✅ Rate limiting
-- ✅ Async polling
-- ✅ 100% backward compatible
+Each skill ships a read-only `tests/smoke.sh`. Point it at a real resource and it
+exercises that skill's core reads end-to-end:
 
-## Version History
+```bash
+export XCLOUD_API_TOKEN="your-token"
+export XCLOUD_TEST_SERVER_UUID="..."   # for the servers suite
+plugins/xcloud/skills/servers/tests/smoke.sh
+```
 
-**v1.1.0** (2026-04-22)
-- Python SDK with 20+ API methods
-- Async helpers (polling, state, rate limiting)
-- CLI tool with 25+ commands
-- Agent-specific scenarios
-- Error recovery guide
-- Security best practices
+The suites are read-only and tolerate optional sub-resources that a given
+server/site type doesn't support.
 
-**v1.0.0**
-- Initial release with API documentation
-- curl examples
-- Troubleshooting guide
+## Legacy: Python SDK & CLI
 
-## Support
+> The installable artifact is the **skill set above**. The Python SDK, async
+> helpers, and shell CLI under `src/` predate the skills (v1.x) and are kept for
+> direct scripting use. They are **not** part of the `xcloud` plugin and are not
+> copied into it.
 
-- **Docs**: https://github.com/xCloudDev/xcloud-agent-skills
-- **API Docs**: https://app.xcloud.host/api/v1/docs
+```python
+from src.xcloud_sdk import XCloudAPI, XCloudDeployer
+
+api = XCloudAPI()              # reads XCLOUD_API_TOKEN
+for s in api.list_servers()['items']:
+    print(s['name'], s['ip_address'])
+
+deployer = XCloudDeployer(api)
+health = deployer.get_fleet_health()
+print("Total sites:", health['sites']['total'])
+```
+
+```bash
+./src/xcloud-cli.sh server list
+./src/xcloud-cli.sh site status <site-uuid>
+```
+
+- **`src/xcloud_sdk.py`** — `XCloudAPI` (low-level client) + `XCloudDeployer`
+  (provisioning, fleet health, batch backups).
+- **`src/xcloud_async.py`** — polling, persistent state, rate-limit backoff.
+- **`src/xcloud-cli.sh`** — interactive server/site management.
+- Recovery patterns live in [`docs/ERROR-HANDLING.md`](docs/ERROR-HANDLING.md);
+  real-world scenarios in [`docs/AGENT-SCENARIOS.md`](docs/AGENT-SCENARIOS.md).
+
+Install the SDK dependencies with `pip install -r requirements.txt`.
+
+## Security
+
+- Store the token in agent/CLI settings or a secure credential file — never commit
+  it. `.env*` and `.claude/settings.local.json` are gitignored.
+- Use scoped tokens (avoid `*` unless you need token management), rotate
+  regularly, and revoke tokens that have been exposed.
+- Each request also passes a per-resource policy check — a `403` with a valid
+  token means a missing team permission, not a bad token.
+
+Full guidance: [`SECURITY.md`](SECURITY.md).
+
+## Links
+
+- **API docs**: https://app.xcloud.host/api/v1/docs
+- **Repository**: https://github.com/xCloudDev/xcloud-agent-skills
 - **Issues**: https://github.com/xCloudDev/xcloud-agent-skills/issues
+- **Changelog**: [`CHANGELOG.md`](CHANGELOG.md)
 
 ## License
 
-MIT License - see LICENSE file
-
-## Contributing
-
-We welcome contributions! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Submit a pull request
-
-## Changelog
-
-See `CHANGELOG.md` for all changes.
+MIT — see [`LICENSE`](LICENSE).

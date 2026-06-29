@@ -1,5 +1,13 @@
 # Databases & database users
 
+> **⚠️ Not available on the current public API.** As of 2026-06-29 every endpoint
+> below returns **HTTP 404 "Resource not found"** on all tested servers — while
+> sibling endpoints (`php-versions`, `firewall-rules`) return `200` on the same
+> server — and none appear in the live OpenAPI spec. Treat this file as a
+> forward-looking reference only; do not rely on these endpoints until the API
+> exposes them. The `xcloud:servers` smoke suite already treats `databases` as an
+> optional sub-resource (404 → SKIP). See `docs/API-COVERAGE.md`.
+
 `XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"` · scope `read:servers` / `write:servers`.
 
 ## Databases

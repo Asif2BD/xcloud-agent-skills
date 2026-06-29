@@ -1,9 +1,6 @@
 ---
 name: servers
 description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning a new WordPress site onto a server. Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see xcloud:sites), NOT SSL certs (see xcloud:ssl), NOT WordPress app management (see xcloud:wordpress).
-version: 3.0.0
-author: xCloudDev
-license: MIT
 ---
 
 # xCloud Servers
@@ -34,7 +31,7 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 |---|---|
 | PHP versions (install, default, opcache, patch) | `reference/php-versions.md` |
 | Server cron jobs (CRUD, execute, output) | `reference/cron-jobs.md` |
-| Databases & database users | `reference/databases.md` |
+| Databases & database users ⚠️ _(404 on the current API — see file)_ | `reference/databases.md` |
 | Firewall rules, fail2ban, IP whitelisting | `reference/firewall.md` |
 | Sudo users | `reference/sudo-users.md` |
 

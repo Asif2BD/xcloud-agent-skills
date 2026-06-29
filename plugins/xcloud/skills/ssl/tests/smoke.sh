@@ -23,6 +23,7 @@ XC="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/../../.." && pwd)}/scripts/xcloud.
 
 PASS=0
 FAIL=0
+SKIP=0
 
 check() {
   local label="$1" path="$2"
@@ -35,8 +36,23 @@ check() {
   echo "PASS ${label}"; PASS=$((PASS + 1))
 }
 
-check "site SSL info"     "/sites/${XCLOUD_TEST_SITE_UUID}/ssl"
-check "site certificates" "/sites/${XCLOUD_TEST_SITE_UUID}/ssl-certificates"
+# check_opt: a site with no SSL configured yet may 404 (or 422 "not supported");
+# treat that as SKIP rather than FAIL.
+check_opt() {
+  local label="$1" path="$2" out rc code
+  out=$("${XC}" GET "${path}" 2>&1) && rc=0 || rc=$?
+  if (( rc == 0 )) && echo "${out}" | jq -e '.success == true and .data != null' >/dev/null 2>&1; then
+    echo "PASS ${label}"; PASS=$((PASS + 1)); return
+  fi
+  code=$(printf '%s\n' "${out}" | sed -n 's/.*HTTP \([0-9][0-9][0-9]\).*/\1/p' | tail -n1)
+  if [[ "${code}" == "404" ]] || { [[ "${code}" == "422" ]] && printf '%s' "${out}" | grep -qiE 'not supported|not available|unsupported|does not support|not applicable'; }; then
+    echo "SKIP ${label} (optional: HTTP ${code:-?})"; SKIP=$((SKIP + 1)); return
+  fi
+  echo "FAIL ${label} (${path}): ${out}" >&2; FAIL=$((FAIL + 1))
+}
+
+check_opt "site SSL info"     "/sites/${XCLOUD_TEST_SITE_UUID}/ssl"
+check     "site certificates" "/sites/${XCLOUD_TEST_SITE_UUID}/ssl-certificates"
 
 if [[ -n "${XCLOUD_TEST_CERT_UUID:-}" ]]; then
   check "cert by uuid"   "/ssl-certificates/${XCLOUD_TEST_CERT_UUID}"
@@ -44,5 +60,5 @@ if [[ -n "${XCLOUD_TEST_CERT_UUID:-}" ]]; then
 fi
 
 echo
-echo "Smoke: ${PASS} passed, ${FAIL} failed"
+echo "Smoke: ${PASS} passed, ${SKIP} skipped, ${FAIL} failed"
 (( FAIL == 0 ))
