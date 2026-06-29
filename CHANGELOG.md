@@ -11,9 +11,12 @@ All notable changes to the xCloud Public API skill are documented in this file.
   them; 3 live operations are undocumented (`PUT /sites/{uuid}/git`,
   `POST /sites/{uuid}/git/deploy`, `POST /servers/{uuid}/services/disable`) and 9
   documented `databases`/`database-users` operations are absent from the spec
-  (pending live verification). Clarifies that "117" is the skill-side count, not
-  the API's 111-operation surface; ADR 0001 and the 2.0.0 note were corrected
-  accordingly.
+  **and verified to return HTTP 404 on live servers (2026-06-29)** — now carrying
+  a prominent "not available on the current public API" caveat in
+  `reference/databases.md`. Clarifies that "117" is the skill-side count, not the
+  API's 111-operation surface; ADR 0001 and the 2.0.0 note were corrected
+  accordingly. All five smoke suites were run green against the live API
+  (servers: 7 passed / 1 skipped for the `databases` 404 / 0 failed).
 - **Minimal CI workflow** (`.github/workflows/ci.yml`): lints every shell script
   (`bash -n` + ShellCheck) and validates the JSON manifests on each push/PR, and
   runs the read-only smoke suites when an `XCLOUD_API_TOKEN` secret is configured

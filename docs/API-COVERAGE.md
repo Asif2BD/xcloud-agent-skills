@@ -51,12 +51,15 @@ All in `skills/servers/reference/databases.md`. No `databases` or
 | PUT | `/servers/{uuid}/database-users` |
 | DELETE | `/servers/{uuid}/database-users` |
 
-**Status — pending live verification.** These are either (a) real endpoints the
-OpenAPI omits, or (b) conditional endpoints that only exist for certain server
-types (which would 404 elsewhere). The smoke suites already treat server
-`databases` as an optional sub-resource (404 / 422 "not supported" → SKIP). A
-read with a `read:servers` token against a known server will confirm which; the
-table above should be annotated or trimmed accordingly once verified.
+**Status — verified absent (HTTP 404), 2026-06-29.** Live reads against two
+distinct `provisioned` servers returned **HTTP 404 "Resource not found"** for
+both `databases` and `database-users`, while sibling endpoints on the *same*
+server (`php-versions`, `firewall-rules`) returned `200`. Combined with their
+absence from the OpenAPI spec, these endpoints are **not part of the current
+public API** — `reference/databases.md` now carries a prominent caveat and the
+`xcloud:servers` smoke suite treats `databases` as optional (404 → SKIP). They
+should be removed or kept strictly as a forward-looking reference until the API
+ships them.
 
 ## B. Live but not documented — coverage gaps (3)
 
@@ -86,8 +89,9 @@ on both path and verb, including:
 
 ## Recommended follow-ups
 
-1. Verify the 9 `databases` operations against a live server; annotate
-   `reference/databases.md` (and this table) with their real status.
+1. ~~Verify the 9 `databases` operations against a live server.~~ **Done
+   (2026-06-29): all 404.** Decide whether to fully remove `databases.md` and its
+   `xcloud:servers` references, or keep the now-caveated forward-looking reference.
 2. Document the 3 gap operations (`git` PUT, `git/deploy`, `services/disable`).
 3. Once 1–2 land, restate coverage with an accurate, sourced number instead of
    "the full 117-operation surface".

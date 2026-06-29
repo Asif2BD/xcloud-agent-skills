@@ -31,7 +31,7 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 |---|---|
 | PHP versions (install, default, opcache, patch) | `reference/php-versions.md` |
 | Server cron jobs (CRUD, execute, output) | `reference/cron-jobs.md` |
-| Databases & database users | `reference/databases.md` |
+| Databases & database users ⚠️ _(404 on the current API — see file)_ | `reference/databases.md` |
 | Firewall rules, fail2ban, IP whitelisting | `reference/firewall.md` |
 | Sudo users | `reference/sudo-users.md` |
 
