@@ -32,7 +32,7 @@ jq '.data.pagination // .data.meta'
 ## Resource identifiers
 
 - Servers, sites, SSL certificates, sudo users: `{uuid}`.
-- User token revocation: numeric `{tokenId}`.
+- User token revocation: the token's `{uuid}` (from `GET /user/tokens`).
 - Resolve a UUID with a read endpoint before any write.
 
 ## Rate limits

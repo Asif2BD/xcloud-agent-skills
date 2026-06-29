@@ -4,6 +4,16 @@ All notable changes to the xCloud Public API skill are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- **`xcloud:account` token revocation now matches the live API.** The skill
+  documented `DELETE /user/tokens/{tokenId}` as a numeric id, but the API keys
+  revocation by the token's `uuid` (live OpenAPI: `DELETE
+  /user/tokens/{tokenUuid}`, `string`/`uuid`) and `GET /user/tokens` returns
+  `uuid`. Corrected the endpoint, made the list example surface `uuid` (so the
+  revoke flow is completable from list output), and fixed the matching note in
+  `reference/conventions.md` and the skill pitfall.
+
 ### Changed
 
 - **Public identity realigned to the skills.** The README now leads with the five
