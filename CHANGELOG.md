@@ -4,6 +4,13 @@ All notable changes to the xCloud Public API skill are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Minimal CI workflow** (`.github/workflows/ci.yml`): lints every shell script
+  (`bash -n` + ShellCheck) and validates the JSON manifests on each push/PR, and
+  runs the read-only smoke suites when an `XCLOUD_API_TOKEN` secret is configured
+  (skips cleanly otherwise).
+
 ### Fixed
 
 - **`xcloud:account` token revocation now matches the live API.** The skill
@@ -16,6 +23,11 @@ All notable changes to the xCloud Public API skill are documented in this file.
 
 ### Changed
 
+- **Smoke suites tolerate unsupported sub-resources.** A new `check_opt` helper
+  treats `404` (and `422` "not supported") on optional, type-dependent
+  sub-resources as **SKIP** instead of **FAIL** — applied to server `databases`,
+  site `backups`/`cache`, the WordPress `pagespeed` latest scan, and site `ssl`.
+  Summary lines now report passed/skipped/failed.
 - **Public identity realigned to the skills.** The README now leads with the five
   `xcloud:*` skills, install, and usage; the Python SDK/CLI is reframed as a
   legacy `src/` track. `.clawhubinfo.json` bumped to `3.0.0`, its stale
