@@ -19,6 +19,10 @@ _get_token() {
         cat "$XCLOUD_TOKEN_FILE"
     else
         echo "❌ Error: XCLOUD_API_TOKEN not set and $XCLOUD_TOKEN_FILE not found" >&2
+        echo "   Set it in one of these persistent ways:" >&2
+        echo "   1. ~/.claude/settings.json: { \"env\": { \"XCLOUD_API_TOKEN\": \"your-token\" } }" >&2
+        echo "   2. Token file: mkdir -p ~/.xcloud && echo 'your-token' > ~/.xcloud/api-token && chmod 600 ~/.xcloud/api-token" >&2
+        echo "   3. Shell profile: echo \"export XCLOUD_API_TOKEN='your-token'\" >> ~/.zshrc && source ~/.zshrc" >&2
         return 1
     fi
 }
@@ -147,7 +151,7 @@ xcloud_purge_cache() {
 # Get SSH configuration
 xcloud_ssh_config() {
     local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/ssh-config"
+    _api_call GET "/sites/$site_uuid/ssh"
 }
 
 # Update SSH configuration
@@ -167,7 +171,7 @@ EOF
         payload=$(cat <<EOF
 {
     "authentication_mode": "public_key",
-    "ssh_keys": ["$ssh_key"]
+    "ssh_public_keys": ["$ssh_key"]
 }
 EOF
 )
@@ -180,9 +184,8 @@ EOF
 EOF
 )
     fi
-    payload="${payload}"$'\n'"}"
-    
-    _api_call PUT "/sites/$site_uuid/ssh-config" "$payload"
+
+    _api_call PUT "/sites/$site_uuid/ssh" "$payload"
 }
 
 # ============================================================================
@@ -192,7 +195,7 @@ EOF
 # Get domain configuration
 xcloud_domains() {
     local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/domains"
+    _api_call GET "/sites/$site_uuid/domain"
 }
 
 # Add domain
@@ -216,27 +219,24 @@ EOF
 # ENVIRONMENT & VARIABLES
 # ============================================================================
 
-# Get environment variables
-xcloud_variables() {
-    local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/variables"
-}
+# Not available in the xCloud public API — endpoint does not exist
+# xcloud_variables() {
+#     local site_uuid=$1
+#     _api_call GET "/sites/$site_uuid/variables"
+# }
 
-# Set environment variable
-xcloud_set_variable() {
-    local site_uuid=$1
-    local key=$2
-    local value=$3
-    
-    local payload=$(cat <<EOF
-{
-    "$key": "$value"
-}
-EOF
-)
-    
-    _api_call PUT "/sites/$site_uuid/variables" "$payload"
-}
+# xcloud_set_variable() {
+#     local site_uuid=$1
+#     local key=$2
+#     local value=$3
+#     local payload=$(cat <<EOF
+# {
+#     "$key": "$value"
+# }
+# EOF
+# )
+#     _api_call PUT "/sites/$site_uuid/variables" "$payload"
+# }
 
 # ============================================================================
 # SUDO USER OPERATIONS
@@ -244,22 +244,17 @@ EOF
 
 # List sudo users
 xcloud_sudo_users() {
-    local site_uuid=$1
-    _api_call GET "/sites/$site_uuid/sudo-users"
+    local server_uuid=$1
+    _api_call GET "/servers/$server_uuid/sudo-users"
 }
 
 # Add sudo user
 xcloud_add_sudo_user() {
-    local site_uuid=$1
+    local server_uuid=$1
     local username=$2
     local password=${3:-}
-    
-    local payload=$(cat <<EOF
-{
-    "username": "$username"
-EOF
-)
-    
+
+    local payload
     if [ -n "$password" ]; then
         payload=$(cat <<EOF
 {
@@ -268,10 +263,16 @@ EOF
 }
 EOF
 )
+    else
+        payload=$(cat <<EOF
+{
+    "username": "$username"
+}
+EOF
+)
     fi
-    payload="${payload}"$'\n'"}"
-    
-    _api_call POST "/sites/$site_uuid/sudo-users" "$payload"
+
+    _api_call POST "/servers/$server_uuid/sudo-users" "$payload"
 }
 
 # ============================================================================
@@ -296,9 +297,9 @@ xcloud_wait_provisioned() {
     local elapsed=0
     while [ $elapsed -lt $timeout ]; do
         local status
-        status=$(xcloud_site "$site_uuid" | jq -r '.provisioned // false')
-        
-        if [ "$status" = "true" ]; then
+        status=$(xcloud_site "$site_uuid" | jq -r '.data.status // "unknown"')
+
+        if [ "$status" = "active" ]; then
             echo "✅ Site $site_uuid provisioned"
             return 0
         fi
@@ -312,20 +313,18 @@ xcloud_wait_provisioned() {
     return 1
 }
 
-# Parse xCloud dashboard URL and extract IDs
+# Parse xCloud dashboard URL and extract server/site UUIDs
+# Supports URLs of the form: https://app.xcloud.host/servers/<uuid>/sites/<uuid>
 xcloud_parse_url() {
     local url=$1
-    
-    # Extract project ID
-    local project_id=$(echo "$url" | grep -oP 'project/\K[^/]+' || true)
-    # Extract service ID
-    local service_id=$(echo "$url" | grep -oP 'service/\K[^/?]+' || true)
-    # Extract environment ID from query param
-    local environment_id=$(echo "$url" | grep -oP 'environmentId=\K[^&]+' || true)
-    
-    echo "project=$project_id"
-    echo "service=$service_id"
-    echo "environment=$environment_id"
+
+    local server_uuid
+    server_uuid=$(echo "$url" | sed -n 's|.*/servers/\([^/?]*\).*|\1|p')
+    local site_uuid
+    site_uuid=$(echo "$url" | sed -n 's|.*/sites/\([^/?]*\).*|\1|p')
+
+    echo "server=$server_uuid"
+    echo "site=$site_uuid"
 }
 
 # Pretty print JSON response
@@ -390,8 +389,8 @@ export -f xcloud_ssh_config
 export -f xcloud_update_ssh
 export -f xcloud_domains
 export -f xcloud_add_domain
-export -f xcloud_variables
-export -f xcloud_set_variable
+# export -f xcloud_variables    # not available in public API
+# export -f xcloud_set_variable # not available in public API
 export -f xcloud_sudo_users
 export -f xcloud_add_sudo_user
 export -f xcloud_whoami

@@ -24,16 +24,20 @@
 
 ```bash
 # 1. Get all servers and count sites per server
-curl -sS \
+SERVERS=$(curl -sS \
   -H "Authorization: Bearer $XCLOUD_API_TOKEN" \
   -H "Accept: application/json" \
-  "https://app.xcloud.host/api/v1/servers?per_page=100" | \
-  jq '.data.items[] | {name, uuid, created_at} as $server | 
-    (curl -sS -H "Authorization: Bearer $XCLOUD_API_TOKEN" \
-    -H "Accept: application/json" \
-    "https://app.xcloud.host/api/v1/sites?server_uuid=\($server.uuid)&per_page=100" | 
-    jq .data.items | length) as $sites | 
-    {server: $server.name, sites: $sites, uuid: $server.uuid}'
+  "https://app.xcloud.host/api/v1/servers?per_page=100")
+
+echo "$SERVERS" | jq -r '(.data.items // .data.data // [])[] | "\(.uuid) \(.name)"' | \
+  while read -r SERVER_UUID SERVER_NAME; do
+    SITE_COUNT=$(curl -sS \
+      -H "Authorization: Bearer $XCLOUD_API_TOKEN" \
+      -H "Accept: application/json" \
+      "https://app.xcloud.host/api/v1/sites?server_uuid=$SERVER_UUID&per_page=100" | \
+      jq '(.data.items // .data.data // []) | length')
+    echo "$SERVER_NAME ($SERVER_UUID): $SITE_COUNT sites"
+  done
 
 # 2. Check server monitoring data
 SERVER_UUID='your-server-uuid'
@@ -41,7 +45,7 @@ curl -sS \
   -H "Authorization: Bearer $XCLOUD_API_TOKEN" \
   -H "Accept: application/json" \
   "https://app.xcloud.host/api/v1/servers/$SERVER_UUID/monitoring" | \
-  jq '.data | {cpu_usage: .cpu, memory_usage: .memory, disk_usage: .disk, network_in, network_out}'
+  jq '.data | {cpu_usage, memory_usage, disk_usage, uptime, recorded_at}'
 
 # 3. Analyze - sites per server comparison
 for SERVER in $(curl -sS -H "Authorization: Bearer $XCLOUD_API_TOKEN" -H "Accept: application/json" "https://app.xcloud.host/api/v1/servers?per_page=100" | jq -r '.data.items[].uuid'); do
