@@ -1,10 +1,10 @@
 {
   "name": "xcloud-public-api",
-  "version": "1.1.0",
-  "display_name": "xCloud Public API",
-  "description": "Deploy WordPress sites, manage servers, monitor infrastructure with Python SDK, CLI tools, and async helpers.",
-  "long_description": "Production-grade Python SDK for xCloud Public API with async helpers, CLI tools, comprehensive error handling, and real-world automation scenarios.",
-  
+  "version": "3.0.0",
+  "display_name": "xCloud Agent Skills",
+  "description": "Operate xCloud in plain language from any AI agent — five capability skills (servers, sites, wordpress, ssl, account) wrapping the xCloud Public API.",
+  "long_description": "The xCloud agent skills let any AI agent (Claude Code and others) operate xCloud in plain language: reboot a server, renew SSL, scan for vulnerabilities, provision a WordPress site. Five capability-domain skills share one auth + curl layer and route automatically from natural requests. A legacy Python SDK and CLI remain under src/ for direct scripting.",
+
   "category": "infrastructure",
   "subcategories": [
     "hosting",
@@ -13,7 +13,7 @@
     "devops",
     "automation"
   ],
-  
+
   "keywords": [
     "xcloud",
     "wordpress",
@@ -23,48 +23,44 @@
     "devops",
     "agents",
     "automation",
-    "python-sdk",
-    "cli"
+    "claude-code",
+    "skills"
   ],
-  
+
   "author": {
-    "name": "xCloud",
+    "name": "xCloudDev",
     "email": "dev@xcloud.host",
     "url": "https://xcloud.host"
   },
-  
+
   "homepage": "https://github.com/xCloudDev/xcloud-agent-skills",
   "repository": "https://github.com/xCloudDev/xcloud-agent-skills",
-  "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/AGENT-SCENARIOS.md",
+  "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md",
   "changelog": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md",
-  
+
   "license": "MIT",
   "license_url": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/LICENSE",
-  
+
   "features": [
-    "Python SDK for high-level automation",
-    "20+ API methods (servers, sites, backups, SSH)",
-    "Async polling with state persistence",
-    "Automatic rate limit management",
-    "CLI tool for interactive use",
-    "Error recovery guide (12+ errors)",
-    "Real-world automation scenarios",
-    "Security best practices",
-    "Batch operation support",
-    "Real-time monitoring templates"
+    "Five capability skills: servers, sites, wordpress, ssl, account",
+    "Plain-language operation — the agent routes to the right skill",
+    "Shared auth + curl wrapper, no per-skill duplication",
+    "Capability-domain design with cross-links (see ADR 0001)",
+    "Environment-driven base URL (local / live / white-label)",
+    "Per-skill read-only smoke suites",
+    "On-demand reference docs for large sub-resources",
+    "Legacy Python SDK, async helpers, and CLI under src/"
   ],
-  
+
   "badges": [
     "production-ready",
-
+    "claude-code-plugin",
     "multi-agent",
-    "python-sdk",
-    "cli-included",
-    "async-safe",
-    "error-recovery",
-    "security-hardened"
+    "five-skills",
+    "security-hardened",
+    "error-recovery"
   ],
-  
+
   "requirements": {
     "environment": {
       "XCLOUD_API_TOKEN": "Your xCloud API token from https://app.xcloud.host/settings/api-tokens"
@@ -75,45 +71,56 @@
       "backoff >= 2.2.0"
     ]
   },
-  
+
   "quick_start": {
-    "1_install": "Clone repo or copy to your agent skills directory",
-    "2_configure": "export XCLOUD_API_TOKEN='your-xcloud-token'",
-    "3_python": "from src.xcloud_sdk import XCloudDeployer; deployer = XCloudDeployer()",
-    "4_use": "./src/xcloud-cli.sh server list (or Python SDK)"
+    "1_install": "/plugin marketplace add xCloudDev/xcloud-agent-skills  then  /plugin install xcloud@xcloud-agent-skills",
+    "2_configure": "Add {\"env\": {\"XCLOUD_API_TOKEN\": \"your-token\"}} to your Claude Code settings",
+    "3_use": "Ask in plain language, e.g. \"List my xCloud servers\" or \"Renew SSL for example.com\""
   },
-  
+
   "agent_support": {
     "infrastructure_automation": "Provisioning, deployment, backups, CI/CD integration",
     "monitoring": "Fleet health checks, capacity planning, cost analysis",
-    "security": "SSL monitoring, site verification, health checks",
+    "security": "SSL monitoring, vulnerability scans, firewall/fail2ban, site verification",
     "operations": "Bulk updates, status reporting, disaster recovery"
   },
-  
+
   "api_info": {
     "base_url": "https://app.xcloud.host/api/v1",
     "docs_url": "https://app.xcloud.host/api/v1/docs",
     "auth": "Bearer token (Sanctum)",
     "rate_limit": "60 requests/minute",
-    "version": "v1.0.0-beta"
+    "version": "1.0.0"
   },
-  
+
   "installation": {
+    "claude_code": "/plugin marketplace add xCloudDev/xcloud-agent-skills && /plugin install xcloud@xcloud-agent-skills",
     "git_clone": "git clone https://github.com/xCloudDev/xcloud-agent-skills.git",
-    "via_marketplace": "Check your agent framework's marketplace for installation"
+    "other_frameworks": "Copy plugins/xcloud/skills/* into your agent's skills directory"
   },
-  
+
   "changelog": {
+    "v3.0.0": {
+      "date": "2026-06-16",
+      "changes": [
+        "Renamed the plugin to xcloud; skills invoked as xcloud:servers, :sites, :ssl, :wordpress, :account",
+        "Plugin directory moved to plugins/xcloud/"
+      ]
+    },
+    "v2.0.0": {
+      "date": "2026-06-09",
+      "changes": [
+        "Split the single skill into five capability-domain skills",
+        "Shared scripts/xcloud.sh + reference/{auth,conventions}.md layer",
+        "Per-skill smoke tests; environment-driven base URL"
+      ]
+    },
     "v1.1.0": {
       "date": "2026-04-22",
       "changes": [
-        "Python SDK with 20+ API methods",
+        "Python SDK with 20+ API methods (now legacy, under src/)",
         "Async polling and state persistence",
-        "CLI tool (25+ commands)",
-        "Real-world automation scenarios",
-        "Error recovery guide (12+ errors)",
-        "Security best practices",
-        "Batch operation support"
+        "CLI tool; error recovery guide; automation scenarios"
       ]
     },
     "v1.0.0": {
@@ -125,13 +132,13 @@
       ]
     }
   },
-  
+
   "support": {
     "github_issues": "https://github.com/xCloudDev/xcloud-agent-skills/issues",
     "email": "dev@xcloud.host",
     "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/"
   },
-  
+
   "verified": true,
   "maintained": true,
   "production_ready": true

@@ -2,6 +2,16 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **Public identity realigned to the skills.** The README now leads with the five
+  `xcloud:*` skills, install, and usage; the Python SDK/CLI is reframed as a
+  legacy `src/` track. `.clawhubinfo.json` bumped to `3.0.0`, its stale
+  `api_info.version` corrected to the live API's `1.0.0`, and its
+  features/badges/quick-start reframed from SDK-centric to skill-centric.
+
 ## [3.0.0] - 2026-06-16
 
 ### Changed (BREAKING)
