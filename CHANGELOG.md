@@ -6,6 +6,14 @@ All notable changes to the xCloud Public API skill are documented in this file.
 
 ### Added
 
+- **API coverage audit** (`docs/API-COVERAGE.md`): every documented endpoint
+  cross-checked against the live OpenAPI (111 operations). Skills cover 108 of
+  them; 3 live operations are undocumented (`PUT /sites/{uuid}/git`,
+  `POST /sites/{uuid}/git/deploy`, `POST /servers/{uuid}/services/disable`) and 9
+  documented `databases`/`database-users` operations are absent from the spec
+  (pending live verification). Clarifies that "117" is the skill-side count, not
+  the API's 111-operation surface; ADR 0001 and the 2.0.0 note were corrected
+  accordingly.
 - **Minimal CI workflow** (`.github/workflows/ci.yml`): lints every shell script
   (`bash -n` + ShellCheck) and validates the JSON manifests on each push/PR, and
   runs the read-only smoke suites when an `XCLOUD_API_TOKEN` secret is configured
@@ -70,7 +78,7 @@ All notable changes to the xCloud Public API skill are documented in this file.
 
 ### Added
 
-- Coverage expanded to the full 117-operation surface (PHP versions, databases,
+- Coverage expanded to a 117-operation skill surface (PHP versions, databases,
   firewall/fail2ban, cron, snapshots, services, vulnerabilities, PageSpeed,
   WordPress plugin/theme management, SSL certificate lifecycle, and more).
 - Shared plugin layer: one `scripts/xcloud.sh` + `reference/{auth,conventions}.md`
