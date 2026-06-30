@@ -20,7 +20,28 @@
 set -euo pipefail
 
 if [[ -z "${XCLOUD_API_TOKEN:-}" ]]; then
-  echo "error: XCLOUD_API_TOKEN is not set. See \${CLAUDE_PLUGIN_ROOT}/reference/auth.md" >&2
+  cat >&2 <<'EOF'
+error: XCLOUD_API_TOKEN is not set.
+
+Step 1 — Create an API token in xCloud:
+  xCloud dashboard -> Profile -> API Tokens -> Generate New Token
+  -> choose the scopes you need (e.g. read:servers) -> copy it (shown only once).
+
+Step 2 — Store it persistently for Claude Code:
+  a. Open  ~/.claude/settings.json   (e.g.  nano ~/.claude/settings.json )
+  b. Add an "env" block with your token:
+       {
+         "env": {
+           "XCLOUD_API_TOKEN": "your-token-here",
+           "XCLOUD_API_BASE_URL": "https://app.xcloud.host"
+         }
+       }
+  c. Restart Claude Code (quit + reopen) so it loads.
+
+Do NOT use '! export ...' in the prompt — it runs in a throwaway subshell and
+will not persist to the next call. See reference/auth.md for the full guide
+(and the claude.ai-app alternative).
+EOF
   exit 64
 fi
 
