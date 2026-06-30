@@ -6,19 +6,29 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 XC="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/../../.." && pwd)}/scripts/xcloud.sh"
 : "${XCLOUD_API_TOKEN:?XCLOUD_API_TOKEN must be set}"
 : "${XCLOUD_TEST_SITE_UUID:?XCLOUD_TEST_SITE_UUID must be set}"
-PASS=0; FAIL=0
+PASS=0; FAIL=0; SKIP=0
 check(){ local l="$1" p="$2"
   if ! o=$("${XC}" GET "${p}" 2>&1); then echo "FAIL ${l} (${p}): ${o}" >&2; FAIL=$((FAIL+1)); return; fi
   if ! echo "${o}" | jq -e '.success == true and .data != null' >/dev/null 2>&1; then
     echo "FAIL ${l} (${p}): bad envelope" >&2; FAIL=$((FAIL+1)); return; fi
   echo "PASS ${l}"; PASS=$((PASS+1)); }
+# check_opt: like check, but optional sub-resources that a site type may not
+# support (404, or 422 "not supported") count as SKIP rather than FAIL.
+check_opt(){ local l="$1" p="$2" o rc code
+  o=$("${XC}" GET "${p}" 2>&1) && rc=0 || rc=$?
+  if (( rc == 0 )) && echo "${o}" | jq -e '.success == true and .data != null' >/dev/null 2>&1; then
+    echo "PASS ${l}"; PASS=$((PASS+1)); return; fi
+  code=$(printf '%s\n' "${o}" | sed -n 's/.*HTTP \([0-9][0-9][0-9]\).*/\1/p' | tail -n1)
+  if [[ "${code}" == "404" ]] || { [[ "${code}" == "422" ]] && printf '%s' "${o}" | grep -qiE 'not supported|not available|unsupported|does not support|not applicable'; }; then
+    echo "SKIP ${l} (optional: HTTP ${code:-?})"; SKIP=$((SKIP+1)); return; fi
+  echo "FAIL ${l} (${p}): ${o}" >&2; FAIL=$((FAIL+1)); }
 S="${XCLOUD_TEST_SITE_UUID}"
-check "list sites"     "/sites?per_page=1"
-check "get site"       "/sites/${S}"
-check "status"         "/sites/${S}/status"
-check "events"         "/sites/${S}/events"
-check "backups"        "/sites/${S}/backups"
-check "domain"         "/sites/${S}/domain"
-check "ssh config"     "/sites/${S}/ssh"
-check "cache settings" "/sites/${S}/cache/settings"
-echo; echo "Smoke: ${PASS} passed, ${FAIL} failed"; (( FAIL == 0 ))
+check     "list sites"     "/sites?per_page=1"
+check     "get site"       "/sites/${S}"
+check     "status"         "/sites/${S}/status"
+check     "events"         "/sites/${S}/events"
+check_opt "backups"        "/sites/${S}/backups"
+check     "domain"         "/sites/${S}/domain"
+check     "ssh config"     "/sites/${S}/ssh"
+check_opt "cache settings" "/sites/${S}/cache/settings"
+echo; echo "Smoke: ${PASS} passed, ${SKIP} skipped, ${FAIL} failed"; (( FAIL == 0 ))

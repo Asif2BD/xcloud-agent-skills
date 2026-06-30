@@ -1,9 +1,6 @@
 ---
 name: ssl
 description: SSL certificates and HTTPS for xCloud sites — view, list, install (Let's Encrypt / custom / Cloudflare), renew, check status, and delete certificates. Use for any cert or HTTPS request on a site. NOT general site lifecycle (see xcloud:sites), NOT WordPress updates or vulnerability scans (see xcloud:wordpress), NOT server firewall/fail2ban (see xcloud:servers).
-version: 3.0.0
-author: xCloudDev
-license: MIT
 ---
 
 # xCloud SSL

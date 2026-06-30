@@ -1,9 +1,6 @@
 ---
 name: sites
 description: Manage xCloud sites — list/inspect sites, status, events, deployment logs, monitoring, backups, rescue, snapshots, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, git, and access logs. Use for any site lifecycle or delivery request. For SSL/certs see xcloud:ssl; for WordPress plugins/updates/vulnerabilities/PageSpeed see xcloud:wordpress; for server-level infra see xcloud:servers.
-version: 3.0.0
-author: xCloudDev
-license: MIT
 ---
 
 # xCloud Sites

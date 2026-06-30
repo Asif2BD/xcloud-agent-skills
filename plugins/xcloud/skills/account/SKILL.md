@@ -1,9 +1,6 @@
 ---
 name: account
 description: xCloud account, identity, and org-level reads — current user, API token listing and revocation, Cloudflare integrations, WordPress blueprints, and API health. Use for "who am I", token management, listing blueprints, or checking integrations. NOT server or site operations (see xcloud:servers / xcloud:sites).
-version: 3.0.0
-author: xCloudDev
-license: MIT
 ---
 
 # xCloud Account
@@ -39,7 +36,7 @@ block — once per conversation.
 | API health | `GET /health` | none |
 | Current user | `GET /user` | token |
 | List API tokens | `GET /user/tokens` | token (`*`) |
-| Revoke a token | `DELETE /user/tokens/{tokenId}` | token (`*`) |
+| Revoke a token | `DELETE /user/tokens/{tokenUuid}` | token (`*`) |
 | List Cloudflare integrations | `GET /integrations/cloudflare` | `read:servers` |
 | List blueprints | `GET /blueprints` | `read:servers` |
 
@@ -59,17 +56,18 @@ Who am I (verifies the token):
 "$XC" GET /user | jq '.data | {uuid, name, email, team: .team.name}'
 ```
 
-List API tokens (needs the `*` scope):
+List API tokens (needs the `*` scope) — note each token's `uuid`, which is what
+the revoke call below takes:
 
 ```bash
-"$XC" GET /user/tokens | jq '(.data.items // .data.data // .data) | map({id, name, last_used_at})'
+"$XC" GET /user/tokens | jq '(.data.items // .data.data // .data) | map({uuid, name, last_used_at})'
 ```
 
-Revoke a token (numeric id — restate before running):
+Revoke a token (pass the `uuid` from the list above — restate before running):
 
 ```bash
-TOKEN_ID='123'
-"$XC" DELETE "/user/tokens/$TOKEN_ID" | jq '.message'
+TOKEN_UUID='8c1f3a89-2c4e-4a73-9d4c-8b1f2a3d4e5f'
+"$XC" DELETE "/user/tokens/$TOKEN_UUID" | jq '.message'
 ```
 
 Cloudflare integrations on the team:
@@ -87,6 +85,7 @@ Blueprints (resolve a `blueprint_uuid` before creating a WordPress site):
 
 ## Pitfalls
 
-- Token endpoints use a **numeric** `{tokenId}`, not a UUID.
+- Token revocation is keyed by the token's **`uuid`** (from `GET /user/tokens`),
+  not a numeric id — `DELETE /user/tokens/{tokenUuid}`.
 - `GET /user/tokens` returns `403` unless the token carries the `*` scope.
 - `blueprints` requires `read:servers`, not `read:sites`.
