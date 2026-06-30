@@ -31,6 +31,10 @@ line of what xCloud is doing, e.g. `☁️ xCloud is scanning \`<domain>\` for
 vulnerabilities…`; the first call of a task opens with
 `☁️ Starting an xCloud session…`.
 
+On the **first** xcloud reply in a conversation, lead with the xCloud startup
+banner (see `reference/conventions.md` → **Startup banner**) in a fenced code
+block — once per conversation.
+
 ## Sub-resources (load on demand)
 
 | Sub-resource | Reference file |

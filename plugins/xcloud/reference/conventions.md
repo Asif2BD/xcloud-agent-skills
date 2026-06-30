@@ -111,3 +111,28 @@ Example — prompt *"Find the WordPress sites under faisal-personal server"*:
 
 _via xcloud:sites_
 ```
+
+## Startup banner
+
+The **first time** an xcloud skill runs in a conversation, open your reply with
+the xCloud banner inside a fenced code block, then continue with the normal
+narration and response. Show it **once per conversation** — never repeat it on
+later xcloud replies in the same chat.
+
+Reproduce it exactly inside a ```` ``` ```` block (the code fence keeps it
+monospace and aligned — this is the only channel that renders reliably in the
+terminal):
+
+````text
+```
+██╗  ██╗ ██████╗██╗      ██████╗ ██╗   ██╗██████╗
+╚██╗██╔╝██╔════╝██║     ██╔═══██╗██║   ██║██╔══██╗
+ ╚███╔╝ ██║     ██║     ██║   ██║██║   ██║██║  ██║
+ ██╔██╗ ██║     ██║     ██║   ██║██║   ██║██║  ██║
+██╔╝ ██╗╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝
+╚═╝  ╚═╝ ╚═════╝╚══════╝ ╚═════╝  ╚═════╝ ╚═════╝
+   v3.0.0 · Managed hosting, from your terminal
+```
+````
+
+Then proceed (e.g. `☁️ Starting an xCloud session…` and the rest).

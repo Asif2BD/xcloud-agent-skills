@@ -28,6 +28,10 @@ Narrate each call (see **Progress narration**): before every `$XC` call print on
 line of what xCloud is doing, e.g. `☁️ xCloud is fetching your account…`; the
 first call of a task opens with `☁️ Starting an xCloud session…`.
 
+On the **first** xcloud reply in a conversation, lead with the xCloud startup
+banner (see `reference/conventions.md` → **Startup banner**) in a fenced code
+block — once per conversation.
+
 ## What this skill owns
 
 | Operation | Method + path | Scope |
