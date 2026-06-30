@@ -1,5 +1,5 @@
 ---
-name: wordpress
+name: xcloud-wordpress
 description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings, and run PageSpeed Insights scans. Use for WordPress app management, security scans, or site performance. For SSL see xcloud:ssl; for site backups/domains/cache see xcloud:sites; for server infra see xcloud:servers.
 version: 3.0.0
 author: xCloudDev
@@ -11,11 +11,11 @@ license: MIT
 Owns WordPress app management plus site vulnerability scanning and PageSpeed.
 Read the shared layer first for auth, base URL, and conventions:
 
-- `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `reference/auth.md`
+- `reference/conventions.md`
 
 ```bash
-XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
+XC="scripts/xcloud.sh"
 ```
 
 Scopes: reads need `read:sites`, writes need `write:sites`.

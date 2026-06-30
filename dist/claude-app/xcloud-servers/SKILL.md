@@ -1,5 +1,5 @@
 ---
-name: servers
+name: xcloud-servers
 description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning a new WordPress site onto a server. Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see xcloud:sites), NOT SSL certs (see xcloud:ssl), NOT WordPress app management (see xcloud:wordpress).
 version: 3.0.0
 author: xCloudDev
@@ -11,11 +11,11 @@ license: MIT
 Owns server infrastructure and server-level security. Read the shared layer
 first for auth, base URL, envelope, pagination, and rate limits:
 
-- `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `reference/auth.md`
+- `reference/conventions.md`
 
 ```bash
-XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
+XC="scripts/xcloud.sh"
 ```
 
 Scopes: reads need `read:servers`, writes need `write:servers`.

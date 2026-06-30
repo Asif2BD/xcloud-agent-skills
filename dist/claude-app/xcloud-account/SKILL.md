@@ -1,5 +1,5 @@
 ---
-name: account
+name: xcloud-account
 description: xCloud account, identity, and org-level reads — current user, API token listing and revocation, Cloudflare integrations, WordPress blueprints, and API health. Use for "who am I", token management, listing blueprints, or checking integrations. NOT server or site operations (see xcloud:servers / xcloud:sites).
 version: 3.0.0
 author: xCloudDev
@@ -11,11 +11,11 @@ license: MIT
 Identity and org-level endpoints. For auth, base URL, and response conventions
 read the shared layer first:
 
-- `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `reference/auth.md`
+- `reference/conventions.md`
 
 ```bash
-XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
+XC="scripts/xcloud.sh"
 ```
 
 ## Response format
