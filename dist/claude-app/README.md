@@ -7,7 +7,7 @@ feature. This is a **separate distribution** from the Claude Code plugin in
 | Surface | Use |
 |---|---|
 | **Claude Code** (CLI / IDE) | Install the plugin (`plugins/xcloud`) via the marketplace. Full local + live support, token via `settings.json`. |
-| **claude.ai app** | Upload the zips in this folder via **Add Skill**. |
+| **claude.ai app** | Upload `xcloud-agent-skill.zip` via **Add Skill**. |
 
 These folders are **generated** from the plugin by `build.sh` — don't edit them by
 hand. Change the plugin, then re-run the build.
@@ -18,29 +18,29 @@ hand. Change the plugin, then re-run the build.
 bash dist/claude-app/build.sh
 ```
 
-Produces, for each capability, a self-contained folder + zip:
+Produces **one** self-contained skill + a single zip:
 
 ```
-xcloud-servers/   xcloud-servers.zip
-xcloud-sites/     xcloud-sites.zip
-xcloud-wordpress/ xcloud-wordpress.zip
-xcloud-ssl/       xcloud-ssl.zip
-xcloud-account/   xcloud-account.zip
+xcloud/                  xcloud-agent-skill.zip
 ```
 
-Each bundles its own copy of the shared wrapper (`scripts/xcloud.sh`) and shared
-reference (`reference/auth.md`, `reference/conventions.md`) — because claude.ai
-skills must be self-contained (there's no shared plugin root like in Claude Code).
+claude.ai treats an uploaded zip as **one skill** (a single `SKILL.md` at the
+root), so all five capability areas ship as **one `xcloud` skill**: a router
+`SKILL.md` that dispatches to per-area reference files
+(`reference/servers.md`, `reference/sites.md`, …), with the shared wrapper
+(`scripts/xcloud.sh`) and shared reference (`reference/auth.md`,
+`reference/conventions.md`) bundled in. Sub-resource files are namespaced by area
+(`reference/servers-firewall.md`) so nothing collides.
 
 ## Install on claude.ai
 
 1. Open **claude.ai → Settings → Capabilities** (Skills). You need the
    **code execution / Files & Skills** capability enabled (plan/admin gated).
-2. **Add Skill → Upload** and pick a zip (e.g. `xcloud-ssl.zip`). Repeat for each
-   capability you want.
-3. The skills appear as `xcloud-servers`, `xcloud-ssl`, … (note: the CLI uses
-   `xcloud:servers` with a colon; the app build uses a hyphen and is otherwise
-   identical).
+2. **Add Skill → Upload** and pick **`xcloud-agent-skill.zip`**. That's it — one
+   upload installs everything.
+3. The skill appears as **`xcloud`** and handles servers, sites, WordPress, SSL,
+   and account requests (the CLI splits these into `xcloud:servers`, `xcloud:ssl`,
+   … — same capabilities, one skill in the app).
 
 ## Required: API token
 

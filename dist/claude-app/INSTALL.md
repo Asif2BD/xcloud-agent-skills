@@ -36,11 +36,11 @@ functionality today, use **Claude Code**.
 - A claude.ai plan with **Skills / code execution** available (Pro, Max, Team, or
   Enterprise — exact availability varies; Free typically excludes it).
 - An **xCloud API token** (created in step 3).
-- The skill **zips** from this repo (built in step 2).
+- The skill **zip** from this repo (built in step 2).
 
 ---
 
-## 2. Build the zips
+## 2. Build the zip
 
 From the repo root:
 
@@ -48,21 +48,18 @@ From the repo root:
 bash dist/claude-app/build.sh
 ```
 
-This produces one self-contained zip per capability in `dist/claude-app/`:
+This produces **one** self-contained skill zip in `dist/claude-app/`:
 
 ```
-xcloud-servers.zip
-xcloud-sites.zip
-xcloud-wordpress.zip
-xcloud-ssl.zip
-xcloud-account.zip
+xcloud-agent-skill.zip
 ```
 
-Each zip bundles everything the skill needs (wrapper script + reference files) —
-unlike the Claude Code plugin, which shares those across skills.
+It bundles everything — a router `SKILL.md` covering all five capability areas
+(servers, sites, WordPress, SSL, account), the wrapper script, and all reference
+files. **One upload installs everything.**
 
-> Upload only the capabilities you want. Most people start with
-> `xcloud-servers.zip` and `xcloud-sites.zip`.
+> claude.ai treats a zip as a single skill, so all capabilities ship as one
+> `xcloud` skill (not five). That's why there's one zip, not five.
 
 ---
 
@@ -85,14 +82,13 @@ unlike the Claude Code plugin, which shares those across skills.
 2. Go to **Capabilities** (also labelled *Features* in some accounts) and find the
    **Skills** section. Make sure **code execution** is enabled.
 3. Click **Add Skill → Upload** (or *Upload skill*).
-4. Select a zip, e.g. `dist/claude-app/xcloud-servers.zip`.
-5. Confirm. The skill appears as **`xcloud-servers`** (the app uses a hyphen; the
-   CLI uses `xcloud:servers` with a colon — same skill).
-6. Repeat for any other capability zips you want.
+4. Select **`dist/claude-app/xcloud-agent-skill.zip`**.
+5. Confirm. The skill appears as **`xcloud`** and covers all five areas — servers,
+   sites, WordPress, SSL, and account. One upload, everything installed.
 
 > **Don't** use "Import from GitHub" for these — that imports the *Claude Code
 > plugin* structure, whose shared wrapper lives outside each skill folder and
-> won't be present in the app. Always **upload the zips**.
+> won't be present in the app. Always **upload the zip** (`xcloud-agent-skill.zip`).
 
 ---
 
@@ -147,7 +143,7 @@ repo. To get changes:
 
 | | Claude Code (CLI) | claude.ai app |
 |---|---|---|
-| Install | Plugin via marketplace | Upload these zips |
+| Install | Plugin via marketplace | Upload `xcloud-agent-skill.zip` |
 | Token | `~/.claude/settings.json` (persistent) | Paste in-session |
 | Local xCloud (`xcloud.test`) | ✅ works | ❌ unreachable from cloud |
 | Live API (`app.xcloud.host`) | ✅ works | ⚠️ only if egress allows it |

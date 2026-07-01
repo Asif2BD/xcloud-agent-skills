@@ -1,48 +1,74 @@
 #!/usr/bin/env bash
-# build.sh — generate claude.ai-compatible Skills from the Claude Code plugin.
+# build.sh — generate ONE consolidated claude.ai skill from the Claude Code plugin.
 #
-# The plugin (plugins/xcloud) shares one plugin-level scripts/ + reference/ via
-# ${CLAUDE_PLUGIN_ROOT}. claude.ai consumes SELF-CONTAINED skill folders instead,
-# so this script, for each capability skill:
-#   1. copies the shared wrapper + shared reference INTO the skill folder
-#   2. copies the skill's own reference files
-#   3. rewrites SKILL.md: strips ${CLAUDE_PLUGIN_ROOT}/ → skill-relative paths,
-#      and renames the skill `servers` → `xcloud-servers` (unique on claude.ai)
-#   4. zips each folder, ready to drag into claude.ai "Add Skill"
+# claude.ai treats an uploaded zip as a SINGLE skill (one SKILL.md at the root).
+# So instead of five separate skills we ship one `xcloud` skill whose SKILL.md
+# routes across all five capability areas, with everything bundled:
 #
-# Re-run anytime the plugin changes. Output: dist/claude-app/xcloud-<name>/ + .zip
+#   xcloud/
+#     SKILL.md                     <- router (dist/claude-app/SKILL.template.md)
+#     scripts/xcloud.sh            <- shared wrapper
+#     reference/
+#       auth.md  conventions.md    <- shared layer
+#       servers.md sites.md ...    <- each area's SKILL.md body, as a reference doc
+#       servers-firewall.md ...    <- sub-resource files, namespaced by area
+#
+# Sub-resource files are prefixed with their area (servers-cron-jobs.md vs
+# sites-cron-jobs.md) so nothing collides when flattened, and the in-body links
+# are rewritten to match. ${CLAUDE_PLUGIN_ROOT}/ is stripped to skill-relative
+# paths. Output: dist/claude-app/xcloud/ + dist/claude-app/xcloud-agent-skill.zip
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SRC="$ROOT/plugins/xcloud"
 OUT="$ROOT/dist/claude-app"
-SKILLS=(servers sites wordpress ssl account)
+SKILL="$OUT/xcloud"
+AREAS=(servers sites wordpress ssl account)
 
-echo "Building claude.ai skills from $SRC"
-rm -rf "$OUT"/xcloud-* 2>/dev/null || true
+echo "Building consolidated claude.ai skill from $SRC"
 
-for s in "${SKILLS[@]}"; do
-  dst="$OUT/xcloud-$s"
-  mkdir -p "$dst/scripts" "$dst/reference"
+# clean previous outputs (old per-skill folders + zips + this skill)
+rm -rf "$OUT"/xcloud-* "$SKILL" "$OUT"/*.zip 2>/dev/null || true
+mkdir -p "$SKILL/scripts" "$SKILL/reference"
 
-  # shared layer → bundled into each skill (no ${CLAUDE_PLUGIN_ROOT} on claude.ai)
-  cp "$SRC/scripts/xcloud.sh"            "$dst/scripts/"
-  cp "$SRC/reference/auth.md"            "$dst/reference/"
-  cp "$SRC/reference/conventions.md"     "$dst/reference/"
+strip_pluginroot='s#"${CLAUDE_PLUGIN_ROOT}"/##g; s#${CLAUDE_PLUGIN_ROOT}/##g'
+drop_frontmatter='BEGIN{fm=0} NR==1 && $0=="---"{fm=1; next} fm==1 && $0=="---"{fm=0; next} fm==0{print}'
 
-  # skill-local reference files, if any
-  if compgen -G "$SRC/skills/$s/reference/*.md" >/dev/null; then
-    cp "$SRC/skills/$s/reference/"*.md "$dst/reference/"
+# shared layer — strip ${CLAUDE_PLUGIN_ROOT}/ to skill-relative paths
+sed "$strip_pluginroot" "$SRC/scripts/xcloud.sh"        > "$SKILL/scripts/xcloud.sh"
+chmod +x "$SKILL/scripts/xcloud.sh"
+sed "$strip_pluginroot" "$SRC/reference/auth.md"        > "$SKILL/reference/auth.md"
+sed "$strip_pluginroot" "$SRC/reference/conventions.md" > "$SKILL/reference/conventions.md"
+
+# router SKILL.md (already skill-relative)
+cp "$OUT/SKILL.template.md" "$SKILL/SKILL.md"
+
+for area in "${AREAS[@]}"; do
+  # 1. copy this area's sub-resource files, namespaced (strip paths + link rewrite),
+  #    and collect the link-rename rules for the area body
+  rename_sed=()
+  if compgen -G "$SRC/skills/$area/reference/*.md" >/dev/null; then
+    for f in "$SRC/skills/$area/reference/"*.md; do
+      base="$(basename "$f")"
+      rename_sed+=(-e "s#reference/${base}#reference/${area}-${base}#g")
+    done
+    for f in "$SRC/skills/$area/reference/"*.md; do
+      base="$(basename "$f")"
+      sed "$strip_pluginroot" "$f" | sed "${rename_sed[@]}" \
+        > "$SKILL/reference/${area}-${base}"
+    done
   fi
 
-  # SKILL.md: skill-relative paths + unique name
-  sed -e 's#\${CLAUDE_PLUGIN_ROOT}/##g' \
-      -e "s/^name: ${s}\$/name: xcloud-${s}/" \
-      "$SRC/skills/$s/SKILL.md" > "$dst/SKILL.md"
-
-  # zip for upload
-  ( cd "$OUT" && rm -f "xcloud-$s.zip" && zip -qr "xcloud-$s.zip" "xcloud-$s" )
-  echo "  ✓ xcloud-$s  ($(find "$dst" -type f | wc -l | tr -d ' ') files)"
+  # 2. convert the area SKILL.md body into reference/<area>.md
+  #    drop frontmatter, strip ${CLAUDE_PLUGIN_ROOT}/, rewrite sub-resource links
+  awk "$drop_frontmatter" "$SRC/skills/$area/SKILL.md" \
+    | sed "$strip_pluginroot" \
+    | sed "${rename_sed[@]:-}" \
+    > "$SKILL/reference/${area}.md"
 done
 
-echo "Done → $OUT"
+# 3. zip the single skill folder
+( cd "$OUT" && zip -qr "xcloud-agent-skill.zip" "xcloud" )
+
+echo "  ✓ xcloud  ($(find "$SKILL" -type f | wc -l | tr -d ' ') files)"
+echo "Done → $OUT/xcloud-agent-skill.zip"
