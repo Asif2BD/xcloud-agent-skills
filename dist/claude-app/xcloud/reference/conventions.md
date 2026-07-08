@@ -168,25 +168,3 @@ terminal):
 ````
 
 Then proceed (e.g. `☁️ Starting an xCloud session…` and the rest).
-
-## Logo image (claude.ai only)
-
-You are running in the **claude.ai app**, which renders markdown images. Show the
-real xCloud icon in the **response header** so the brand is visual, not just text.
-
-- In the **Response format** header, put the icon image immediately before the
-  wordmark, replacing the leading `☁️` glyph:
-
-  `![xCloud](https://cdn.jsdelivr.net/gh/xCloudDev/xcloud-agent-skills@main/plugins/xcloud/resources/logo/xcloud-icon.svg) **xCloud · <Area>** — <resource>`
-
-- Keep the plain `☁️` glyph in the **progress narration** lines (those are short
-  status labels; a glyph is cleaner there than a repeated image).
-- Emit the image **once**, in the header only — do not repeat it on every bullet.
-- If the image ever fails to load, the header still reads correctly as text, so
-  never omit the `**xCloud · <Area>**` wordmark.
-
-Example header:
-
-```text
-![xCloud](https://cdn.jsdelivr.net/gh/xCloudDev/xcloud-agent-skills@main/plugins/xcloud/resources/logo/xcloud-icon.svg) **xCloud · Servers** — agent-skill
-```

@@ -40,36 +40,11 @@ chmod +x "$SKILL/scripts/xcloud.sh"
 sed "$strip_pluginroot" "$SRC/reference/auth.md"        > "$SKILL/reference/auth.md"
 sed "$strip_pluginroot" "$SRC/reference/conventions.md" > "$SKILL/reference/conventions.md"
 
-# bundle the brand icon + append an APP-ONLY logo rule to conventions.md.
-# claude.ai can render markdown images (the CLI can't), so only the app build
-# tells the model to show the real xCloud icon in the response header.
-LOGO_URL='https://cdn.jsdelivr.net/gh/xCloudDev/xcloud-agent-skills@main/plugins/xcloud/resources/logo/xcloud-icon.svg'
-mkdir -p "$SKILL/resources/logo"
-cp "$SRC/resources/logo/xcloud-icon.svg" "$SKILL/resources/logo/xcloud-icon.svg"
-cat >> "$SKILL/reference/conventions.md" <<EOF
-
-## Logo image (claude.ai only)
-
-You are running in the **claude.ai app**, which renders markdown images. Show the
-real xCloud icon in the **response header** so the brand is visual, not just text.
-
-- In the **Response format** header, put the icon image immediately before the
-  wordmark, replacing the leading \`☁️\` glyph:
-
-  \`![xCloud]($LOGO_URL) **xCloud · <Area>** — <resource>\`
-
-- Keep the plain \`☁️\` glyph in the **progress narration** lines (those are short
-  status labels; a glyph is cleaner there than a repeated image).
-- Emit the image **once**, in the header only — do not repeat it on every bullet.
-- If the image ever fails to load, the header still reads correctly as text, so
-  never omit the \`**xCloud · <Area>**\` wordmark.
-
-Example header:
-
-\`\`\`text
-![xCloud]($LOGO_URL) **xCloud · Servers** — agent-skill
-\`\`\`
-EOF
+# NOTE: no inline logo image. claude.ai chat renders an external markdown image as
+# a large click-to-reveal "Show Image" card (no width/height control), which
+# breaks the header rather than showing a tidy inline icon. The brand mark is the
+# ☁️ glyph + bold **xCloud** wordmark (both surfaces) plus the ASCII startup
+# banner. The SVG stays in the repo for hosting/MCP/docs use, not for chat output.
 
 # router SKILL.md (already skill-relative)
 cp "$OUT/SKILL.template.md" "$SKILL/SKILL.md"

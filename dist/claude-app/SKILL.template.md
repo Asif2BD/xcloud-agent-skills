@@ -49,9 +49,6 @@ Follow `reference/conventions.md`:
   `xCloud is polling…`.** This is how the user sees xCloud working behind the scene.
 - **Response format** — a `☁️ **xCloud · <Area>** — <resource>` header and a
   `_via xcloud:<area>_` footer.
-- **Logo image** — this is the claude.ai app, so render the real xCloud icon in
-  the response header (see `reference/conventions.md` → **Logo image**). Use the
-  icon in place of the leading `☁️` in the header; keep `☁️` in progress lines.
 
 ## Verify the connection
 
