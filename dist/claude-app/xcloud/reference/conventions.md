@@ -151,10 +151,10 @@ the xCloud banner inside a fenced code block, then continue with the normal
 narration and response. Show it **once per conversation** — never repeat it on
 later xcloud replies in the same chat.
 
-The banner is the xCloud **cloud logo** stacked above the **XCLOUD wordmark**.
+The banner is the xCloud **cloud logo** with a one-line tagline beneath it.
 Reproduce it exactly inside a ```` ``` ```` block (the code fence keeps it
 monospace and aligned — this is the only channel that renders reliably in the
-terminal). It is ~52 cols wide, so it fits an 80-column terminal without wrapping:
+terminal). It is ~35 cols wide, so it fits an 80-column terminal without wrapping:
 
 ````text
 ```
@@ -178,12 +178,6 @@ terminal). It is ~52 cols wide, so it fits an 80-column terminal without wrappin
                       #*******
                         #******
 
-██╗  ██╗ ██████╗██╗      ██████╗ ██╗   ██╗██████╗
-╚██╗██╔╝██╔════╝██║     ██╔═══██╗██║   ██║██╔══██╗
- ╚███╔╝ ██║     ██║     ██║   ██║██║   ██║██║  ██║
- ██╔██╗ ██║     ██║     ██║   ██║██║   ██║██║  ██║
-██╔╝ ██╗╚██████╗███████╗╚██████╔╝╚██████╔╝██████╔╝
-╚═╝  ╚═╝ ╚═════╝╚══════╝ ╚═════╝  ╚═════╝ ╚═════╝
    v3.0.0 · Managed hosting, from your terminal
 ```
 ````
