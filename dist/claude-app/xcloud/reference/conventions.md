@@ -83,29 +83,61 @@ _via xcloud:ssl_
 
 ## Progress narration
 
-Make the xCloud service **visible at every step**. Before each call through the
-wrapper, print one short, present-tense line saying what xCloud is doing — so the
-user sees that each piece of the answer came from a live xCloud API call.
+Make the xCloud service **visible at every step**. The user must see that xCloud —
+not some generic assistant — is doing the work.
 
-- **Open the task** with a session line on the first call (the identity / first
-  lookup): `☁️ Starting an xCloud session…`
+**The rule: every progress line and every action sentence starts with the word
+`xCloud` as the actor.** Present tense. Never write a bare verb like "Creating…",
+"Polling…", "Checking…", "Analyzing…" — always `xCloud is creating…`,
+`xCloud is polling…`, `xCloud is checking…`. This applies to BOTH:
+
+1. **Status / preamble lines** — the short line you print before running a call
+   (this becomes the gray label the user reads). Lead with `xCloud`.
+2. **Body sentences that describe an action** — inside the reply, say
+   `xCloud is creating your new WordPress site…`, not `Creating your new site…`.
+   Make xCloud the subject of the sentence whenever you narrate an action it took
+   or is taking.
+
+Detail:
+
+- **Open the task** on the first call with `☁️ xCloud is starting a session…`
+  (identity / first lookup).
 - **Before every subsequent call**, emit one line naming the action and the
-  resource in plain language — not the raw method/path:
+  resource in plain language — not the raw method/path — always led by `xCloud`:
   - `☁️ xCloud is fetching your server \`faisal-personal\`…`
-  - `☁️ xCloud is finding WordPress sites on \`faisal-personal\`…`
+  - `☁️ xCloud is creating a new WordPress site on the latest PHP…`
+  - `☁️ xCloud is polling the new site until it is provisioned…`
   - `☁️ xCloud is renewing the SSL certificate for \`shop.example.com\`…`
 - **One line per API call.** Then run the call. When all calls are done,
-  summarize once in the **Response format** above (header + footer).
+  summarize once in the **Response format** above (header + footer) — and in that
+  summary too, attribute actions to xCloud (`xCloud provisioned…`, `xCloud found…`).
+
+**Anti-pattern (too vague — xCloud is invisible):**
+
+```text
+Creating a new WordPress demo site on the latest PHP…
+Creating your new WordPress site on the latest PHP now.
+Polling the new site until provisioned
+```
+
+**Correct (xCloud is clearly the actor at every step):**
+
+```text
+☁️ xCloud is creating a new WordPress demo site on the latest PHP (8.5)…
+☁️ xCloud is provisioning your new WordPress site on the latest PHP now…
+☁️ xCloud is polling the new site until it is provisioned…
+```
 
 Example — prompt *"Find the WordPress sites under faisal-personal server"*:
 
 ```text
-☁️ Starting an xCloud session…
+☁️ xCloud is starting a session…
 ☁️ xCloud is fetching your server `faisal-personal`…
 ☁️ xCloud is finding WordPress sites on `faisal-personal`…
 
 ☁️ **xCloud · Sites** — faisal-personal
 
+xCloud found 2 WordPress sites on `faisal-personal`:
 • shop.example.com — WordPress, PHP 8.3, active
 • blog.example.com — WordPress, PHP 8.2, active
 
@@ -136,3 +168,25 @@ terminal):
 ````
 
 Then proceed (e.g. `☁️ Starting an xCloud session…` and the rest).
+
+## Logo image (claude.ai only)
+
+You are running in the **claude.ai app**, which renders markdown images. Show the
+real xCloud icon in the **response header** so the brand is visual, not just text.
+
+- In the **Response format** header, put the icon image immediately before the
+  wordmark, replacing the leading `☁️` glyph:
+
+  `![xCloud](https://cdn.jsdelivr.net/gh/xCloudDev/xcloud-agent-skills@main/plugins/xcloud/resources/logo/xcloud-icon.svg) **xCloud · <Area>** — <resource>`
+
+- Keep the plain `☁️` glyph in the **progress narration** lines (those are short
+  status labels; a glyph is cleaner there than a repeated image).
+- Emit the image **once**, in the header only — do not repeat it on every bullet.
+- If the image ever fails to load, the header still reads correctly as text, so
+  never omit the `**xCloud · <Area>**` wordmark.
+
+Example header:
+
+```text
+![xCloud](https://cdn.jsdelivr.net/gh/xCloudDev/xcloud-agent-skills@main/plugins/xcloud/resources/logo/xcloud-icon.svg) **xCloud · Servers** — agent-skill
+```

@@ -26,7 +26,9 @@ trimmed result, and close with a `_via xcloud:ssl_` line.
 Narrate each call (see **Progress narration**): before every `$XC` call print one
 line of what xCloud is doing, e.g. `☁️ xCloud is renewing the SSL certificate for
 \`<domain>\`…`; the first call of a task opens with
-`☁️ Starting an xCloud session…`.
+`☁️ xCloud is starting a session…`. **Every progress line and every action
+sentence must start with `xCloud` as the actor — never a bare verb like
+"Renewing…" or "Checking…". Say `xCloud is renewing…`.**
 
 On the **first** xcloud reply in a conversation, lead with the xCloud startup
 banner (see `reference/conventions.md` → **Startup banner**) in a fenced code
