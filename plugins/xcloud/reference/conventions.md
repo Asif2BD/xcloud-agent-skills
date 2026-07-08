@@ -151,12 +151,33 @@ the xCloud banner inside a fenced code block, then continue with the normal
 narration and response. Show it **once per conversation** — never repeat it on
 later xcloud replies in the same chat.
 
+The banner is the xCloud **cloud logo** stacked above the **XCLOUD wordmark**.
 Reproduce it exactly inside a ```` ``` ```` block (the code fence keeps it
 monospace and aligned — this is the only channel that renders reliably in the
-terminal):
+terminal). It is ~52 cols wide, so it fits an 80-column terminal without wrapping:
 
 ````text
 ```
+                  ************
+               *****************
+      #***    *******************
+  #*********************    ******
+ *****************************#****
+****************** #*#    #*****#**
+******         *             **** *
+*****   ******       ******   *** #
+*****    *******   ********   ***
+ *****    ******* *******     **#
+   ****#    *** *******      ***
+       #*     ********      *
+             ******* *
+           #******#*****
+         #******# *******
+        *******    ********
+                     *******
+                      #*******
+                        #******
+
 ██╗  ██╗ ██████╗██╗      ██████╗ ██╗   ██╗██████╗
 ╚██╗██╔╝██╔════╝██║     ██╔═══██╗██║   ██║██╔══██╗
  ╚███╔╝ ██║     ██║     ██║   ██║██║   ██║██║  ██║
@@ -167,4 +188,4 @@ terminal):
 ```
 ````
 
-Then proceed (e.g. `☁️ Starting an xCloud session…` and the rest).
+Then proceed (e.g. `☁️ xCloud is starting a session…` and the rest).
