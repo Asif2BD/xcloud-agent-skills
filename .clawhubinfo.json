@@ -1,6 +1,6 @@
 {
-  "name": "xcloud-public-api",
-  "version": "3.0.0",
+  "name": "xcloud",
+  "version": "3.0.1",
   "display_name": "xCloud Agent Skills",
   "description": "Operate xCloud in plain language from any AI agent — five capability skills (servers, sites, wordpress, ssl, account) wrapping the xCloud Public API.",
   "long_description": "The xCloud agent skills let any AI agent (Claude Code and others) operate xCloud in plain language: reboot a server, renew SSL, scan for vulnerabilities, provision a WordPress site. Five capability-domain skills share one auth + curl layer and route automatically from natural requests. A legacy Python SDK and CLI remain under src/ for direct scripting.",
@@ -54,6 +54,7 @@
 
   "badges": [
     "production-ready",
+    "clawhub-ready",
     "claude-code-plugin",
     "multi-agent",
     "five-skills",
@@ -100,6 +101,15 @@
   },
 
   "changelog": {
+    "v3.0.1": {
+      "date": "2026-07-10",
+      "changes": [
+        "ClawHub release metadata and safety files",
+        "Root SKILL.md for marketplace indexing",
+        "README badges and official xCloud links",
+        "API coverage audit and CI from the public-release branch"
+      ]
+    },
     "v3.0.0": {
       "date": "2026-06-16",
       "changes": [

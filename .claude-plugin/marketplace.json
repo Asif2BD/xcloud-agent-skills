@@ -8,8 +8,8 @@
     {
       "name": "xcloud",
       "source": "./plugins/xcloud",
-      "description": "xCloud Public API skills, split by capability: servers, sites, wordpress, ssl, account (invoked as xcloud:servers, xcloud:ssl, …). Shared auth + curl wrapper.",
-      "version": "3.0.0",
+      "description": "Official xCloud Public API skills for agents: servers, sites, WordPress, SSL, account data, and hosting automation.",
+      "version": "3.0.1",
       "author": {
         "name": "xCloudDev",
         "url": "https://github.com/xCloudDev"

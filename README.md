@@ -1,11 +1,18 @@
 # xCloud Agent Skills
 
+[![Version](https://img.shields.io/badge/version-3.0.1-brightgreen.svg)](CHANGELOG.md)
+[![xCloud](https://img.shields.io/badge/xCloud-Official-0EA5E9.svg)](https://xcloud.host)
+[![ClawHub Ready](https://img.shields.io/badge/ClawHub-ready-7C3AED.svg)](https://clawhub.ai/Asif2BD/xcloud)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 **Operate xCloud in plain language from any AI agent.** Ask *"reboot my Hermes
 server"*, *"renew SSL for example.com"*, or *"scan example.com for
 vulnerabilities and show me the criticals"* — the agent picks the right skill and
 chains the steps. No endpoints to memorize, no SDK to wire up.
 
-This repository ships the **`xcloud` Claude Code plugin** (v3.0.0): five
+Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [API Docs](https://app.xcloud.host/api/v1/docs) · [Dashboard](https://app.xcloud.host)
+
+This repository ships the **`xcloud` Claude Code plugin** (v3.0.1): five
 capability skills that wrap the [xCloud Public API](https://app.xcloud.host/api/v1/docs).
 
 > **New here?** Start with the [User Guide](docs/USER_GUIDE.md) (task-first) or
@@ -179,8 +186,11 @@ Full guidance: [`SECURITY.md`](SECURITY.md).
 
 ## Links
 
+- **xCloud**: https://xcloud.host
+- **Dashboard**: https://app.xcloud.host
 - **API docs**: https://app.xcloud.host/api/v1/docs
-- **Repository**: https://github.com/xCloudDev/xcloud-agent-skills
+- **Official repository**: https://github.com/xCloudDev/xcloud-agent-skills
+- **Development fork**: https://github.com/Asif2BD/xcloud-agent-skills
 - **Issues**: https://github.com/xCloudDev/xcloud-agent-skills/issues
 - **Changelog**: [`CHANGELOG.md`](CHANGELOG.md)
 
