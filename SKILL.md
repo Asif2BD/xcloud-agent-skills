@@ -1,9 +1,9 @@
 ---
-name: xcloud
+name: xcloud-agent-skills
 description: "Official xCloud Public API plugin for agents: manage servers, sites, WordPress, SSL, account data, and API-driven hosting operations."
-version: 3.0.1
+version: 3.0.2
 author: xCloudDev
-homepage: https://github.com/xCloudDev/xcloud-agent-skills
+homepage: https://xcloud.host
 tags: [xcloud, wordpress, hosting, devops, ssl, servers, sites, automation]
 openclaw: ">=2026.2"
 metadata:
@@ -15,7 +15,7 @@ metadata:
         "install":
           [
             {
-              "id": "xcloud",
+              "id": "xcloud-site",
               "kind": "link",
               "label": "xCloud",
               "url": "https://xcloud.host",
@@ -25,6 +25,18 @@ metadata:
               "kind": "link",
               "label": "xCloud Dashboard",
               "url": "https://app.xcloud.host",
+            },
+            {
+              "id": "user-guide",
+              "kind": "link",
+              "label": "User Guide",
+              "url": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md",
+            },
+            {
+              "id": "install-guide",
+              "kind": "link",
+              "label": "Install Guide",
+              "url": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md",
             },
             {
               "id": "github",
@@ -88,6 +100,8 @@ The shared command wrapper is:
 
 - xCloud: https://xcloud.host
 - Dashboard: https://app.xcloud.host
+- User guide: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md
+- Install guide: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md
 - Official repository: https://github.com/xCloudDev/xcloud-agent-skills
 - Development fork: https://github.com/Asif2BD/xcloud-agent-skills
 - Public API docs: https://app.xcloud.host/api/v1/docs

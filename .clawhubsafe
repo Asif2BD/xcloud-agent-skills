@@ -1,6 +1,6 @@
 # ClawHub Safety Attestation
 # Skill: xcloud
-# Version: 3.0.1
+# Version: 3.0.2
 # Publisher: xCloudDev / Asif2BD
 # Date: 2026-07-10
 # Source: https://github.com/xCloudDev/xcloud-agent-skills
@@ -8,18 +8,18 @@
 # Verify with:
 # sha256sum -c .clawhubsafe
 
-186f0325a949091ab5a26743e8d742956d5fab495823f9fe9826a8a549f2b156  .claude-plugin/marketplace.json
+6a21c206b46c8f2ff32e8049eea5d9b2e2ff1cc35442aa8a44fe5fcd4c5b0f38  .claude-plugin/marketplace.json
 fadb3cbde5996e211002e7cc5e707a8652d106407ade28f3dd2e29d94f9b09d8  .clawhubignore
-b2327c5fcad6a9ca1f5767a45566c5195890af510da6b96e78210c5e0595fe62  .clawhubinfo.json
+b64d239e912b3bf9f353f47d4bc0c3ff016baed9affc5cd1e5b0e55dcf55ae9d  .clawhubinfo.json
 d257e3c297f3e51418eab665429323b081acda86914a852322171e64baf2c991  .env.example
 35fc61aecfe0ccdeb09d89b52c87cd58ef8efa7a48f350e863062b8fcc057c7e  .github/workflows/ci.yml
 fc1534e7fd378f9bc556c080a2c5d9725e2bad10d598563b9ec110836ddc33af  .gitignore
-3e8f69eeda63c80ab9a56361a714eaaccc2df1b2777e95fcbdbfb4b6978ec496  CHANGELOG.md
+6e289d57fc970a51e6405941df8df899b71740d488f1002e38c6e04344bdaed9  CHANGELOG.md
 da72f4c23ae57ce07fca56393de88c522882b0babcf25fad5c10dbd9a84bdef3  CONTEXT.md
 153f345062608bf4645dc3a1b0165f206c810bcc30b6e20e7854b73b62c0d7c9  LICENSE
-a010fd5f3540a64b614e9d4d33551ac6b1994da0a6e35dffb81da1b35597465c  README.md
-7eabb095ce11fe80d785e091f1f8617fe2276cf289c82fe7578f0ed0e888edb0  SECURITY.md
-f563335819bde63bc10be0879292afc7a7591bf396128ffa86bdcb648de24b55  SKILL.md
+e6bc756cf058f4d06066fc7df1c2240a79a9fe5f5bed09f03c0600b739116872  README.md
+01b53aa0b219c578d03e7169712b4cd1be466727416f2aed5c2c201b8b337042  SECURITY.md
+49e057faac2d94477a416528ee88181a20b61a887e067bb78689a9d9b231fa0e  SKILL.md
 d6bfd8041e61e71f210f1b1bd9e61a301870d8132eed69360e149100a239815f  WORK_STEP_GUIDES.md
 15093ccf76e1aa623e0fe9d23172fa6cdf29131a772d2eb49bae10708e1e6434  dist/claude-app/.gitignore
 7fa080521f93450f2f1a8a586875f05fb1bfb7e55644f1a704f126e76af23a5f  dist/claude-app/INSTALL.md
@@ -71,7 +71,7 @@ ff14675c017e0ee5efd642b3731c2a4aa059d76888e978ed7e746619df141357  docs/WORKFLOWS
 2dd73cbe7506d9dc15cc5fdf1bd5574cf1fed59d0a02fe0a42d5b495cbc616eb  docs/scalar/build.mjs
 370895fd0a93f5030b571bd6f2691a20ca960fd66d2717245b37c4f878624ada  docs/scalar/index.html
 609fb733236708735d8f166381c4fac6c69b9781c727482569f8b5c7c74001c0  docs/scalar/xcloud-skills.openapi.json
-077f337dcb1fa5951049ecd5047c04918416b911fd745c1c5b78bb2d831de5a2  plugins/xcloud/.claude-plugin/plugin.json
+6c773feff4d9e9981d2d91fa6f50fea1172152485340821756c7562a12c52c70  plugins/xcloud/.claude-plugin/plugin.json
 d26f5629900112625ddd7f11aa05b707039e314a1b1d888555144f2350cd2f96  plugins/xcloud/reference/auth.md
 509f5affb37e661fee22a89a1b48d80ff2aa22a3cc9afa4d8db1b28db5aa1fd5  plugins/xcloud/reference/conventions.md
 b4a612f6481a1f9279861d577e4b56f17987ce560e00fa6cbdd3cd63a53b7e18  plugins/xcloud/resources/logo/xcloud-icon.svg

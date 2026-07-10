@@ -1,6 +1,6 @@
 {
-  "name": "xcloud",
-  "version": "3.0.1",
+  "name": "xcloud-agent-skills",
+  "version": "3.0.2",
   "display_name": "xCloud Agent Skills",
   "description": "Operate xCloud in plain language from any AI agent — five capability skills (servers, sites, wordpress, ssl, account) wrapping the xCloud Public API.",
   "long_description": "The xCloud agent skills let any AI agent (Claude Code and others) operate xCloud in plain language: reboot a server, renew SSL, scan for vulnerabilities, provision a WordPress site. Five capability-domain skills share one auth + curl layer and route automatically from natural requests. A legacy Python SDK and CLI remain under src/ for direct scripting.",
@@ -33,9 +33,9 @@
     "url": "https://xcloud.host"
   },
 
-  "homepage": "https://github.com/xCloudDev/xcloud-agent-skills",
+  "homepage": "https://xcloud.host",
   "repository": "https://github.com/xCloudDev/xcloud-agent-skills",
-  "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md",
+  "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md",
   "changelog": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md",
 
   "license": "MIT",
@@ -59,7 +59,8 @@
     "multi-agent",
     "five-skills",
     "security-hardened",
-    "error-recovery"
+    "error-recovery",
+    "official-xcloud"
   ],
 
   "requirements": {
@@ -76,7 +77,8 @@
   "quick_start": {
     "1_install": "/plugin marketplace add xCloudDev/xcloud-agent-skills  then  /plugin install xcloud@xcloud-agent-skills",
     "2_configure": "Add {\"env\": {\"XCLOUD_API_TOKEN\": \"your-token\"}} to your Claude Code settings",
-    "3_use": "Ask in plain language, e.g. \"List my xCloud servers\" or \"Renew SSL for example.com\""
+    "3_guides": "Read the user guide and install guide on GitHub",
+    "4_use": "Ask in plain language, e.g. \"List my xCloud servers\" or \"Renew SSL for example.com\""
   },
 
   "agent_support": {
@@ -97,10 +99,22 @@
   "installation": {
     "claude_code": "/plugin marketplace add xCloudDev/xcloud-agent-skills && /plugin install xcloud@xcloud-agent-skills",
     "git_clone": "git clone https://github.com/xCloudDev/xcloud-agent-skills.git",
+    "user_guide": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md",
+    "install_guide": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md",
+    "api_docs": "https://app.xcloud.host/api/v1/docs",
+    "xcloud": "https://xcloud.host",
     "other_frameworks": "Copy plugins/xcloud/skills/* into your agent's skills directory"
   },
 
   "changelog": {
+    "v3.0.2": {
+      "date": "2026-07-10",
+      "changes": [
+        "Corrected ClawHub slug to xcloud-agent-skills",
+        "Added first-screen ClawHub, version, license, xCloud, and OpenClaw badges",
+        "Added direct xCloud, dashboard, GitHub, user guide, install guide, and API documentation links"
+      ]
+    },
     "v3.0.1": {
       "date": "2026-07-10",
       "changes": [
@@ -146,7 +160,10 @@
   "support": {
     "github_issues": "https://github.com/xCloudDev/xcloud-agent-skills/issues",
     "email": "dev@xcloud.host",
-    "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/"
+    "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/",
+    "user_guide": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md",
+    "install_guide": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md",
+    "xcloud": "https://xcloud.host"
   },
 
   "verified": true,
