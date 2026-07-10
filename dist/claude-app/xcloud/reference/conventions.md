@@ -50,7 +50,7 @@ endpoint (status/events/tasks) to confirm completion.
 - Read first to resolve UUIDs; restate the target resource before any
   state-changing call.
 - Trim output with `jq`; return the relevant fields, not raw noise.
-- The shared wrapper is `"${CLAUDE_PLUGIN_ROOT}"/scripts/xcloud.sh`.
+- The shared wrapper is `scripts/xcloud.sh`.
 
 ## Response format
 

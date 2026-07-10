@@ -2,7 +2,7 @@
 # xcloud.sh — thin curl wrapper for the xCloud Public API.
 #
 # Shared by every xcloud-* domain skill. Skills invoke it via
-# "${CLAUDE_PLUGIN_ROOT}"/scripts/xcloud.sh — one copy, no per-skill duplication.
+# scripts/xcloud.sh — one copy, no per-skill duplication.
 #
 # Usage:
 #   ./xcloud.sh GET  /sites

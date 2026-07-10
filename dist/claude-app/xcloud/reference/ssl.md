@@ -1,7 +1,3 @@
----
-name: ssl
-description: SSL certificates and HTTPS for xCloud sites — view, list, install (Let's Encrypt / custom / Cloudflare), renew, check status, and delete certificates. Use for any cert or HTTPS request on a site. NOT general site lifecycle (see xcloud:sites), NOT WordPress updates or vulnerability scans (see xcloud:wordpress), NOT server firewall/fail2ban (see xcloud:servers).
----
 
 # xCloud SSL
 
@@ -9,13 +5,13 @@ Owns every SSL/certificate operation in the xCloud Public API. For auth, base
 URL, the response envelope, pagination, and rate limits, read the shared layer
 first — this skill does not repeat it:
 
-- `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `reference/auth.md`
+- `reference/conventions.md`
 
 All calls go through the shared wrapper:
 
 ```bash
-XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
+XC="scripts/xcloud.sh"
 ```
 
 Set `XCLOUD_API_BASE_URL=http://xcloud.test` for local, unset (or

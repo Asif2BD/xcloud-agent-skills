@@ -1,18 +1,14 @@
----
-name: wordpress
-description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings, and run PageSpeed Insights scans. Use for WordPress app management, security scans, or site performance. For SSL see xcloud:ssl; for site backups/domains/cache see xcloud:sites; for server infra see xcloud:servers.
----
 
 # xCloud WordPress
 
 Owns WordPress app management plus site vulnerability scanning and PageSpeed.
 Read the shared layer first for auth, base URL, and conventions:
 
-- `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `reference/auth.md`
+- `reference/conventions.md`
 
 ```bash
-XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
+XC="scripts/xcloud.sh"
 ```
 
 Scopes: reads need `read:sites`, writes need `write:sites`.
@@ -38,9 +34,9 @@ block — once per conversation.
 
 | Sub-resource | Reference file |
 |---|---|
-| Plugins, themes, updates, activate, refresh | `reference/plugins-themes.md` |
-| Vulnerabilities (scan, list, ignore) | `reference/vulnerabilities.md` |
-| PageSpeed Insights | `reference/pagespeed.md` |
+| Plugins, themes, updates, activate, refresh | `reference/wordpress-plugins-themes.md` |
+| Vulnerabilities (scan, list, ignore) | `reference/wordpress-vulnerabilities.md` |
+| PageSpeed Insights | `reference/wordpress-pagespeed.md` |
 
 ## Core endpoints
 
@@ -86,5 +82,5 @@ cross-link.
 ## Pitfalls
 
 - Plugin/theme updates and activations are async and can optionally back up
-  first — see `reference/plugins-themes.md`.
+  first — see `reference/wordpress-plugins-themes.md`.
 - Magic-login URLs are single-use and short-lived; never log them.

@@ -83,7 +83,7 @@ with a valid token means the user lacks a required team permission (e.g.
 ## Verifying auth
 
 ```bash
-"${CLAUDE_PLUGIN_ROOT}"/scripts/xcloud.sh GET /user
+scripts/xcloud.sh GET /user
 ```
 
 `401` → token missing/expired/revoked. `403` → scope or team-permission gap.

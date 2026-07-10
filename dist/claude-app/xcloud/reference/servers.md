@@ -1,18 +1,14 @@
----
-name: servers
-description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning a new WordPress site onto a server. Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see xcloud:sites), NOT SSL certs (see xcloud:ssl), NOT WordPress app management (see xcloud:wordpress).
----
 
 # xCloud Servers
 
 Owns server infrastructure and server-level security. Read the shared layer
 first for auth, base URL, envelope, pagination, and rate limits:
 
-- `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `reference/auth.md`
+- `reference/conventions.md`
 
 ```bash
-XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
+XC="scripts/xcloud.sh"
 ```
 
 Scopes: reads need `read:servers`, writes need `write:servers`.
@@ -39,11 +35,11 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 
 | Sub-resource | Reference file |
 |---|---|
-| PHP versions (install, default, opcache, patch) | `reference/php-versions.md` |
-| Server cron jobs (CRUD, execute, output) | `reference/cron-jobs.md` |
-| Databases & database users ⚠️ _(404 on the current API — see file)_ | `reference/databases.md` |
-| Firewall rules, fail2ban, IP whitelisting | `reference/firewall.md` |
-| Sudo users | `reference/sudo-users.md` |
+| PHP versions (install, default, opcache, patch) | `reference/servers-php-versions.md` |
+| Server cron jobs (CRUD, execute, output) | `reference/servers-cron-jobs.md` |
+| Databases & database users ⚠️ _(404 on the current API — see file)_ | `reference/servers-databases.md` |
+| Firewall rules, fail2ban, IP whitelisting | `reference/servers-firewall.md` |
+| Sudo users | `reference/servers-sudo-users.md` |
 
 ## Core endpoints
 

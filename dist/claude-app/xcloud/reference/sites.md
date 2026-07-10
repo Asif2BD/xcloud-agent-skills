@@ -1,18 +1,14 @@
----
-name: sites
-description: Manage xCloud sites — list/inspect sites, status, events, deployment logs, monitoring, backups, rescue, snapshots, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, git, and access logs. Use for any site lifecycle or delivery request. For SSL/certs see xcloud:ssl; for WordPress plugins/updates/vulnerabilities/PageSpeed see xcloud:wordpress; for server-level infra see xcloud:servers.
----
 
 # xCloud Sites
 
 Owns site lifecycle and delivery. Read the shared layer first for auth, base
 URL, envelope, pagination, and rate limits:
 
-- `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `reference/auth.md`
+- `reference/conventions.md`
 
 ```bash
-XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
+XC="scripts/xcloud.sh"
 ```
 
 Scopes: reads need `read:sites`, writes need `write:sites`.
@@ -37,11 +33,11 @@ block — once per conversation.
 
 | Sub-resource | Reference file |
 |---|---|
-| Backups (trigger, list, settings, status, count) | `reference/backups.md` |
-| Domains, redirections, web rules | `reference/domains.md` |
-| Cache (purge, purge-all, settings) | `reference/cache.md` |
-| SSH/SFTP config & keys | `reference/ssh.md` |
-| Site cron jobs | `reference/cron-jobs.md` |
+| Backups (trigger, list, settings, status, count) | `reference/sites-backups.md` |
+| Domains, redirections, web rules | `reference/sites-domains.md` |
+| Cache (purge, purge-all, settings) | `reference/sites-cache.md` |
+| SSH/SFTP config & keys | `reference/sites-ssh.md` |
+| Site cron jobs | `reference/sites-cron-jobs.md` |
 
 ## Core endpoints
 
