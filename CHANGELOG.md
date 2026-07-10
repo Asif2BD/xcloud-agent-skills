@@ -2,6 +2,31 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [3.0.3] - 2026-07-10
+
+### Added
+
+- Closed the live API coverage gaps: `GET /vulnerabilities`,
+  `PUT /sites/{uuid}/git`, `POST /sites/{uuid}/git/deploy`, and
+  `POST /servers/{uuid}/services/disable`.
+- Added `xcloud:sites` Git deployment guidance for reading/updating deployment
+  settings and triggering manual deploys.
+- Added team-wide vulnerability rollup guidance to `xcloud:wordpress`.
+- Added safer proactive token onboarding: xCloud now prompts users to configure
+  `XCLOUD_API_TOKEN` in the runtime/secret store and verifies with `/health` +
+  `/user`, without defaulting to raw token collection in chat.
+- Added direct xCloud tutorial/video/YouTube links to README, root `SKILL.md`,
+  and ClawHub metadata for better marketplace and search indexing.
+
+### Changed
+
+- Changed marketplace category metadata from `infrastructure` to `deployment`.
+- Strengthened xCloud-branded greeting/startup guidance so first-run replies feel
+  more helpful and productized.
+- Refreshed `docs/API-COVERAGE.md`: current skill docs cover **111/111** live
+  OpenAPI operations, with only the 9 caveated database/database-user operations
+  remaining outside the live spec.
+
 ## [3.0.2] - 2026-07-10
 
 ### Changed

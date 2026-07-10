@@ -51,6 +51,7 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 | Monitoring (+ history) | `GET /servers/{uuid}/monitoring[/history]` |
 | Services | `GET /servers/{uuid}/services` |
 | Restart a service | `POST /servers/{uuid}/services/restart` |
+| Disable a service | `POST /servers/{uuid}/services/disable` |
 | Recent tasks | `GET /servers/{uuid}/tasks` |
 | Snapshots | `GET /servers/{uuid}/snapshots` |
 | Supervisor processes | `GET /servers/{uuid}/supervisor-processes` |
@@ -97,6 +98,18 @@ Restart a service:
 "$XC" POST "/servers/$SERVER_UUID/services/restart" '{"service":"nginx"}' | jq '.message'
 ```
 
+Disable a service (synchronous; can take a service offline):
+
+```bash
+"$XC" POST "/servers/$SERVER_UUID/services/disable" '{"service":"redis"}' | jq '.message'
+```
+
+Before disabling, xCloud must confirm the exact server, service name, and impact
+with the user. Accepted `service` values include `mysql`, `mariadb`,
+`postgresql`, `nginx`, `redis`, `php`, `ssh`, `supervisor`, `docker`, `lsws`,
+`nodejs`, `openclaw`, `paperclip`, and `hermes`. For PHP services, pass
+`version` when the server has multiple PHP versions.
+
 Create a WordPress site on the server (live mode needs `domain` + `ssl`; omit
 `domain` for demo). `blueprint_uuid` and `snapshot_uuid` are mutually exclusive;
 auto-generated credentials are returned only once.
@@ -117,6 +130,9 @@ auto-generated credentials are returned only once.
 
 - Server writes are async; success is returned before work completes — poll
   `GET /servers/{uuid}/tasks`.
+- Disabling `ssh`, `nginx`, database, runtime, agent, or queue services can cause
+  lockout or downtime. Require explicit confirmation immediately before calling
+  `POST /servers/{uuid}/services/disable`.
 - WordPress creation lives here (the URL is `/servers/...`), but the resulting
   site is then managed via `xcloud:sites` / `xcloud:wordpress`.
 - `setting default PHP` and `patching PHP` do not enforce a `write:servers`

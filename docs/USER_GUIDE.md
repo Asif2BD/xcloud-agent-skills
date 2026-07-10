@@ -17,9 +17,9 @@ one from what you ask.
 
 | If you want to… | Just say something like | Skill |
 |---|---|---|
-| Manage servers, PHP, databases, firewall | "reboot my Hermes server" | `xcloud:servers` |
-| Work with a site: backups, cache, domains, SSH | "back up example.com" | `xcloud:sites` |
-| Update WordPress, scan vulnerabilities, check speed | "update WooCommerce on example.com" | `xcloud:wordpress` |
+| Manage servers, PHP, databases, services, firewall | "reboot my Hermes server" | `xcloud:servers` |
+| Work with a site: backups, cache, domains, SSH, Git deploys | "deploy the latest commit for example.com" | `xcloud:sites` |
+| Update WordPress, scan vulnerabilities, check speed | "show team-wide critical vulnerabilities" | `xcloud:wordpress` |
 | Set up or renew HTTPS | "renew SSL for example.com" | `xcloud:ssl` |
 | Check who you are, tokens, blueprints | "list my API tokens" | `xcloud:account` |
 
@@ -45,6 +45,11 @@ one from what you ask.
 3. **Check it works.** Ask Claude: **"Check my xCloud API connection."**
    Green light = you're ready.
 
+If Claude says the token is missing, it should guide you to configure
+`XCLOUD_API_TOKEN` in your runtime or secret store and then verify the connection.
+Avoid pasting long-lived production tokens directly into chat; use a temporary,
+scoped token if chat is the only available path.
+
 That's it. Everything below is just talking to Claude.
 
 ---
@@ -59,6 +64,8 @@ up the IDs for you.
 - "Renew the SSL certificate for shop.example.com."
 - "Update all plugins on example.com, but back up first."
 - "Scan example.com for vulnerabilities and show me the critical ones."
+- "Show me critical vulnerabilities across all xCloud sites."
+- "Deploy the latest Git commit for example.com."
 
 If Claude ever reaches for the wrong area, just name it:
 *"Using xcloud:ssl, renew the cert for example.com."*

@@ -1,11 +1,11 @@
 {
   "name": "xcloud-agent-skills",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "display_name": "xCloud Agent Skills",
   "description": "Operate xCloud in plain language from any AI agent — five capability skills (servers, sites, wordpress, ssl, account) wrapping the xCloud Public API.",
   "long_description": "The xCloud agent skills let any AI agent (Claude Code and others) operate xCloud in plain language: reboot a server, renew SSL, scan for vulnerabilities, provision a WordPress site. Five capability-domain skills share one auth + curl layer and route automatically from natural requests. A legacy Python SDK and CLI remain under src/ for direct scripting.",
 
-  "category": "infrastructure",
+  "category": "deployment",
   "subcategories": [
     "hosting",
     "wordpress",
@@ -16,10 +16,10 @@
 
   "keywords": [
     "xcloud",
+    "xcloud-agent-skills",
     "wordpress",
     "hosting",
     "deployment",
-    "infrastructure",
     "devops",
     "agents",
     "automation",
@@ -49,6 +49,8 @@
     "Environment-driven base URL (local / live / white-label)",
     "Per-skill read-only smoke suites",
     "On-demand reference docs for large sub-resources",
+    "Proactive branded onboarding and safe API token setup guidance",
+    "Git deployment, team vulnerability rollup, and service-disable coverage",
     "Legacy Python SDK, async helpers, and CLI under src/"
   ],
 
@@ -103,10 +105,22 @@
     "install_guide": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md",
     "api_docs": "https://app.xcloud.host/api/v1/docs",
     "xcloud": "https://xcloud.host",
+    "tutorial": "https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/",
+    "video": "https://www.youtube.com/watch?v=oEE9OHo3_48",
+    "youtube": "https://www.youtube.com/@xCloud-Hosting",
     "other_frameworks": "Copy plugins/xcloud/skills/* into your agent's skills directory"
   },
 
   "changelog": {
+    "v3.0.3": {
+      "date": "2026-07-10",
+      "changes": [
+        "Changed ClawHub category metadata from infrastructure to deployment",
+        "Closed live API coverage gaps for team-wide vulnerabilities, Git deployment settings, manual Git deploys, and service disable",
+        "Added proactive xCloud-branded onboarding and safer API token setup guidance",
+        "Added direct xCloud tutorial, video, and YouTube links for marketplace indexing"
+      ]
+    },
     "v3.0.2": {
       "date": "2026-07-10",
       "changes": [
@@ -165,6 +179,9 @@
     "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/",
     "user_guide": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md",
     "install_guide": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md",
+    "tutorial": "https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/",
+    "video": "https://www.youtube.com/watch?v=oEE9OHo3_48",
+    "youtube": "https://www.youtube.com/@xCloud-Hosting",
     "xcloud": "https://xcloud.host"
   },
 

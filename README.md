@@ -1,7 +1,7 @@
 # xCloud Agent Skills
 
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-blue)](https://clawhub.ai/asif2bd/skills/xcloud)
-[![Version](https://img.shields.io/badge/version-3.0.2-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-3.0.3-green)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-Official-0EA5E9.svg)](https://xcloud.host)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Skill-purple)](https://openclaw.ai)
@@ -11,9 +11,9 @@ server"*, *"renew SSL for example.com"*, or *"scan example.com for
 vulnerabilities and show me the criticals"* — the agent picks the right skill and
 chains the steps. No endpoints to memorize, no SDK to wire up.
 
-Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs)
+Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [OpenClaw + ClawHub Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) · [Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48)
 
-This repository ships the **`xcloud` Claude Code plugin** (v3.0.2): five
+This repository ships the **`xcloud` Claude Code plugin** (v3.0.3): five
 capability skills that wrap the [xCloud Public API](https://app.xcloud.host/api/v1/docs).
 
 > **New here?** Start with the [User Guide](docs/USER_GUIDE.md) (task-first) or
@@ -26,9 +26,9 @@ You never name them — the agent picks the right one from what you ask.
 
 | Skill | Owns |
 |---|---|
-| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress provisioning |
-| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git |
-| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed |
+| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, services, WordPress provisioning |
+| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git settings, manual deploys |
+| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site and team vulnerabilities, PageSpeed |
 | `xcloud:ssl` | SSL certificates: view, install, renew, status, delete |
 | `xcloud:account` | Current user, API tokens, Cloudflare integrations, blueprints, health |
 
@@ -61,6 +61,12 @@ Skills are organized by **capability, not URL root** — each declares what it d
 3. **Check it works.** Ask Claude: *"Check my xCloud API connection."* A green
    light means you're ready.
 
+If xCloud says the token is missing, it will guide you to create a scoped token,
+store it in your agent runtime as `XCLOUD_API_TOKEN`, restart the agent if
+needed, and verify the connection with `/health` + `/user`. Do not paste a
+production token into chat unless you are using a temporary, scoped token and no
+safer secret-store/runtime option exists.
+
 ### Other agent frameworks
 
 The skills are plain Markdown + a shared `bash`/`curl` wrapper, so they port to
@@ -86,6 +92,8 @@ Renew the SSL certificate for shop.example.com.
 Update all plugins on example.com, but back up first.
 Scan example.com for vulnerabilities and show me the critical ones.
 Something's hammering my server from 203.0.113.7 — block it.
+Show me team-wide WordPress vulnerabilities across all xCloud sites.
+Deploy the latest Git commit for example.com.
 ```
 
 **Multi-step workflows** — each is a single request:
@@ -136,6 +144,9 @@ try-it console:
 | [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) | Task-first examples for using the skills with an agent |
 | [Install & Usage Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) | Full install steps, routing rules, and smoke tests |
 | [API Docs](https://app.xcloud.host/api/v1/docs) | Public API reference and schemas |
+| [OpenClaw + ClawHub Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) | Step-by-step xCloud guide to installing skills from ClawHub |
+| [xCloud Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48) | Video walkthrough for the xCloud/OpenClaw skills workflow |
+| [xCloud YouTube](https://www.youtube.com/@xCloud-Hosting) | xCloud tutorials, walkthroughs, and release videos |
 | [GitHub](https://github.com/xCloudDev/xcloud-agent-skills) | Source, issues, changelog, and contribution flow |
 
 ## Testing
@@ -203,6 +214,8 @@ Full guidance: [`SECURITY.md`](SECURITY.md).
 - **User Guide**: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md
 - **Install Guide**: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md
 - **API docs**: https://app.xcloud.host/api/v1/docs
+- **OpenClaw + ClawHub tutorial**: https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/
+- **Tutorial video**: https://www.youtube.com/watch?v=oEE9OHo3_48
 - **Official repository**: https://github.com/xCloudDev/xcloud-agent-skills
 - **Development fork**: https://github.com/Asif2BD/xcloud-agent-skills
 - **Issues**: https://github.com/xCloudDev/xcloud-agent-skills/issues

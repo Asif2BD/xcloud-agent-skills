@@ -49,6 +49,10 @@ endpoint (status/events/tasks) to confirm completion.
 
 - Read first to resolve UUIDs; restate the target resource before any
   state-changing call.
+- If the API token is missing, greet the user, explain that xCloud needs a token
+  configured in the runtime, and point them to `reference/auth.md`. Do not ask
+  for a raw production token in chat unless no safer runtime/secret-store option
+  exists.
 - Trim output with `jq`; return the relevant fields, not raw noise.
 - The shared wrapper is `"${CLAUDE_PLUGIN_ROOT}"/scripts/xcloud.sh`.
 
@@ -150,6 +154,15 @@ The **first time** an xcloud skill runs in a conversation, open your reply with
 the xCloud banner inside a fenced code block, then continue with the normal
 narration and response. Show it **once per conversation** — never repeat it on
 later xcloud replies in the same chat.
+
+Immediately after the banner, greet the user in one short xCloud-branded line:
+
+```text
+☁️ xCloud is ready to help manage your hosting account.
+```
+
+If no token is configured, replace the normal API narration with the proactive
+setup guidance from `reference/auth.md`.
 
 The banner is the xCloud **cloud logo** with a one-line tagline beneath it.
 Reproduce it exactly inside a ```` ``` ```` block (the code fence keeps it
