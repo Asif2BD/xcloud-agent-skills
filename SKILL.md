@@ -55,7 +55,19 @@ metadata:
   }
 ---
 
-# Skill: xCloud Agent Skills
+# xCloud Agent Skills v3.0.2
+
+[![Version](https://img.shields.io/badge/version-3.0.2-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/LICENSE)
+[![xCloud](https://img.shields.io/badge/xCloud-hosting-0EA5E9.svg)](https://xcloud.host)
+[![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-blue.svg)](https://clawhub.ai/asif2bd/skills/xcloud)
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-skill-purple.svg)](https://openclaw.ai)
+
+Built for xCloud hosting operators by [xCloud](https://xcloud.host) · [GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [Security Notes](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/SECURITY.md)
+
+> **Security notice:** agent-only xCloud operations toolkit. This package contains skill routing instructions, reference docs, and a small `bash`/`curl` wrapper. It ships no API tokens and only calls the xCloud API after a user or agent explicitly invokes a skill with `XCLOUD_API_TOKEN` configured.
+
+---
 
 This root skill describes the official xCloud Public API plugin bundle for agent marketplaces such as ClawHub and skills.mp.com.
 

@@ -1,6 +1,6 @@
 # xCloud Agent Skills
 
-[![ClawHub](https://img.shields.io/badge/ClawHub-xcloud--agent--skills-blue)](https://clawhub.ai/asif2bd/skills/xcloud-agent-skills)
+[![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-blue)](https://clawhub.ai/asif2bd/skills/xcloud)
 [![Version](https://img.shields.io/badge/version-3.0.2-green)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-Official-0EA5E9.svg)](https://xcloud.host)

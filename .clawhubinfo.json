@@ -110,8 +110,10 @@
     "v3.0.2": {
       "date": "2026-07-10",
       "changes": [
-        "Corrected ClawHub slug to xcloud-agent-skills",
+        "Restored the original xcloud ClawHub listing to preserve download history",
+        "Hid the duplicate xcloud-agent-skills listing",
         "Added first-screen ClawHub, version, license, xCloud, and OpenClaw badges",
+        "Added Token Optimizer-style badges and links to the rendered SKILL.md tab",
         "Added direct xCloud, dashboard, GitHub, user guide, install guide, and API documentation links"
       ]
     },

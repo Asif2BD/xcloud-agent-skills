@@ -6,8 +6,9 @@ All notable changes to the xCloud Public API skill are documented in this file.
 
 ### Changed
 
-- Corrected the ClawHub release slug from `xcloud` to `xcloud-agent-skills` to match the official repository identity.
+- Restored the original `xcloud` ClawHub listing so the public release keeps its existing download history.
 - Refreshed the first-screen README badges to match successful Asif2BD ClawHub listings: ClawHub, version, license, xCloud, and OpenClaw.
+- Refreshed the rendered `SKILL.md` tab with Token Optimizer-style badges, first-screen xCloud/GitHub/guide/API/security links, and a security notice for the existing ClawHub listing.
 - Added direct links to xCloud, the xCloud dashboard, GitHub, the User Guide, the Install & Usage Guide, and the Public API docs in both README and marketplace metadata.
 
 ## [3.0.1] - 2026-07-10
