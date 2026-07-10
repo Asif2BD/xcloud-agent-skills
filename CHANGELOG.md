@@ -2,10 +2,13 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
-## [Unreleased]
+## [3.0.1] - 2026-07-10
 
 ### Added
 
+- **ClawHub release metadata**: root `SKILL.md`, `.clawhubignore`, `.clawhubsafe`,
+  scanner-focused `SECURITY.md`, README badges, and official marketplace links
+  for ClawHub and skills.mp.com indexing.
 - **API coverage audit** (`docs/API-COVERAGE.md`): every documented endpoint
   cross-checked against the live OpenAPI (111 operations). Skills cover 108 of
   them; 3 live operations are undocumented (`PUT /sites/{uuid}/git`,
@@ -49,7 +52,7 @@ All notable changes to the xCloud Public API skill are documented in this file.
   white-label hosts are discoverable without reading the source.
 - **Public identity realigned to the skills.** The README now leads with the five
   `xcloud:*` skills, install, and usage; the Python SDK/CLI is reframed as a
-  legacy `src/` track. `.clawhubinfo.json` bumped to `3.0.0`, its stale
+  legacy `src/` track. `.clawhubinfo.json` bumped to `3.0.1`, its stale
   `api_info.version` corrected to the live API's `1.0.0`, and its
   features/badges/quick-start reframed from SDK-centric to skill-centric.
 
@@ -170,4 +173,3 @@ None. All existing curl examples and manual API usage continues to work.
 - Rate limiting information
 - Troubleshooting patterns (502 triage, etc.)
 - README with installation instructions
-

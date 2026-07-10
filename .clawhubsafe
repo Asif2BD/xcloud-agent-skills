@@ -1,0 +1,26 @@
+# ClawHub Safety Attestation
+# Skill: xcloud
+# Version: 3.0.1
+# Publisher: xCloudDev / Asif2BD
+# Date: 2026-07-10
+#
+# Verify with:
+# sha256sum -c .clawhubsafe
+
+f563335819bde63bc10be0879292afc7a7591bf396128ffa86bdcb648de24b55  SKILL.md
+a010fd5f3540a64b614e9d4d33551ac6b1994da0a6e35dffb81da1b35597465c  README.md
+3e8f69eeda63c80ab9a56361a714eaaccc2df1b2777e95fcbdbfb4b6978ec496  CHANGELOG.md
+153f345062608bf4645dc3a1b0165f206c810bcc30b6e20e7854b73b62c0d7c9  LICENSE
+7eabb095ce11fe80d785e091f1f8617fe2276cf289c82fe7578f0ed0e888edb0  SECURITY.md
+fadb3cbde5996e211002e7cc5e707a8652d106407ade28f3dd2e29d94f9b09d8  .clawhubignore
+b2327c5fcad6a9ca1f5767a45566c5195890af510da6b96e78210c5e0595fe62  .clawhubinfo.json
+186f0325a949091ab5a26743e8d742956d5fab495823f9fe9826a8a549f2b156  .claude-plugin/marketplace.json
+077f337dcb1fa5951049ecd5047c04918416b911fd745c1c5b78bb2d831de5a2  plugins/xcloud/.claude-plugin/plugin.json
+73147c42c6515cc9f65ed30f0aa846ddaf0c7e493f22874a28996f03fb9ed870  plugins/xcloud/scripts/xcloud.sh
+60454e272ce2cedd16a7e8b2cdd90a10c9d248cd67fdcda6afcc1a2241513c30  plugins/xcloud/reference/auth.md
+acf39358f9d5bccbd507f50fb7589ceb2c1fd3eb8edd49a6175e97215da95d6c  plugins/xcloud/reference/conventions.md
+76d62973887d6b01ebff67b88dc6f1f94843ddd28ca9a4e1ef7300531d4b355d  plugins/xcloud/skills/account/SKILL.md
+77d93a77ed6eddfb3bd298c3f74df527d512343bc8a86e03037f7a6528938c6d  plugins/xcloud/skills/servers/SKILL.md
+5b3c26fbd2fb284fbca5af51a2f770894c755730e3c1ecaccd065d907c5a7153  plugins/xcloud/skills/sites/SKILL.md
+696959e4270bcf3937631f9139279f5baf5b87caebaa6e8d5716f4bc7d7876b3  plugins/xcloud/skills/ssl/SKILL.md
+7373342e3537e70d9e1a5a59a773a62dfeb85d2905ccc9c8136a6e2cbe7b094d  plugins/xcloud/skills/wordpress/SKILL.md
