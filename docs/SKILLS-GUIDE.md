@@ -9,9 +9,9 @@ Claude picks the right skill automatically.
 
 | Skill | Owns | Typical asks |
 |---|---|---|
-| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress provisioning | "reboot server X", "install PHP 8.3", "ban this IP" |
-| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git | "back up example.com", "purge cache", "show site events" |
-| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed | "update WooCommerce", "scan for vulnerabilities", "PageSpeed score" |
+| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, services, WordPress provisioning | "reboot server X", "install PHP 8.3", "disable Redis", "ban this IP" |
+| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git settings, manual deploys | "back up example.com", "deploy latest commit", "show site events" |
+| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site/team vulnerabilities, PageSpeed | "update WooCommerce", "show team vulnerabilities", "PageSpeed score" |
 | `xcloud:ssl` | SSL certificates: view, install, renew, status, delete | "renew SSL for example.com", "install a Let's Encrypt cert" |
 | `xcloud:account` | Current user, API tokens, Cloudflare integrations, blueprints, health | "who am I", "list my API tokens", "list blueprints" |
 
@@ -69,6 +69,11 @@ echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
 ```bash
 XCLOUD_API_TOKEN=... <command>
 ```
+
+If the token is missing, the xCloud skills should proactively guide you through
+this setup and then verify with `/health` and `/user`. Do not paste long-lived
+production tokens into chat by default; use a runtime env var, settings file, or
+secret store whenever possible.
 
 ---
 
@@ -144,6 +149,14 @@ Server infrastructure and server-level security.
 "$XC" POST "/servers/$SRV/fail2ban/banned-ips" '{"ip_addresses":["203.0.113.7"]}'
 ```
 
+**Disable a service**
+> "Disable Redis on server X."
+```bash
+"$XC" POST "/servers/$SRV/services/disable" '{"service":"redis"}'
+```
+Require explicit confirmation first; disabling services can cause downtime or
+lockout.
+
 **Create a database + user**
 > "Create a database app_prod with a user on server X."
 ```bash
@@ -174,6 +187,19 @@ Site lifecycle and delivery.
 > "Clear the cache on example.com."
 ```bash
 "$XC" POST "/sites/$SITE/cache/purge-all"
+```
+
+**Trigger a Git deployment**
+> "Deploy the latest Git commit for example.com."
+```bash
+"$XC" POST "/sites/$SITE/git/deploy"
+# then poll deployment logs/events
+```
+
+**Update Git deployment settings**
+> "Set example.com to deploy from the main branch and enable push deploy."
+```bash
+"$XC" PUT "/sites/$SITE/git" '{"git_branch":"main","enable_push_deploy":true}'
 ```
 
 **Switch SSH to key auth**

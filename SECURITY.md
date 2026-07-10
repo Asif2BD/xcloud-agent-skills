@@ -86,8 +86,8 @@ test -f .clawhubsafe
 
 # Confirm version alignment.
 grep "^version:" SKILL.md
-grep "version-3.0.1" README.md
-grep "3.0.1" .clawhubinfo.json .claude-plugin/marketplace.json plugins/xcloud/.claude-plugin/plugin.json CHANGELOG.md .clawhubsafe
+grep "version-3.0.2" README.md
+grep "3.0.2" .clawhubinfo.json .claude-plugin/marketplace.json plugins/xcloud/.claude-plugin/plugin.json CHANGELOG.md .clawhubsafe
 
 # Look for common real-secret patterns.
 git ls-files -z | grep -zv -E '^(README.md|SECURITY.md)$' \

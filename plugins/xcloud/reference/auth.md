@@ -15,6 +15,29 @@ export XCLOUD_API_BASE_URL="http://xcloud.test"
 The base URL is the **only** thing that changes between local and live — never
 hardcode a host in a skill body.
 
+## Proactive token onboarding
+
+If `XCLOUD_API_TOKEN` is missing or a request returns `401`, stop before any
+write operation and guide the user through setup. Be proactive and helpful, but
+do **not** ask the user to paste a raw production token into the chat by default.
+Direct them to the runtime's environment, settings file, or secret store.
+
+Use this wording pattern:
+
+```text
+☁️ **xCloud · Setup**
+
+xCloud needs an API token before it can inspect or manage your hosting account.
+Create a scoped token in the xCloud dashboard, store it in your agent runtime as
+`XCLOUD_API_TOKEN`, restart the agent if needed, then ask me to check the xCloud
+connection.
+
+_via xcloud:account_
+```
+
+After setup, verify with `GET /health` and `GET /user` before continuing the
+original task.
+
 ## Setting the token (Claude Code / CLI)
 
 **Step 1 — generate the token first.** In the xCloud dashboard:
@@ -56,8 +79,10 @@ Alternative — shell profile (only affects terminals the user launches manually
 echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
 ```
 
-> **claude.ai app:** there is no `settings.json`. Ask the user to paste the token
-> in the conversation; Claude exports it for that session only.
+> **Browser/chat-only agents:** if no settings file, environment variable, or
+> secret-store integration is available, explain the risk before accepting a
+> temporary token in chat. Recommend a narrow, short-lived token and tell the
+> user to revoke it after the session. Never echo the token back.
 
 ## Generating a token
 

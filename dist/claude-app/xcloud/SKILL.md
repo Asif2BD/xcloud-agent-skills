@@ -22,16 +22,18 @@ XC="scripts/xcloud.sh"
 
 Set the token per `reference/auth.md`:
 - **Claude Code:** `~/.claude/settings.json` (`env` block).
-- **claude.ai app:** there is no settings.json — ask the user to paste the token
-  in the conversation; it lasts for that session only.
+- **Browser/chat-only agents:** use a runtime secret store or environment
+  injection when available. If chat is the only path, explain the risk, ask for a
+  narrow temporary token, and tell the user to revoke it after the session. Never
+  echo the token back.
 
 ## Capability areas — route to the right one
 
 | The request is about… | Read |
 |---|---|
-| Servers, PHP, cron, firewall/fail2ban, sudo users, provisioning WordPress | `reference/servers.md` |
-| Sites: status, backups, domains, cache, SSH, site cron, git | `reference/sites.md` |
-| WordPress: plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed | `reference/wordpress.md` |
+| Servers, PHP, cron, firewall/fail2ban, sudo users, services, provisioning WordPress | `reference/servers.md` |
+| Sites: status, backups, domains, cache, SSH, site cron, git settings, manual deploys | `reference/sites.md` |
+| WordPress: plugins/themes/updates, WP_DEBUG, magic login, site/team vulnerabilities, PageSpeed | `reference/wordpress.md` |
 | SSL certificates: view, install, renew, status, delete | `reference/ssl.md` |
 | Account: current user, API tokens, Cloudflare integrations, blueprints, health | `reference/account.md` |
 

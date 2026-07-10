@@ -38,6 +38,7 @@ block — once per conversation.
 | Cache (purge, purge-all, settings) | `reference/sites-cache.md` |
 | SSH/SFTP config & keys | `reference/sites-ssh.md` |
 | Site cron jobs | `reference/sites-cron-jobs.md` |
+| Git deployment settings and manual deploys | `reference/sites-git.md` |
 
 ## Core endpoints
 
@@ -50,7 +51,9 @@ block — once per conversation.
 | Deployment logs | `GET /sites/{uuid}/deployment-logs` |
 | Monitoring (+ history) | `GET /sites/{uuid}/monitoring[/history]` |
 | Access logs | `GET /sites/{uuid}/access-logs` |
-| Git repo info | `GET /sites/{uuid}/git` |
+| Git deployment info | `GET /sites/{uuid}/git` |
+| Update Git deployment settings | `PUT /sites/{uuid}/git` |
+| Trigger Git deployment | `POST /sites/{uuid}/git/deploy` |
 | Snapshots | `GET /sites/{uuid}/snapshots` |
 | Staging sites | `GET /sites/{uuid}/staging-sites` |
 | Custom nginx / site scripts / IP access | `GET /sites/{uuid}/{custom-nginx,site-scripts,ip-access}` |
