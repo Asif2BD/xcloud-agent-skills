@@ -10,6 +10,11 @@ Read the shared layer first for auth, base URL, and conventions:
 
 - `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer the MCP tools when
+  connected**: `sites_wordpress_*` (plugins/themes/updates/status/update/
+  activate/refresh), `sites_vulnerabilities_*`, `vulnerabilities_index`
+  (team-wide), `sites_pagespeed_*`, `sites_wp-debug`, `sites_magic-login`;
+  the `$XC` calls below are the REST fallback.
 
 ```bash
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"

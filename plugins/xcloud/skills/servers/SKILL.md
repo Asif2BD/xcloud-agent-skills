@@ -1,6 +1,6 @@
 ---
 name: servers
-description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning a new WordPress site onto a server. Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see xcloud:sites), NOT SSL certs (see xcloud:ssl), NOT WordPress app management (see xcloud:wordpress).
+description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning new sites onto a server (WordPress or Git-deployed PHP/Node apps). Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see xcloud:sites), NOT SSL certs (see xcloud:ssl), NOT WordPress app management (see xcloud:wordpress).
 ---
 
 # xCloud Servers
@@ -10,6 +10,10 @@ first for auth, base URL, envelope, pagination, and rate limits:
 
 - `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer `mcp__xCloud_MCP__servers_*`
+  tools when connected** (e.g. `servers_index`, `servers_show`, `servers_reboot`,
+  `servers_sites_wordpress_create`, `servers_sites_git_create`); the `$XC` calls
+  below are the REST fallback.
 
 ```bash
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
@@ -61,6 +65,7 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 | Supervisor processes | `GET /servers/{uuid}/supervisor-processes` |
 | Reboot server | `POST /servers/{uuid}/reboot` |
 | Create WordPress site on server | `POST /servers/{uuid}/sites/wordpress` |
+| **Create Git-deployed site on server** | `POST /servers/{uuid}/sites/git` |
 
 **Not here:** site settings → `xcloud:sites`; SSL → `xcloud:ssl`; WordPress
 plugins/themes/updates → `xcloud:wordpress`.
@@ -130,6 +135,25 @@ auto-generated credentials are returned only once.
 # then poll site provisioning:  GET /sites/{new_uuid}/status   (xcloud:sites)
 ```
 
+Create a **Git-deployed site** — `site_type` is one of `laravel`, `nodejs`,
+`custom-php`, `wordpress`, `lovable`. Atomic: if any step fails, no partial site
+is left behind. Repository source is EITHER a connected provider
+(`repository.provider_uuid` + `repository.full_name` — required for private
+repos) OR a public HTTPS `repository.url`; private `git@…` SSH URLs are
+rejected. `domain.mode` is `live` or `staging`; Node `ssr`/`hybrid` apps also
+need `start_command` + `port`:
+
+```bash
+"$XC" POST "/servers/$SERVER_UUID/sites/git" '{
+  "site_type": "custom-php",
+  "repository": {"url": "https://github.com/acme/app.git", "branch": "main"},
+  "domain": {"mode": "live", "name": "app.example.com", "ssl_provider": "xcloud"},
+  "enable_push_deploy": false
+}' | jq '.data'
+# then manage deploys via xcloud:sites (reference/git.md):
+#   PUT /sites/{uuid}/git · POST /sites/{uuid}/git/deploy
+```
+
 ## Pitfalls
 
 - Server writes are async; success is returned before work completes — poll
@@ -137,7 +161,7 @@ auto-generated credentials are returned only once.
 - Disabling `ssh`, `nginx`, database, runtime, agent, or queue services can cause
   lockout or downtime. Require explicit confirmation immediately before calling
   `POST /servers/{uuid}/services/disable`.
-- WordPress creation lives here (the URL is `/servers/...`), but the resulting
-  site is then managed via `xcloud:sites` / `xcloud:wordpress`.
+- Site creation (WordPress and Git) lives here (the URL is `/servers/...`), but
+  the resulting site is then managed via `xcloud:sites` / `xcloud:wordpress`.
 - `setting default PHP` and `patching PHP` do not enforce a `write:servers`
   scope line in the docs but still require server write permission in practice.
