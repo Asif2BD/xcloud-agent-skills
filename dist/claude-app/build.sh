@@ -9,7 +9,7 @@
 #     SKILL.md                     <- router (dist/claude-app/SKILL.template.md)
 #     scripts/xcloud.sh            <- shared wrapper
 #     reference/
-#       auth.md  conventions.md    <- shared layer
+#       auth.md  conventions.md  mcp.md    <- shared layer
 #       servers.md sites.md ...    <- each area's SKILL.md body, as a reference doc
 #       servers-firewall.md ...    <- sub-resource files, namespaced by area
 #
@@ -39,6 +39,7 @@ sed "$strip_pluginroot" "$SRC/scripts/xcloud.sh"        > "$SKILL/scripts/xcloud
 chmod +x "$SKILL/scripts/xcloud.sh"
 sed "$strip_pluginroot" "$SRC/reference/auth.md"        > "$SKILL/reference/auth.md"
 sed "$strip_pluginroot" "$SRC/reference/conventions.md" > "$SKILL/reference/conventions.md"
+sed "$strip_pluginroot" "$SRC/reference/mcp.md"         > "$SKILL/reference/mcp.md"
 
 # NOTE: no inline logo image. claude.ai chat renders an external markdown image as
 # a large click-to-reveal "Show Image" card (no width/height control), which

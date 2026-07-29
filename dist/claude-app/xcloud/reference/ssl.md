@@ -7,6 +7,10 @@ first — this skill does not repeat it:
 
 - `reference/auth.md`
 - `reference/conventions.md`
+- `reference/mcp.md` — **prefer the MCP tools when
+  connected**: `sites_ssl`, `sites_sslCertificates`, `sites_sslCertificates_create`,
+  `sites_ssl_renew`, `ssl-certificates_show`, `ssl-certificates_status`,
+  `ssl-certificates_destroy`; the `$XC` calls below are the REST fallback.
 
 All calls go through the shared wrapper:
 

@@ -6,6 +6,10 @@ read the shared layer first:
 
 - `reference/auth.md`
 - `reference/conventions.md`
+- `reference/mcp.md` — **prefer the MCP tools when
+  connected**: `user_show`, `blueprints_index`, `integrations_cloudflare_index`.
+  **Exception:** `/health` and API-token list/revoke are REST-only — the MCP
+  never exposes token management; always use `$XC` for those.
 
 ```bash
 XC="scripts/xcloud.sh"

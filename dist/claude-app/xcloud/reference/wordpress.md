@@ -6,6 +6,11 @@ Read the shared layer first for auth, base URL, and conventions:
 
 - `reference/auth.md`
 - `reference/conventions.md`
+- `reference/mcp.md` — **prefer the MCP tools when
+  connected**: `sites_wordpress_*` (plugins/themes/updates/status/update/
+  activate/refresh), `sites_vulnerabilities_*`, `vulnerabilities_index`
+  (team-wide), `sites_pagespeed_*`, `sites_wp-debug`, `sites_magic-login`;
+  the `$XC` calls below are the REST fallback.
 
 ```bash
 XC="scripts/xcloud.sh"

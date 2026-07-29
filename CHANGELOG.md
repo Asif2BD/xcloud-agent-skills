@@ -2,6 +2,55 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.0.0] - 2026-07-29
+
+**The MCP release.** The xCloud MCP server is live at
+`https://app.xcloud.host/mcp` — 110 native tools, one per authenticated Public
+API operation — and the skills are now **MCP-first**. Nothing breaks: skill IDs
+are unchanged and the REST token path still works everywhere it did before.
+
+### Added
+
+- **xCloud MCP as the primary transport.** New shared
+  `reference/mcp.md`: endpoint + per-client connect instructions (Claude Code,
+  Claude Desktop, claude.ai, Cursor, headless API-key with `mcp:invoke`), OAuth
+  grant levels (`mcp:read` / `mcp:write`), the tool-naming rule (tool names
+  mirror endpoint paths — `servers_reboot`, `sites_ssl_renew`, …), the
+  confirm-before-destructive contract every write tool enforces, and the
+  REST-only surface. All five skills now instruct: **prefer
+  `mcp__xCloud_MCP__*` tools when connected; fall back to `scripts/xcloud.sh`
+  otherwise.** Verified live: 110 MCP tools = full parity with the live API's
+  110 authenticated operations.
+- **Site deletion** (`DELETE /sites/{uuid}`) in `xcloud:sites` — granular
+  `delete_*` flags (files, database, user, local backups, DNS record), async,
+  documented with a hard confirm-first guardrail.
+- **Git-deployed site provisioning** (`POST /servers/{uuid}/sites/git`) in
+  `xcloud:servers` — Laravel, Node.js, custom PHP, WordPress, and Lovable site
+  types from a connected provider or public HTTPS repo; request shape verified
+  against the live OpenAPI.
+- **Domain update status** (`GET /sites/{uuid}/domain/status`) in
+  `xcloud:sites`.
+- Site rescue now documents the Node/PM2/OpenClaw repair flags and
+  `directory_permissions`.
+
+### Changed
+
+- README leads with **Connect the xCloud MCP (recommended)**; token setup is
+  the documented REST fallback. Auth onboarding offers the MCP connector before
+  any token guidance.
+- `docs/API-COVERAGE.md` refreshed against the current live OpenAPI
+  (**113 operations**; +2 since the last audit) with a full MCP-parity map.
+- Marketplace metadata (ClawHub, plugin manifest, root `SKILL.md`) reframed
+  around MCP + skills; version bumped to 4.0.0.
+- claude.ai dist build: the "needs an MCP connector" caveat is resolved — the
+  install guide now points at the live connector.
+
+### Notes
+
+- API-token management (`GET /user/tokens`, `DELETE /user/tokens/{tokenUuid}`)
+  and `GET /health` are intentionally REST-only; `xcloud:account` keeps using
+  the bundled wrapper for them.
+
 ## [3.0.3] - 2026-07-10
 
 ### Added

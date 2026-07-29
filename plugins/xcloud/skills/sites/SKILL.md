@@ -1,6 +1,6 @@
 ---
 name: sites
-description: Manage xCloud sites — list/inspect sites, status, events, deployment logs, monitoring, backups, rescue, snapshots, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, git, and access logs. Use for any site lifecycle or delivery request. For SSL/certs see xcloud:ssl; for WordPress plugins/updates/vulnerabilities/PageSpeed see xcloud:wordpress; for server-level infra see xcloud:servers.
+description: Manage xCloud sites — list/inspect sites, status, events, deployment logs, monitoring, backups, rescue, snapshots, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, git, access logs, and site deletion. Use for any site lifecycle or delivery request. For SSL/certs see xcloud:ssl; for WordPress plugins/updates/vulnerabilities/PageSpeed see xcloud:wordpress; for server-level infra see xcloud:servers.
 ---
 
 # xCloud Sites
@@ -10,6 +10,9 @@ URL, envelope, pagination, and rate limits:
 
 - `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer `mcp__xCloud_MCP__sites_*`
+  tools when connected** (e.g. `sites_index`, `sites_show`, `sites_status`,
+  `sites_rescue`, `sites_destroy`); the `$XC` calls below are the REST fallback.
 
 ```bash
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
@@ -61,7 +64,9 @@ block — once per conversation.
 | Snapshots | `GET /sites/{uuid}/snapshots` |
 | Staging sites | `GET /sites/{uuid}/staging-sites` |
 | Custom nginx / site scripts / IP access | `GET /sites/{uuid}/{custom-nginx,site-scripts,ip-access}` |
+| Domain update status | `GET /sites/{uuid}/domain/status` |
 | Rescue site | `POST /sites/{uuid}/rescue` |
+| **Delete site** | `DELETE /sites/{uuid}` |
 
 **Not here:** SSL → `xcloud:ssl`; WordPress/vulns/pagespeed → `xcloud:wordpress`;
 servers → `xcloud:servers`.
@@ -85,15 +90,34 @@ SITE_UUID='replace-me'
 
 ## Writes
 
-Rescue a broken site (all flags optional booleans; pick the repairs you need):
+Rescue a broken site (all flags optional booleans; pick the repairs you need —
+supported options depend on site type: `repair_node`, `repair_pm2`, and
+`repair_openclaw` exist for Node/OpenClaw sites, `reinstall_php` for PHP sites):
 
 ```bash
 "$XC" POST "/sites/$SITE_UUID/rescue" '{
   "isolate_user": true,
   "regenerate_nginx": true,
   "restart_nginx": true,
+  "directory_permissions": true,
   "reinstall_php": false
 }' | jq '.message'
+```
+
+Delete a site — **destructive and irreversible; never call without explicit
+user confirmation naming the exact domain**. The `delete_*` flags choose what
+is removed alongside the record; deletion is async (`status` → `deleting`,
+staging sites are removed too):
+
+```bash
+"$XC" DELETE "/sites/$SITE_UUID" '{
+  "delete_files": true,
+  "delete_database": true,
+  "delete_user": true,
+  "delete_local_backups": false,
+  "delete_dns_record": false
+}' | jq '.message'
+# poll: GET /sites/{uuid}/status until the site is gone
 ```
 
 ## Pitfalls
@@ -103,3 +127,6 @@ Rescue a broken site (all flags optional booleans; pick the repairs you need):
 - Writes are async; confirm via `GET /sites/{uuid}/events`.
 - A 502 with status still `provisioned` is usually a missing site OS user — pull
   `/sites/{uuid}/ssh` (`site_user`) and the server tasks to confirm.
+- Site deletion requires the `site:delete` team permission; sites tied to their
+  server's lifecycle (e.g. OpenClaw) cannot be deleted independently.
+- Monitoring history is a paid feature — expect `403` on free plans.

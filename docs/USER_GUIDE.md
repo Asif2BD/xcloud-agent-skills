@@ -27,28 +27,35 @@ one from what you ask.
 
 ## Quick start (one time)
 
-1. **Install** in Claude Code:
+1. **Connect your account** — the xCloud MCP connector (recommended; browser
+   sign-in, no token to copy):
+   ```
+   claude mcp add xcloud --transport http https://app.xcloud.host/mcp
+   ```
+   Then run `/mcp` → **Authenticate** and sign in. (On Claude Desktop or
+   claude.ai: Settings → Connectors → Add custom connector →
+   `https://app.xcloud.host/mcp`.)
+
+2. **Install the skills** in Claude Code:
    ```
    /plugin marketplace add xCloudDev/xcloud-agent-skills
    /plugin install xcloud
    /reload-plugins
    ```
 
-2. **Add your API token.** Get one from the xCloud dashboard →
-   **Profile → API Tokens → Generate New Token** (copy it once). Then add to
-   `~/.claude/settings.json`:
-   ```json
-   { "env": { "XCLOUD_API_TOKEN": "your-token-here" } }
-   ```
-   Restart Claude Code so it picks up the token.
-
 3. **Check it works.** Ask Claude: **"Check my xCloud API connection."**
    Green light = you're ready.
 
-If Claude says the token is missing, it should guide you to configure
-`XCLOUD_API_TOKEN` in your runtime or secret store and then verify the connection.
-Avoid pasting long-lived production tokens directly into chat; use a temporary,
-scoped token if chat is the only available path.
+**No MCP support in your agent?** Use an API token instead: xCloud dashboard →
+**Profile → API Tokens → Generate New Token** (copy it once), then add to
+`~/.claude/settings.json`:
+```json
+{ "env": { "XCLOUD_API_TOKEN": "your-token-here" } }
+```
+Restart Claude Code so it picks up the token. If Claude says no connection is
+configured, it should offer the MCP connector first, then guide you through
+token setup. Avoid pasting long-lived production tokens directly into chat; use
+a temporary, scoped token if chat is the only available path.
 
 That's it. Everything below is just talking to Claude.
 

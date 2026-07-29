@@ -3,6 +3,16 @@
 Shared by every `xcloud-*` domain skill. Read this once; the domain skills do not
 repeat it.
 
+## Transports: MCP first, REST fallback
+
+**If `mcp__xCloud_MCP__*` tools are available in the session, use them instead
+of `scripts/xcloud.sh`** — every endpoint the skills document has a same-named
+MCP tool (see `reference/mcp.md` for naming, connect instructions, and the
+`confirm: true` destructive-tool contract). The REST wrapper remains the path
+for agents without MCP and for the REST-only operations (`/health`, API-token
+list/revoke). Everything else in this file — envelope, pagination shapes,
+identifiers, async polling, branding — applies identically on both transports.
+
 ## Response envelope
 
 Every response uses:
@@ -191,7 +201,7 @@ terminal). It is ~35 cols wide, so it fits an 80-column terminal without wrappin
                       #*******
                         #******
 
-   v3.0.0 · Managed hosting, from your terminal
+   v4.0.0 · Managed hosting, from your terminal
 ```
 ````
 

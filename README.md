@@ -1,7 +1,8 @@
 # xCloud Agent Skills
 
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-blue)](https://clawhub.ai/asif2bd/skills/xcloud)
-[![Version](https://img.shields.io/badge/version-3.0.3-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0.0-green)](CHANGELOG.md)
+[![MCP](https://img.shields.io/badge/MCP-app.xcloud.host%2Fmcp-0EA5E9)](https://app.xcloud.host/mcp/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-Official-0EA5E9.svg)](https://xcloud.host)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Skill-purple)](https://openclaw.ai)
@@ -11,10 +12,13 @@ server"*, *"renew SSL for example.com"*, or *"scan example.com for
 vulnerabilities and show me the criticals"* — the agent picks the right skill and
 chains the steps. No endpoints to memorize, no SDK to wire up.
 
-Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [OpenClaw + ClawHub Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) · [Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48)
+Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [MCP Docs](https://app.xcloud.host/mcp/docs) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [OpenClaw + ClawHub Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) · [Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48)
 
-This repository ships the **`xcloud` Claude Code plugin** (v3.0.3): five
-capability skills that wrap the [xCloud Public API](https://app.xcloud.host/api/v1/docs).
+This repository ships the **`xcloud` Claude Code plugin** (v4.0.0): five
+capability skills that pair with the **[xCloud MCP server](https://app.xcloud.host/mcp/docs)**
+— 110 native tools, one per authenticated
+[Public API](https://app.xcloud.host/api/v1/docs) operation — with a bundled
+REST fallback for agents without MCP support.
 
 > **New here?** Start with the [User Guide](docs/USER_GUIDE.md) (task-first) or
 > the [Install & Usage Guide](docs/SKILLS-GUIDE.md) (full install, per-skill
@@ -26,8 +30,8 @@ You never name them — the agent picks the right one from what you ask.
 
 | Skill | Owns |
 |---|---|
-| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, services, WordPress provisioning |
-| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git settings, manual deploys |
+| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, services, provisioning WordPress **and Git-deployed (Laravel/Node/PHP) sites** |
+| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git settings, manual deploys, **site deletion** |
 | `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site and team vulnerabilities, PageSpeed |
 | `xcloud:ssl` | SSL certificates: view, install, renew, status, delete |
 | `xcloud:account` | Current user, API tokens, Cloudflare integrations, blueprints, health |
@@ -36,9 +40,44 @@ Skills are organized by **capability, not URL root** — each declares what it d
 *not* own with `see xcloud:*` cross-links so trigger keywords don't collide. See
 [ADR 0001](docs/adr/0001-capability-domain-skills.md) for the rationale.
 
-## Install in Claude Code
+## Connect the xCloud MCP (recommended)
 
-1. **Install the plugin:**
+The **xCloud MCP server** is the fastest way to give any agent full xCloud
+control — OAuth sign-in, no token to store, and built-in confirmation before
+every destructive operation. **110 tools, one per authenticated API operation.**
+
+**Claude Code:**
+
+```bash
+claude mcp add xcloud --transport http https://app.xcloud.host/mcp
+```
+
+Then run `/mcp` → **Authenticate** and grant **Read** or **Read & write**.
+
+**Claude Desktop / claude.ai:** Settings → **Connectors** → **Add custom
+connector** → name it `xcloud`, URL `https://app.xcloud.host/mcp`, sign in.
+
+**Cursor** (`~/.cursor/mcp.json`) and any HTTP-capable MCP client:
+
+```json
+{ "mcpServers": { "xcloud": { "url": "https://app.xcloud.host/mcp" } } }
+```
+
+**Headless / CI:** use an API token carrying the `mcp:invoke` scope:
+
+```bash
+claude mcp add xcloud --transport http https://app.xcloud.host/mcp \
+  --header 'Authorization: Bearer YOUR_TOKEN'
+```
+
+Verify with *"who am I on xCloud?"*. Full details: [MCP docs](https://app.xcloud.host/mcp/docs).
+
+## Install the skills plugin
+
+The skills teach the agent xCloud's workflows — routing, safety guardrails,
+async polling, multi-step chains — on top of either transport (MCP or REST).
+
+1. **Install in Claude Code:**
 
    ```
    /plugin marketplace add xCloudDev/xcloud-agent-skills
@@ -46,8 +85,9 @@ Skills are organized by **capability, not URL root** — each declares what it d
    /reload-plugins
    ```
 
-2. **Add your API token.** Get one from the xCloud dashboard → **Profile → API
-   Tokens → Generate New Token** (choose scopes; copy it once). Add it to your
+2. **Connect the account.** If you added the MCP connector above, you're done —
+   no token needed. Otherwise (REST fallback), get a token from the xCloud
+   dashboard → **Profile → API Tokens → Generate New Token** and add it to your
    Claude Code settings:
 
    ```json
@@ -61,11 +101,14 @@ Skills are organized by **capability, not URL root** — each declares what it d
 3. **Check it works.** Ask Claude: *"Check my xCloud API connection."* A green
    light means you're ready.
 
-If xCloud says the token is missing, it will guide you to create a scoped token,
-store it in your agent runtime as `XCLOUD_API_TOKEN`, restart the agent if
-needed, and verify the connection with `/health` + `/user`. Do not paste a
-production token into chat unless you are using a temporary, scoped token and no
-safer secret-store/runtime option exists.
+If xCloud finds no connection, it will offer the MCP connector first, then guide
+you through scoped-token setup. Do not paste a production token into chat unless
+you are using a temporary, scoped token and no safer secret-store/runtime option
+exists.
+
+> **Note:** API-token management (list/revoke) and the `/health` probe are
+> REST-only — the skills use the bundled `curl` wrapper for those even when the
+> MCP is connected.
 
 ### Other agent frameworks
 
@@ -78,8 +121,9 @@ cp -r xcloud-agent-skills/plugins/xcloud/skills/* /your/agent/skills/
 ```
 
 The shared layer (`plugins/xcloud/scripts/xcloud.sh`,
-`plugins/xcloud/reference/{auth,conventions}.md`) is referenced by every skill
-via `${CLAUDE_PLUGIN_ROOT}`.
+`plugins/xcloud/reference/{auth,conventions,mcp}.md`) is referenced by every
+skill via `${CLAUDE_PLUGIN_ROOT}`. Agents that support MCP can skip the wrapper
+entirely and pair the skills with the connector above.
 
 ## Example requests
 
@@ -109,7 +153,13 @@ I just provisioned shop.example.com — set up HTTPS and confirm it's serving.
 
 ## Authentication & scopes
 
-The skills authenticate with a
+**MCP (recommended):** browser OAuth with two grant levels — **Read**
+(`mcp:read`) or **Read & write** (`mcp:write`). Access is team-scoped and every
+connection shows up in the dashboard's API key management for one-click
+revocation. Every destructive MCP tool additionally requires per-action
+confirmation.
+
+**REST fallback:** the skills authenticate with a
 [Sanctum personal access token](https://laravel.com/docs/sanctum) (Bearer auth).
 Generate one in the xCloud dashboard → **Profile → API Tokens → Generate New
 Token**, choosing scopes:
@@ -125,14 +175,15 @@ driven (`XCLOUD_API_BASE_URL`, default `https://app.xcloud.host`) — point it a
 local or white-label host without touching any skill. Full details in
 [`plugins/xcloud/reference/auth.md`](plugins/xcloud/reference/auth.md).
 
-## API reference
+## API & MCP reference
 
-Full REST reference — every endpoint, request/response schema, and an interactive
-try-it console:
-
-- **API docs**: https://app.xcloud.host/api/v1/docs
+- **MCP endpoint**: `https://app.xcloud.host/mcp` (Streamable HTTP) — [docs](https://app.xcloud.host/mcp/docs)
+- **MCP tools**: 110 — full parity with the authenticated REST surface; tool
+  names mirror endpoint paths (`servers_reboot`, `sites_ssl_renew`, …)
+- **API docs**: https://app.xcloud.host/api/v1/docs (every endpoint,
+  request/response schema, interactive try-it console)
 - **Base URL**: `https://app.xcloud.host/api/v1`
-- **Auth**: Bearer token (Sanctum)
+- **Auth**: MCP OAuth, or Bearer token (Sanctum)
 - **Rate limit**: 60 requests/minute authenticated (10/min unauthenticated)
 
 ## Useful links
@@ -140,6 +191,7 @@ try-it console:
 | Link | Use it for |
 |---|---|
 | [xCloud](https://xcloud.host) | Product landing page and hosting platform overview |
+| [xCloud MCP Docs](https://app.xcloud.host/mcp/docs) | Connect the MCP server from any agent (OAuth or API key) |
 | [xCloud Dashboard](https://app.xcloud.host) | Generate API tokens and manage hosting resources |
 | [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) | Task-first examples for using the skills with an agent |
 | [Install & Usage Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) | Full install steps, routing rules, and smoke tests |
@@ -210,6 +262,7 @@ Full guidance: [`SECURITY.md`](SECURITY.md).
 ## Links
 
 - **xCloud**: https://xcloud.host
+- **MCP docs**: https://app.xcloud.host/mcp/docs
 - **Dashboard**: https://app.xcloud.host
 - **User Guide**: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md
 - **Install Guide**: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md
