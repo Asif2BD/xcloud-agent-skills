@@ -8,6 +8,10 @@
 | Update deployment settings | `PUT /sites/{uuid}/git` |
 | Trigger manual deployment | `POST /sites/{uuid}/git/deploy` |
 
+**Creating** a Git-deployed site happens server-side — `POST
+/servers/{uuid}/sites/git` (`xcloud:servers`); this file manages the site after
+it exists.
+
 Inspect the current configuration first:
 
 ```bash

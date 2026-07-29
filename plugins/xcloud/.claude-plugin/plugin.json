@@ -1,12 +1,12 @@
 {
   "name": "xcloud",
-  "version": "3.0.3",
-  "description": "Official xCloud Public API skills for agents: servers, sites, WordPress, SSL, account data, and hosting automation.",
+  "version": "4.0.0",
+  "description": "Official xCloud skills for agents: servers, sites, WordPress, SSL, account data, and hosting automation — MCP-first (app.xcloud.host/mcp) with a bundled REST fallback.",
   "author": {
     "name": "xCloudDev",
     "url": "https://github.com/xCloudDev"
   },
   "homepage": "https://github.com/xCloudDev/xcloud-agent-skills",
   "license": "MIT",
-  "keywords": ["xcloud", "api", "wordpress", "hosting", "deployment", "devops"]
+  "keywords": ["xcloud", "mcp", "api", "wordpress", "hosting", "deployment", "devops"]
 }

@@ -25,9 +25,15 @@ does **not** include `app.xcloud.host`, and you generally **cannot add to it**
 
 So treat the app upload as: great for trying the skills and seeing the branded
 UX, but **live API calls only work if your workspace's egress permits
-`app.xcloud.host`**. If you need reliable xCloud access in the app, an **MCP
-connector** is the correct solution (it bypasses the sandbox). For full live
-functionality today, use **Claude Code**.
+`app.xcloud.host`**.
+
+> **The clean solution on claude.ai is the official xCloud MCP connector** —
+> it runs outside the sandbox, so no egress limit applies:
+> **Settings → Connectors → Add custom connector** → name `xcloud`, URL
+> `https://app.xcloud.host/mcp` → sign in with OAuth. 110 tools, full API
+> parity, per-action confirmation on destructive operations.
+> Docs: <https://app.xcloud.host/mcp/docs>. Combine it with this skill zip for
+> branded, routed workflows on top.
 
 ---
 
@@ -130,7 +136,7 @@ repo. To get changes:
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Host not in allowlist: app.xcloud.host`, `403` | Sandbox egress blocks your API | Platform limit — use Claude Code or an MCP connector |
+| `Host not in allowlist: app.xcloud.host`, `403` | Sandbox egress blocks your API | Add the xCloud MCP connector (`https://app.xcloud.host/mcp`) — it bypasses the sandbox — or use Claude Code |
 | "no scripts/ … xcloud.sh not found" | You imported the GitHub **plugin**, not the zip | Remove it; upload the zip from `dist/claude-app/` |
 | "XCLOUD_API_TOKEN not set" | No token provided | Paste the token in the chat (section 5) |
 | `401` after pasting a token | Token expired/revoked/typo | Generate a new token |
@@ -149,6 +155,7 @@ repo. To get changes:
 | Live API (`app.xcloud.host`) | ✅ works | ⚠️ only if egress allows it |
 | Best for | Real day-to-day use | Trying the skills / branded UX |
 
-For robust xCloud access inside the Claude app, build an **MCP connector** — it's
-the only path that cleanly bypasses the sandbox network limit and works across the
-app, Claude Code, and the API.
+For robust xCloud access inside the Claude app, use the **official xCloud MCP
+connector** (`https://app.xcloud.host/mcp` — see
+[MCP docs](https://app.xcloud.host/mcp/docs)) — it cleanly bypasses the sandbox
+network limit and works across the app, Claude Code, and the API.

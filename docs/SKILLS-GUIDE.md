@@ -1,7 +1,7 @@
 # xCloud Skills — Install & Usage Guide
 
 A step-by-step guide to installing and using the **xCloud Public API skills**
-(plugin `xcloud` v3.0.0) inside Claude Code.
+(plugin `xcloud` v4.0.0) inside Claude Code.
 
 The plugin ships **five skills**, each owning one capability area of the API.
 You don't call them directly — you describe what you want in plain language and
@@ -45,12 +45,33 @@ You should see `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`,
 
 ---
 
-## 2. Set your API token
+## 2. Connect your xCloud account
 
-Every skill needs a Sanctum personal access token. Generate one in the xCloud
-dashboard → **Profile → API Tokens → Generate New Token**, choosing the scopes
-you need (`read:sites`, `write:sites`, `read:servers`, `write:servers`, or `*`).
-Copy it immediately — it's shown only once.
+### 2.0 Recommended — the xCloud MCP connector (no token needed)
+
+The fastest, safest connection is the **xCloud MCP server** — browser OAuth, no
+secret to store, per-action confirmation on every destructive operation, and
+110 native tools the skills use automatically:
+
+```bash
+claude mcp add xcloud --transport http https://app.xcloud.host/mcp
+```
+
+Then run `/mcp` → **Authenticate** and grant **Read** or **Read & write**.
+Other clients (Claude Desktop, claude.ai, Cursor): add a custom connector with
+URL `https://app.xcloud.host/mcp`. Full instructions:
+<https://app.xcloud.host/mcp/docs>.
+
+With the MCP connected you can **skip the token setup below** — it's only
+needed for agents without MCP support, and for API-token list/revoke (which is
+intentionally REST-only).
+
+### 2.1 REST fallback — API token
+
+Without MCP, every skill needs a Sanctum personal access token. Generate one in
+the xCloud dashboard → **Profile → API Tokens → Generate New Token**, choosing
+the scopes you need (`read:sites`, `write:sites`, `read:servers`,
+`write:servers`, or `*`). Copy it immediately — it's shown only once.
 
 Pick **one** persistent option:
 
