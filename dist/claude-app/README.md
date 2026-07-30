@@ -76,5 +76,7 @@ These are properties of the claude.ai code sandbox, not bugs in the skill:
 
 Experimental. The Claude Code plugin is the primary, fully-tested distribution.
 This app build is for evaluating how far the claude.ai sandbox gets against the
-live API. For a robust cross-surface integration, an **MCP server** (works in the
-app, Claude Code, and the API) is the better long-term path.
+live API. For robust cross-surface integration, connect the **official xCloud
+MCP server** — `https://app.xcloud.host/mcp`
+([docs](https://app.xcloud.host/mcp/docs)) — which works in the app, Claude
+Code, and the API, and pair it with these skills.

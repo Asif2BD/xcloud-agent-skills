@@ -1,7 +1,7 @@
 ---
 name: xcloud-agent-skills
-description: "Official xCloud Public API plugin for agents: manage servers, sites, WordPress, SSL, account data, and API-driven hosting operations."
-version: 3.0.3
+description: "Official xCloud plugin for agents: manage servers, sites, WordPress, SSL, and account data — MCP-first via the xCloud MCP server, with a bundled REST fallback."
+version: 4.0.0
 author: xCloudDev
 homepage: https://xcloud.host
 category: deployment
@@ -46,6 +46,12 @@ metadata:
               "url": "https://github.com/xCloudDev/xcloud-agent-skills",
             },
             {
+              "id": "mcp-docs",
+              "kind": "link",
+              "label": "MCP Docs",
+              "url": "https://app.xcloud.host/mcp/docs",
+            },
+            {
               "id": "docs",
               "kind": "link",
               "label": "API Docs",
@@ -68,17 +74,18 @@ metadata:
   }
 ---
 
-# xCloud Agent Skills v3.0.3
+# xCloud Agent Skills v4.0.0
 
-[![Version](https://img.shields.io/badge/version-3.0.3-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.0.0-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
+[![MCP](https://img.shields.io/badge/MCP-app.xcloud.host%2Fmcp-0EA5E9.svg)](https://app.xcloud.host/mcp/docs)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-hosting-0EA5E9.svg)](https://xcloud.host)
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-blue.svg)](https://clawhub.ai/asif2bd/skills/xcloud)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-skill-purple.svg)](https://openclaw.ai)
 
-Built for xCloud hosting operators by [xCloud](https://xcloud.host) · [GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [OpenClaw Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) · [Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48) · [Security Notes](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/SECURITY.md)
+Built for xCloud hosting operators by [xCloud](https://xcloud.host) · [GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [MCP Docs](https://app.xcloud.host/mcp/docs) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [OpenClaw Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) · [Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48) · [Security Notes](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/SECURITY.md)
 
-> **Security notice:** agent-only xCloud operations toolkit. This package contains skill routing instructions, reference docs, and a small `bash`/`curl` wrapper. It ships no API tokens and only calls the xCloud API after a user or agent explicitly invokes a skill with `XCLOUD_API_TOKEN` configured.
+> **Security notice:** agent-only xCloud operations toolkit. This package contains skill routing instructions, reference docs, and a small `bash`/`curl` wrapper. It ships no API tokens and only calls the xCloud API after a user or agent explicitly invokes a skill — via the OAuth-connected xCloud MCP server (recommended) or with `XCLOUD_API_TOKEN` configured.
 
 ---
 
@@ -94,10 +101,11 @@ The runnable skills live under `plugins/xcloud/skills/` and are invoked as:
 
 ## What It Provides
 
-Use this package when an agent needs to operate xCloud hosting infrastructure through the xCloud Public API:
+Use this package when an agent needs to operate xCloud hosting infrastructure. It pairs with the **xCloud MCP server** (`https://app.xcloud.host/mcp` — 110 native tools, OAuth, per-action confirmation on destructive operations) and falls back to the bundled REST wrapper on agents without MCP support:
 
 - Manage servers, services, monitoring, PHP versions, databases, firewall rules, fail2ban, and snapshots
-- Manage sites, domains, cache, backups, deployment logs, rescue workflows, SSH/SFTP, cron jobs, and access logs
+- Provision WordPress sites and Git-deployed sites (Laravel, Node.js, custom PHP, Lovable) onto servers
+- Manage sites, domains, cache, backups, deployment logs, rescue workflows, SSH/SFTP, cron jobs, access logs, and safe site deletion
 - Manage Git deployment settings and trigger manual Git deployments for xCloud sites
 - Manage WordPress health, updates, plugins, themes, vulnerabilities, PageSpeed, WP_DEBUG, and magic-login URLs
 - Run team-wide vulnerability rollups across all xCloud sites
@@ -110,13 +118,25 @@ Use this package when an agent needs to operate xCloud hosting infrastructure th
   xcloud:*_` footer.
 - The first xCloud interaction greets the user and shows the xCloud startup
   banner once per conversation.
-- If no token is configured, xCloud proactively explains how to create a scoped
-  API token and store it in the agent runtime as `XCLOUD_API_TOKEN`; it does not
-  ask users to paste production tokens into chat by default.
-- After token setup, xCloud verifies the connection with `/health` and `/user`
-  before continuing operational tasks.
+- If no connection is configured, xCloud offers the MCP connector first (OAuth,
+  no secret to store), then falls back to explaining how to create a scoped API
+  token stored in the agent runtime as `XCLOUD_API_TOKEN`; it does not ask users
+  to paste production tokens into chat by default.
+- After setup, xCloud verifies the connection (`user_show` via MCP, or
+  `/health` + `/user` via REST) before continuing operational tasks.
 
 ## Setup
+
+**Recommended — connect the xCloud MCP server** (OAuth; no token to store):
+
+```bash
+claude mcp add xcloud --transport http https://app.xcloud.host/mcp
+```
+
+Then `/mcp` → **Authenticate**. Other clients: add a custom connector with URL
+`https://app.xcloud.host/mcp`. Docs: https://app.xcloud.host/mcp/docs
+
+**REST fallback** (agents without MCP support):
 
 Create an xCloud API token from:
 
@@ -138,6 +158,7 @@ The shared command wrapper is:
 ## Official Links
 
 - xCloud: https://xcloud.host
+- MCP docs: https://app.xcloud.host/mcp/docs
 - Dashboard: https://app.xcloud.host
 - User guide: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md
 - Install guide: https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md

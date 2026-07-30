@@ -1,7 +1,20 @@
 # Authentication (shared)
 
-Shared by every `xcloud-*` domain skill. The xCloud Public API authenticates via
-[Sanctum personal access tokens](https://laravel.com/docs/sanctum) (Bearer auth).
+Shared by every `xcloud-*` domain skill.
+
+## Two ways to connect — MCP first
+
+1. **xCloud MCP (recommended).** If `mcp__xCloud_MCP__*` tools are available in
+   the session, the account is already connected via OAuth — **no token setup is
+   needed** and the rest of this file does not apply. Use the MCP tools directly;
+   see `reference/mcp.md` for the transport rule, tool naming, and the
+   confirm-before-destructive contract. If the user has no connection yet,
+   onboard them with the MCP connect instructions in `reference/mcp.md`
+   **before** falling back to a raw API token.
+2. **REST API token (fallback).** For agents without MCP support, and for the
+   REST-only operations (`/health`, API-token list/revoke). The Public API
+   authenticates via [Sanctum personal access tokens](https://laravel.com/docs/sanctum)
+   (Bearer auth) — everything below covers this path.
 
 ## Environment variables
 
@@ -18,9 +31,12 @@ hardcode a host in a skill body.
 ## Proactive token onboarding
 
 If `XCLOUD_API_TOKEN` is missing or a request returns `401`, stop before any
-write operation and guide the user through setup. Be proactive and helpful, but
-do **not** ask the user to paste a raw production token into the chat by default.
-Direct them to the runtime's environment, settings file, or secret store.
+write operation and guide the user through setup. **Offer the xCloud MCP
+connector first** (`reference/mcp.md` → Connecting) — OAuth, no secret to
+store. Only if MCP isn't an option for their client, walk them through the
+token path below. Be proactive and helpful, but do **not** ask the user to
+paste a raw production token into the chat by default. Direct them to the
+runtime's environment, settings file, or secret store.
 
 Use this wording pattern:
 

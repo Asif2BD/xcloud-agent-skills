@@ -10,6 +10,10 @@ read the shared layer first:
 
 - `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer the MCP tools when
+  connected**: `user_show`, `blueprints_index`, `integrations_cloudflare_index`.
+  **Exception:** `/health` and API-token list/revoke are REST-only — the MCP
+  never exposes token management; always use `$XC` for those.
 
 ```bash
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"

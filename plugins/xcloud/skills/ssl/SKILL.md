@@ -11,6 +11,10 @@ first — this skill does not repeat it:
 
 - `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
+- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer the MCP tools when
+  connected**: `sites_ssl`, `sites_sslCertificates`, `sites_sslCertificates_create`,
+  `sites_ssl_renew`, `ssl-certificates_show`, `ssl-certificates_status`,
+  `ssl-certificates_destroy`; the `$XC` calls below are the REST fallback.
 
 All calls go through the shared wrapper:
 
