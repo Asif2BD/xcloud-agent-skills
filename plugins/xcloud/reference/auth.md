@@ -4,7 +4,7 @@ Shared by every `xcloud-*` domain skill.
 
 ## Two ways to connect — MCP first
 
-1. **xCloud MCP (recommended).** If `mcp__xCloud_MCP__*` tools are available in
+1. **xCloud MCP (recommended).** If `mcp__xcloud__*` tools are available in
    the session, the account is already connected via OAuth — **no token setup is
    needed** and the rest of this file does not apply. Use the MCP tools directly;
    see `reference/mcp.md` for the transport rule, tool naming, and the

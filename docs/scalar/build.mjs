@@ -25,6 +25,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // rewritten to the current host, so this resolves correctly on white-label and
 // staging deployments too.
 const XCLOUD_API_DOCS_URL = 'https://app.xcloud.host/api/v1/docs';
+const XCLOUD_MCP_DOCS_URL = 'https://app.xcloud.host/mcp/docs';
 
 const INFO_DESCRIPTION = `
 The **xCloud agent skills** let any AI agent (Claude Code, OpenCode, and others)
@@ -36,11 +37,12 @@ want; the agent picks the right skill and chains the steps.
 > **User guide:** <https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md>
 > **Install & call reference:** <https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md>
 
-## xCloud API
+## xCloud MCP and API
 
-These skills wrap the **xCloud Public API**. For the full REST reference — every
-endpoint, request/response schema, and an interactive try-it console — see:
+The skills prefer the **xCloud MCP server** and retain the Public API wrapper as
+a REST fallback:
 
+### → [Connect the xCloud MCP](${XCLOUD_MCP_DOCS_URL})
 ### → [xCloud API](${XCLOUD_API_DOCS_URL})
 
 ## The five skills
@@ -49,15 +51,23 @@ You never name them — the agent picks the right one from what you ask.
 
 | Skill | Owns |
 |---|---|
-| \`xcloud:servers\` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress provisioning |
-| \`xcloud:sites\` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git |
+| \`xcloud:servers\` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress and Git-site provisioning |
+| \`xcloud:sites\` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git, deletion |
 | \`xcloud:wordpress\` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed |
 | \`xcloud:ssl\` | SSL certificates: view, install, renew, status, delete |
 | \`xcloud:account\` | Current user, API tokens, Cloudflare integrations, blueprints, health |
 
 ## Install in Claude Code
 
-1. **Install the plugin:**
+1. **Connect the xCloud MCP server:**
+
+   \`\`\`bash
+   claude mcp add xcloud --transport http https://app.xcloud.host/mcp
+   \`\`\`
+
+   Run \`/mcp\` → **Authenticate** and grant read or read/write access.
+
+2. **Install the plugin:**
 
    \`\`\`
    /plugin marketplace add xCloudDev/xcloud-agent-skills
@@ -65,18 +75,12 @@ You never name them — the agent picks the right one from what you ask.
    /reload-plugins
    \`\`\`
 
-2. **Add your API token.** Get one from the xCloud dashboard → **Profile → API
-   Tokens → Generate New Token** (copy it once). Then add to
-   \`~/.claude/settings.json\`:
+3. **Check it works.** Ask Claude: *"Check my xCloud connection."* Green light
+   = you're ready.
 
-   \`\`\`json
-   { "env": { "XCLOUD_API_TOKEN": "your-token-here" } }
-   \`\`\`
-
-   Restart Claude Code so it picks up the token.
-
-3. **Check it works.** Ask Claude: *"Check my xCloud API connection."* Green
-   light = you're ready.
+No MCP support? Use the REST fallback: create a scoped API token in the xCloud
+dashboard and store it as \`XCLOUD_API_TOKEN\` in your runtime or secret store.
+Do not paste a long-lived production token into chat.
 
 That's it — everything below is just talking to Claude.
 
@@ -147,14 +151,14 @@ example.com is throwing 502 errors — what's going on?
 > If Claude ever reaches for the wrong area, name it:
 > \`Using xcloud:ssl, renew the cert for example.com.\`
 
-## Authentication & token
+## Authentication
 
-The skills authenticate to the xCloud Public API with a
-[Sanctum personal access token](https://laravel.com/docs/sanctum). Generate one
-in the xCloud dashboard → **Profile → API Tokens → Generate New Token**, choosing
-scopes (\`read:sites\`, \`write:sites\`, \`read:servers\`, \`write:servers\`, or
-\`*\`). It's shown once — copy it immediately, then add it to
-\`~/.claude/settings.json\` as shown above.
+**Recommended:** browser OAuth through the xCloud MCP connector, with Read
+(\`mcp:read\`) or Read & write (\`mcp:write\`) access. See the
+[MCP setup guide](${XCLOUD_MCP_DOCS_URL}).
+
+**REST fallback:** a scoped Sanctum personal access token stored as
+\`XCLOUD_API_TOKEN\`. API-token list/revoke and \`/health\` remain REST-only.
 
 For full auth details, scopes, and the endpoint reference, see the
 [xCloud API](${XCLOUD_API_DOCS_URL}).
@@ -164,7 +168,7 @@ const doc = {
   openapi: '3.1.0',
   info: {
     title: 'xCloud Agent Skills',
-    version: '3.0.0',
+    version: '4.0.0',
     description: INFO_DESCRIPTION,
   },
   // No contact / license / externalDocs — they render in Scalar's right column,

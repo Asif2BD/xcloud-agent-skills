@@ -5,7 +5,7 @@ repeat it.
 
 ## Transports: MCP first, REST fallback
 
-**If `mcp__xCloud_MCP__*` tools are available in the session, use them instead
+**If `mcp__xcloud__*` tools are available in the session, use them instead
 of `scripts/xcloud.sh`** — every endpoint the skills document has a same-named
 MCP tool (see `reference/mcp.md` for naming, connect instructions, and the
 `confirm: true` destructive-tool contract). The REST wrapper remains the path

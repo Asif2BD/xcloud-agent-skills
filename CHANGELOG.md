@@ -18,7 +18,7 @@ are unchanged and the REST token path still works everywhere it did before.
   mirror endpoint paths — `servers_reboot`, `sites_ssl_renew`, …), the
   confirm-before-destructive contract every write tool enforces, and the
   REST-only surface. All five skills now instruct: **prefer
-  `mcp__xCloud_MCP__*` tools when connected; fall back to `scripts/xcloud.sh`
+  `mcp__xcloud__*` tools when connected; fall back to `scripts/xcloud.sh`
   otherwise.** Verified live: 110 MCP tools = full parity with the live API's
   110 authenticated operations.
 - **Site deletion** (`DELETE /sites/{uuid}`) in `xcloud:sites` — granular
