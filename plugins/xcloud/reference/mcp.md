@@ -10,7 +10,7 @@ REST-only; see below).
 
 ## Transport preference (the rule)
 
-> **If `mcp__xCloud_MCP__*` tools are available in this session, use them —
+> **If `mcp__xcloud__*` tools are available in this session, use them —
 > do not shell out to `scripts/xcloud.sh` for operations the MCP covers.**
 > Fall back to the REST wrapper only when (a) the MCP server is not connected,
 > or (b) the operation is REST-only (`/health`, `GET /user/tokens`,

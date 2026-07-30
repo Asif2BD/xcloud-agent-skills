@@ -6,7 +6,7 @@ URL, envelope, pagination, and rate limits:
 
 - `reference/auth.md`
 - `reference/conventions.md`
-- `reference/mcp.md` — **prefer `mcp__xCloud_MCP__sites_*`
+- `reference/mcp.md` — **prefer `mcp__xcloud__sites_*`
   tools when connected** (e.g. `sites_index`, `sites_show`, `sites_status`,
   `sites_rescue`, `sites_destroy`); the `$XC` calls below are the REST fallback.
 

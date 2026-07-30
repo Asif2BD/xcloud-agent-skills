@@ -10,7 +10,7 @@ first for auth, base URL, envelope, pagination, and rate limits:
 
 - `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md`
-- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer `mcp__xCloud_MCP__servers_*`
+- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer `mcp__xcloud__servers_*`
   tools when connected** (e.g. `servers_index`, `servers_show`, `servers_reboot`,
   `servers_sites_wordpress_create`, `servers_sites_git_create`); the `$XC` calls
   below are the REST fallback.
