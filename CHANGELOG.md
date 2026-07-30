@@ -16,7 +16,7 @@ are unchanged and the REST token path still works everywhere it did before.
   Claude Desktop, claude.ai, Cursor, headless API-key with `mcp:invoke`), OAuth
   grant levels (`mcp:read` / `mcp:write`), the tool-naming rule (tool names
   mirror endpoint paths — `servers_reboot`, `sites_ssl_renew`, …), the
-  confirm-before-destructive contract every write tool enforces, and the
+  confirm-before-destructive contract every destructive tool enforces, and the
   REST-only surface. All five skills now instruct: **prefer
   `mcp__xcloud__*` tools when connected; fall back to `scripts/xcloud.sh`
   otherwise.** Verified live: 110 MCP tools = full parity with the live API's

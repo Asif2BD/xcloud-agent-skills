@@ -42,7 +42,7 @@ skill map 1:1 to tool names.
 
 ## Destructive-tool contract
 
-Every state-changing MCP tool requires `confirm: true`, to be set **only after
+Every destructive MCP tool requires `confirm: true`, to be set **only after
 the human has explicitly approved that specific action**. Describe what will
 happen (target resource by name, effect, blast radius), get approval, then call
 with `confirm: true`. This is enforced by the server-side tool schema — an
