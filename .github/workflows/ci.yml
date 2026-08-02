@@ -35,6 +35,42 @@ jobs:
             python3 -c "import json,sys; json.load(open('$f')); print('valid', '$f')"
           done
 
+      - name: Version consistency across manifests
+        run: |
+          python3 - <<'PY'
+          import json, re, sys
+          plugin = json.load(open('plugins/xcloud/.claude-plugin/plugin.json'))['version']
+          market = json.load(open('.claude-plugin/marketplace.json'))['plugins'][0]['version']
+          clawhub = json.load(open('.clawhubinfo.json'))['version']
+          root = re.search(r'^version:\s*(\S+)', open('SKILL.md').read(), re.M).group(1)
+          versions = {'plugin.json': plugin, 'marketplace.json': market,
+                      '.clawhubinfo.json': clawhub, 'SKILL.md': root}
+          print(versions)
+          sys.exit(0 if len(set(versions.values())) == 1 else 1)
+          PY
+
+      - name: Offline wrapper tests (URL hardening, token redaction, stdin bodies)
+        run: bash plugins/xcloud/scripts/tests/wrapper-test.sh
+
+      - name: Offline JSON-safety tests (legacy src builders)
+        run: |
+          sudo apt-get install -y jq >/dev/null 2>&1 || true
+          bash src/tests/json-safety-test.sh
+
+      - name: Script safety patterns
+        run: |
+          set -euo pipefail
+          fail=0
+          # Executable scripts must not put request bodies on curl's command line
+          # or pass -v to curl without redaction (docs are exempt; scripts are not).
+          if grep -rn -- '--data-raw' plugins/*/scripts/*.sh plugins/*/skills/*/tests/*.sh 2>/dev/null; then
+            echo "^ found --data-raw in scripts (bodies must go via stdin: --data-binary @-)"; fail=1
+          fi
+          if grep -rn 'curl .*-v\b' src/*.sh 2>/dev/null | grep -v redact; then
+            echo "^ found unredacted curl -v in src scripts"; fail=1
+          fi
+          exit "$fail"
+
   smoke:
     name: Read-only smoke suites
     needs: lint

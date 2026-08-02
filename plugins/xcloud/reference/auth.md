@@ -95,10 +95,24 @@ Alternative — shell profile (only affects terminals the user launches manually
 echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
 ```
 
-> **Browser/chat-only agents:** if no settings file, environment variable, or
-> secret-store integration is available, explain the risk before accepting a
-> temporary token in chat. Recommend a narrow, short-lived token and tell the
-> user to revoke it after the session. Never echo the token back.
+> **Browser/chat-only agents:** prefer the **xCloud MCP connector**
+> (`reference/mcp.md`) — OAuth, nothing pasted in chat. If a token in chat is
+> truly the only option, explain the risk first and enforce all of the
+> following:
+>
+> - **Scoped and short-lived only.** The narrowest scopes that cover the task
+>   (e.g. `read:sites`) — **never a `*` (full-access) token in chat**: it can
+>   manage every resource *and mint/revoke other tokens*.
+> - **Never echo the token back**, in full or in part, in any later message.
+> - **Revoke it when the session ends** — treat every token that has touched a
+>   chat transcript as exposed.
+>
+> **If a token is exposed (pasted in the wrong place, shared transcript,
+> committed):** revoke it immediately — xCloud dashboard → **Profile → API
+> Tokens** → delete it, or via the API: `GET /user/tokens` to find its `uuid`,
+> then `DELETE /user/tokens/{tokenUuid}` (`xcloud:account`; needs a `*`-scope
+> token). Then generate a fresh scoped token and update the runtime. Rotate
+> routinely, not only after incidents.
 
 ## Generating a token
 
