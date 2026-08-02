@@ -2,14 +2,28 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
-## [4.0.0] - 2026-07-29
+## [4.0.1] - 2026-08-02
 
-**The MCP release.** The xCloud MCP server is live at
-`https://app.xcloud.host/mcp` — 110 native tools, one per authenticated Public
-API operation — and the skills are now **MCP-first**. Nothing breaks: skill IDs
-are unchanged and the REST token path still works everywhere it did before.
+**The security-hardening release.** Every open upstream issue was examined;
+this release fixes all that are resolvable in this repository. Issue status
+(refs are `xCloudDev/xcloud-agent-skills` issue numbers):
 
-### Security & hardening (upstream issues #14–#22)
+| Issue | Status |
+|---|---|
+| [#14](https://github.com/xCloudDev/xcloud-agent-skills/issues/14) Harden base URL & token handling | ✅ **Fixed** |
+| [#15](https://github.com/xCloudDev/xcloud-agent-skills/issues/15) Redact bearer tokens from verbose output | ✅ **Fixed** |
+| [#16](https://github.com/xCloudDev/xcloud-agent-skills/issues/16) Stop passing sensitive bodies through argv | ✅ **Fixed** |
+| [#17](https://github.com/xCloudDev/xcloud-agent-skills/issues/17) Replace unsafe shell JSON interpolation | ✅ **Fixed** |
+| [#18](https://github.com/xCloudDev/xcloud-agent-skills/issues/18) Agent safety rules for untrusted output | ✅ **Fixed** |
+| [#19](https://github.com/xCloudDev/xcloud-agent-skills/issues/19) Confirmation policy for high-risk writes | ✅ **Fixed** |
+| [#21](https://github.com/xCloudDev/xcloud-agent-skills/issues/21) Token setup guidance for hosted chat | ✅ **Fixed** |
+| [#22](https://github.com/xCloudDev/xcloud-agent-skills/issues/22) Harden async state persistence | ✅ **Fixed** |
+| [#8](https://github.com/xCloudDev/xcloud-agent-skills/issues/8) v1.2.0 test report | 🟡 **Live bugs fixed** (BUG-01/02/03); doc findings superseded by v2–v4 — suggest closing |
+| [#20](https://github.com/xCloudDev/xcloud-agent-skills/issues/20) Hook-based safety harness | 🟡 **Partial** — CI safety-pattern lint landed; runtime PreToolUse/redaction hooks deferred (MCP `confirm: true` already gates destructive calls) |
+| [#26](https://github.com/xCloudDev/xcloud-agent-skills/issues/26) Ship through managed marketplaces | 🟡 **Partial** — CI version-consistency gate landed; Anthropic directory submission is a maintainer action |
+| [#6](https://github.com/xCloudDev/xcloud-agent-skills/issues/6) OpenAPI-accurate & publishable | ✅ **Superseded** by v2.0–v4.0 — suggest closing |
+
+### Security
 
 - **Wrapper (`scripts/xcloud.sh`):**
   - Plaintext `http://` base URLs are refused unless
@@ -21,8 +35,6 @@ are unchanged and the REST token path still works everywhere it did before.
     on curl's command line; a new `-` body argument reads the wrapper's own
     stdin so secret-bearing payloads (private keys, passwords) never touch any
     argv. The JSON-argument form still works (#16).
-  - New offline test suite `scripts/tests/wrapper-test.sh` (fake token, local
-    echo server) covering all of the above; wired into CI.
 - **Skill docs:** SSL custom-certificate, sudo-user, and site-SSH password
   examples now build JSON with `jq -n` and pipe it via stdin (#16, #17).
 - **Shared conventions:** new *Untrusted output* section — all API output is
@@ -34,16 +46,35 @@ are unchanged and the REST token path still works everywhere it did before.
   tokens only, never `*` in chat, plus token-compromise rotation/revocation
   steps (#21).
 - **Legacy `src/`:** JSON payloads in `xcloud-api.sh`/`xcloud-cli.sh` are built
-  with `jq -n` (injection-proof; covered by the new offline
-  `src/tests/json-safety-test.sh`) (#17); `xcloud_async.py` state files are
-  written owner-only (0600) with known secret fields masked (#22); the CLI's
-  empty-`extra_args` crash under `set -u` and the async poller's wrong
-  readiness field (`provisioned` → `is_provisioned`/`status`) are fixed, and
-  the CLI's rejected `letsencrypt` SSL provider now uses `xcloud` (test-report
-  bugs 01–03 from #8).
-- **CI:** version-consistency check across all four version-bearing manifests
-  (#26), both offline test suites, and a script-safety pattern check (no
-  `--data-raw` in scripts, no unredacted `curl -v` in `src/`) (#20).
+  with `jq -n`, injection-proof (#17); `xcloud_async.py` state files are
+  written owner-only (0600) with known secret fields masked (#22).
+
+### Fixed
+
+- CLI crash on every no-payload command under `set -u` (empty `extra_args`;
+  #8 BUG-03).
+- Async poller readiness check now accepts live payload shapes
+  (`is_provisioned` / `status == "provisioned"`; #8 BUG-02).
+- CLI WordPress-create SSL provider `letsencrypt` → `xcloud` (#8 BUG-01; both
+  are valid per the current live spec — `xcloud` is the managed default).
+
+### Added
+
+- Offline test suites, wired into CI: `plugins/xcloud/scripts/tests/`
+  `wrapper-test.sh` (8 tests: refusal paths, redaction with a fake token,
+  stdin/argv body round-trips, unchanged envelope/exit codes) and
+  `src/tests/json-safety-test.sh` (8 tests: hostile quotes, control
+  characters, field-injection attempts).
+- CI: version-consistency gate across `plugin.json`, `marketplace.json`,
+  `.clawhubinfo.json`, and root `SKILL.md` (#26), plus a script-safety pattern
+  check — no `--data-raw` in scripts, no unredacted `curl -v` in `src/` (#20).
+
+## [4.0.0] - 2026-07-29
+
+**The MCP release.** The xCloud MCP server is live at
+`https://app.xcloud.host/mcp` — 110 native tools, one per authenticated Public
+API operation — and the skills are now **MCP-first**. Nothing breaks: skill IDs
+are unchanged and the REST token path still works everywhere it did before.
 
 ### Added
 

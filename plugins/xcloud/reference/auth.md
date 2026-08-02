@@ -21,8 +21,9 @@ Shared by every `xcloud-*` domain skill.
 ```bash
 export XCLOUD_API_TOKEN="..."                         # required
 export XCLOUD_API_BASE_URL="https://app.xcloud.host"  # default (live)
-# Local development:
+# Local development (plaintext http needs the explicit override):
 export XCLOUD_API_BASE_URL="http://xcloud.test"
+export XCLOUD_ALLOW_INSECURE_HTTP=1
 ```
 
 The base URL is the **only** thing that changes between local and live — never

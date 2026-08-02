@@ -22,7 +22,9 @@ All calls go through the shared wrapper:
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
 ```
 
-Set `XCLOUD_API_BASE_URL=http://xcloud.test` for local, unset (or
+Set `XCLOUD_API_BASE_URL=http://xcloud.test` (plus
+`XCLOUD_ALLOW_INSECURE_HTTP=1` — plaintext http is refused without it) for
+local, unset (or
 `https://app.xcloud.host`) for live.
 
 ## Response format
