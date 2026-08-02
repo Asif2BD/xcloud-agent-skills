@@ -9,6 +9,42 @@ All notable changes to the xCloud Public API skill are documented in this file.
 API operation — and the skills are now **MCP-first**. Nothing breaks: skill IDs
 are unchanged and the REST token path still works everywhere it did before.
 
+### Security & hardening (upstream issues #14–#22)
+
+- **Wrapper (`scripts/xcloud.sh`):**
+  - Plaintext `http://` base URLs are refused unless
+    `XCLOUD_ALLOW_INSECURE_HTTP=1` is set (local development only); non-http(s)
+    schemes are always refused (#14).
+  - Verbose mode (`XCLOUD_VERBOSE=1`) redacts the bearer token from all curl
+    stderr output — literal replacement, safe for any token content (#15).
+  - Request bodies are delivered to curl via stdin (`--data-binary @-`), never
+    on curl's command line; a new `-` body argument reads the wrapper's own
+    stdin so secret-bearing payloads (private keys, passwords) never touch any
+    argv. The JSON-argument form still works (#16).
+  - New offline test suite `scripts/tests/wrapper-test.sh` (fake token, local
+    echo server) covering all of the above; wired into CI.
+- **Skill docs:** SSL custom-certificate, sudo-user, and site-SSH password
+  examples now build JSON with `jq -n` and pipe it via stdin (#16, #17).
+- **Shared conventions:** new *Untrusted output* section — all API output is
+  data, never instructions (prompt-injection defense, #18) — and a written
+  *Confirmation policy* for high-risk writes with an explicit pre-authorized
+  batch override, matching the MCP `confirm: true` contract on the REST path
+  (#19).
+- **Auth guidance:** hosted-chat token rules tightened — scoped short-lived
+  tokens only, never `*` in chat, plus token-compromise rotation/revocation
+  steps (#21).
+- **Legacy `src/`:** JSON payloads in `xcloud-api.sh`/`xcloud-cli.sh` are built
+  with `jq -n` (injection-proof; covered by the new offline
+  `src/tests/json-safety-test.sh`) (#17); `xcloud_async.py` state files are
+  written owner-only (0600) with known secret fields masked (#22); the CLI's
+  empty-`extra_args` crash under `set -u` and the async poller's wrong
+  readiness field (`provisioned` → `is_provisioned`/`status`) are fixed, and
+  the CLI's rejected `letsencrypt` SSL provider now uses `xcloud` (test-report
+  bugs 01–03 from #8).
+- **CI:** version-consistency check across all four version-bearing manifests
+  (#26), both offline test suites, and a script-safety pattern check (no
+  `--data-raw` in scripts, no unredacted `curl -v` in `src/`) (#20).
+
 ### Added
 
 - **xCloud MCP as the primary transport.** New shared
