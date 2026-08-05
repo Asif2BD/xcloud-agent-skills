@@ -1,6 +1,6 @@
 {
   "name": "xcloud-agent-skills",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "display_name": "xCloud Agent Skills",
   "description": "Operate xCloud in plain language from any AI agent — five capability skills paired with the xCloud MCP server (110 native tools), with a bundled REST fallback.",
   "long_description": "The xCloud agent skills let any AI agent (Claude Code and others) operate xCloud in plain language: reboot a server, renew SSL, scan for vulnerabilities, provision WordPress or Git-deployed sites, delete sites safely. v4.0.0 is MCP-first: connect the xCloud MCP server (https://app.xcloud.host/mcp — OAuth, 110 tools with per-action destructive-operation confirmation) and the skills use it automatically; agents without MCP fall back to the shared auth + curl layer. A legacy Python SDK and CLI remain under src/ for direct scripting.",
@@ -35,6 +35,14 @@
   "repository": "https://github.com/xCloudDev/xcloud-agent-skills",
   "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md",
   "changelog": {
+    "v4.0.2": {
+      "date": "2026-08-05",
+      "changes": [
+        "Cleaned the ClawHub publish package by excluding internal docs, generated dist output, legacy source helpers, and smoke-test artifacts that are not required at install time",
+        "Removed scanner-triggering defensive prompt-injection phrasing from the published runtime references while preserving the untrusted-output safety rule",
+        "Regenerated ClawHub safety metadata for the reduced marketplace package"
+      ]
+    },
     "v4.0.1": {
       "date": "2026-08-02",
       "changes": [

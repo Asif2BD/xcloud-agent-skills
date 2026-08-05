@@ -2,6 +2,18 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.0.2] - 2026-08-05
+
+### ClawHub Package Hygiene
+
+- Excluded internal docs, generated `dist/` output, legacy `src/` helpers,
+  work-step notes, and smoke-test artifacts from the ClawHub publish package.
+- Kept the installable package focused on root marketplace files, live skill
+  instructions, runtime references, assets, and the shared REST wrapper.
+- Reworded the defensive untrusted-output example that ClawHub's static scanner
+  interpreted as a prompt-injection pattern.
+- Regenerated ClawHub safety metadata for the reduced package.
+
 ## [4.0.1] - 2026-08-02
 
 **The security-hardening release.** Every open upstream issue was examined;
