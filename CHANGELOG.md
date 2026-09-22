@@ -2,6 +2,66 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.2.0] - 2026-09-22
+
+**The search, profiles and deploy-flow release.** Everything below was verified
+against the live server at `https://app.xcloud.host/mcp` on 2026-09-22.
+
+### MCP search tools
+
+- `plugins/xcloud/reference/mcp.md` documents the two search tools that sit
+  beside the operation tools on every profile: `xcloud_agent_search` returns
+  the operations, ordered guidance steps and operation notes for a job (call it
+  first for anything with more than one step, and on a 403/422 you cannot
+  explain), and `xcloud_docs_search` answers a customer's question from
+  documentation passages, facts and dashboard paths without ever returning
+  operations.
+- `xcloud_search` no longer exists: it was split into the two tools above. The
+  retired name still routes to `xcloud_agent_search` for one release without
+  being listed.
+
+### One endpoint, profiles and toolsets
+
+- The default **flat** profile lists one tool per authenticated Public API
+  operation plus the two searches — 190 tools (188 operations: 110 read, 17
+  write, 61 destructive) at this release; the count grows with each API
+  release. Every stale "110 tools" figure is replaced.
+- The **compact** profile, `POST /mcp?profile=compact` (alias `/mcp/v2`), lists
+  five tools: the two searches plus `xcloud_execute_read`,
+  `xcloud_execute_write` and `xcloud_execute_destructive`, which take an
+  `operation_id` with `path_params`, `query`, `body`, `team`, and
+  `idempotency_key` / `confirm` where the class needs them. Arguments are
+  validated against the contract before the confirm step; a misspelled profile
+  is a `400 unknown_profile`; a token can be pinned with `mcp:profile:compact`.
+- **Toolsets** narrow the flat list to parts of xCloud (`?toolsets=sites,servers`
+  or `mcp:toolset:<name>` token abilities, intersected) for clients that cap
+  tool counts. Documented that narrowing is not an authorization boundary and
+  that unknown names are ignored.
+- Recorded the execution-class contract (read / write / destructive from the
+  spec, not the HTTP method), `dry_run: true` previews on the four
+  site-creation operations, the operations that accept an `Idempotency-Key`,
+  and the `team` argument for multi-team tokens.
+
+### Git deploy flow
+
+- Rewrote `plugins/xcloud/skills/sites/reference/git.md` around the real flow:
+  `git.detect` first (branch on `repository_access`, surface `warnings[]`),
+  `dry_run` then `servers.sites.git.auto`, `servers.sites.git.create` /
+  `servers.sites.git.docker` only for pinned values, the deploy-key handshake
+  for private SSH repositories (`index` → `store` → `verify` with
+  `detect: true` → `repository.deploy_key_uuid`), `git.compose-scan` and the
+  Docker host-port rules, the `sites.status` polling contract, and the failure
+  loop `sites.deploy-diagnosis` → `sites.provision-retry` with `corrections`
+  on the same site, with `sites.rescue`, `sites.events.show`,
+  `sites.deploy-config` and `deploy_script_fail_fast` in their places.
+- `xcloud:servers` lists the new server-side operations (`git/auto`,
+  `git/docker`, `git/detect`, `git/compose-scan`, deploy keys,
+  `staging-hostname/suggest`, Node.js versions) and its Git example previews
+  with `git.detect` and `dry_run` before creating; `xcloud:sites` lists
+  `deploy-config`, `deploy-diagnosis` and `provision-retry`.
+- Regenerated the portable Agent Plugins distribution and the claude.ai skill
+  under `dist/`.
+
 ## [4.1.0] - 2026-08-07
 
 ### Agent Plugins 1.0.0
