@@ -65,7 +65,13 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 | Supervisor processes | `GET /servers/{uuid}/supervisor-processes` |
 | Reboot server | `POST /servers/{uuid}/reboot` |
 | Create WordPress site on server | `POST /servers/{uuid}/sites/wordpress` |
-| **Create Git-deployed site on server** | `POST /servers/{uuid}/sites/git` |
+| **Deploy from Git (auto-detect)** | `POST /servers/{uuid}/sites/git/auto` |
+| Deploy from Git (explicit settings) | `POST /servers/{uuid}/sites/git` |
+| Deploy from Git to a Docker server | `POST /servers/{uuid}/sites/git/docker` |
+| Preview a repository / scan its compose file | `POST /git/detect` · `POST /git/compose-scan` |
+| Deploy keys for private SSH repos | `GET|POST /servers/{uuid}/git/deploy-keys[/{key_uuid}/verify]` |
+| Staging hostname a create would mint | `POST /servers/{uuid}/staging-hostname/suggest` |
+| Node.js versions (read, change default) | `GET /servers/{uuid}/node-versions` · `POST /servers/{uuid}/node-versions/{version}/default` |
 
 **Not here:** site settings → `xcloud:sites`; SSL → `xcloud:ssl`; WordPress
 plugins/themes/updates → `xcloud:wordpress`.
@@ -135,24 +141,34 @@ auto-generated credentials are returned only once.
 # then poll site provisioning:  GET /sites/{new_uuid}/status   (xcloud:sites)
 ```
 
-Create a **Git-deployed site** — `site_type` is one of `laravel`, `nodejs`,
-`custom-php`, `wordpress`, `lovable`. Atomic: if any step fails, no partial site
-is left behind. Repository source is EITHER a connected provider
-(`repository.provider_uuid` + `repository.full_name` — required for private
-repos) OR a public HTTPS `repository.url`; private `git@…` SSH URLs are
-rejected. `domain.mode` is `live` or `staging`; Node `ssr`/`hybrid` apps also
-need `start_command` + `port`:
+Deploy a **Git repository** — preview first, then `git/auto`, which detects
+everything you omit (`site_type` is one of `laravel`, `nodejs`, `custom-php`,
+`wordpress`, `lovable`; Node `ssr`/`hybrid` apps get `start_command` + `port`
+from detection). Repository source is ONE of: a connected provider
+(`repository.provider_uuid` + `full_name`, required for private provider
+repos), a public HTTPS `repository.url`, or a private SSH `url` together with
+`deploy_key_uuid` (prepare and verify the key first, documented via xcloud:sites (reference/git.md)). `domain.mode` is `live` or `staging`; omit `domain` for a
+staging hostname derived from the repo. Send `dry_run: true` first: it runs
+every check and returns `would_create` without creating anything; then the same
+body with `confirm: true` on MCP and an `Idempotency-Key`:
 
 ```bash
-"$XC" POST "/servers/$SERVER_UUID/sites/git" '{
-  "site_type": "custom-php",
+"$XC" POST "/git/detect" '{"repository_url": "https://github.com/acme/app.git", "server_uuid": "'"$SERVER_UUID"'"}' \
+  | jq '.data | {detection, repository_access, compatibility, warnings}'
+"$XC" POST "/servers/$SERVER_UUID/sites/git/auto" '{
   "repository": {"url": "https://github.com/acme/app.git", "branch": "main"},
   "domain": {"mode": "live", "name": "app.example.com", "ssl_provider": "xcloud"},
-  "enable_push_deploy": false
-}' | jq '.data'
-# then manage deploys via xcloud:sites (reference/git.md):
-#   PUT /sites/{uuid}/git · POST /sites/{uuid}/git/deploy
+  "dry_run": true
+}' | jq '.data | {dry_run, would_create, warnings}'
+# same body without dry_run (add -H "Idempotency-Key: <uuid>") → 202 with poll_url
+# then: GET /sites/{uuid}/status until terminal; on failed → GET /sites/{uuid}/deploy-diagnosis
+#       → POST /sites/{uuid}/provision-retry — documented via xcloud:sites (reference/git.md)
 ```
+
+Docker servers: `git/auto` resolves the container config from the repository;
+run `POST /git/compose-scan` first so `port` is one the compose file publishes.
+Use `POST /servers/{uuid}/sites/git` or `.../git/docker` only to pin explicit
+values the human gave you.
 
 ## Pitfalls
 

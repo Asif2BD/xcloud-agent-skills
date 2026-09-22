@@ -16,9 +16,10 @@ Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/x
 
 This repository ships the **`xcloud` Claude Code plugin** (v4.1.0): five
 capability skills that pair with the **[xCloud MCP server](https://app.xcloud.host/mcp/docs)**
-— 110 native tools, one per authenticated
-[Public API](https://app.xcloud.host/api/v1/docs) operation — with a bundled
-REST fallback for agents without MCP support.
+— one native tool per authenticated
+[Public API](https://app.xcloud.host/api/v1/docs) operation plus two search
+tools, or a five-tool compact profile — with a bundled REST fallback for
+agents without MCP support.
 
 > **New here?** Start with the [User Guide](docs/USER_GUIDE.md) (task-first) or
 > the [Install & Usage Guide](docs/SKILLS-GUIDE.md) (full install, per-skill
@@ -44,7 +45,10 @@ Skills are organized by **capability, not URL root** — each declares what it d
 
 The **xCloud MCP server** is the fastest way to give any agent full xCloud
 control — OAuth sign-in, no token to store, and built-in confirmation before
-every destructive operation. **110 tools, one per authenticated API operation.**
+every destructive operation. **One tool per authenticated API operation, plus
+`xcloud_agent_search` and `xcloud_docs_search`** (190 tools on 2026-09-22); or
+the **compact profile** (`/mcp?profile=compact`, five tools) for clients that
+cap tool counts.
 
 **Claude Code:**
 
@@ -230,8 +234,11 @@ local or white-label host without touching any skill. Full details in
 ## API & MCP reference
 
 - **MCP endpoint**: `https://app.xcloud.host/mcp` (Streamable HTTP) — [docs](https://app.xcloud.host/mcp/docs)
-- **MCP tools**: 110 — full parity with the authenticated REST surface; tool
-  names mirror endpoint paths (`servers_reboot`, `sites_ssl_renew`, …)
+- **MCP tools**: one per authenticated REST operation — 188 on 2026-09-22 —
+  plus `xcloud_agent_search` and `xcloud_docs_search`; tool names mirror
+  endpoint paths (`servers_reboot`, `sites_ssl_renew`, …). Compact profile:
+  `/mcp?profile=compact` (two searches + three executors); toolset narrowing:
+  `/mcp?toolsets=sites,servers`
 - **API docs**: https://app.xcloud.host/api/v1/docs (every endpoint,
   request/response schema, interactive try-it console)
 - **Base URL**: `https://app.xcloud.host/api/v1`

@@ -49,7 +49,7 @@ block — once per conversation.
 | Cache (purge, purge-all, settings) | `references/domain/cache.md` |
 | SSH/SFTP config & keys | `references/domain/ssh.md` |
 | Site cron jobs | `references/domain/cron-jobs.md` |
-| Git deployment settings and manual deploys | `references/domain/git.md` |
+| Git deploys: detect, dry run, deploy keys, polling, diagnosis and retry | `references/domain/git.md` |
 
 ## Core endpoints
 
@@ -65,6 +65,9 @@ block — once per conversation.
 | Git deployment info | `GET /sites/{uuid}/git` |
 | Update Git deployment settings | `PUT /sites/{uuid}/git` |
 | Trigger Git deployment | `POST /sites/{uuid}/git/deploy` |
+| Deploy config (read / change without deploying) | `GET|PUT /sites/{uuid}/deploy-config` |
+| Diagnose a failed deploy | `GET /sites/{uuid}/deploy-diagnosis` |
+| Retry a failed deploy on the same site | `POST /sites/{uuid}/provision-retry` |
 | Snapshots | `GET /sites/{uuid}/snapshots` |
 | Staging sites | `GET /sites/{uuid}/staging-sites` |
 | Custom nginx / site scripts / IP access | `GET /sites/{uuid}/{custom-nginx,site-scripts,ip-access}` |

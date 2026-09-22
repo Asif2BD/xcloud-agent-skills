@@ -21,8 +21,8 @@ server's tool surface**.
 |---|---|
 | Operations in the live OpenAPI (98 paths) | **113** |
 | — added since the 2026-07-10 audit | **+2** (`DELETE /sites/{uuid}`, `POST /servers/{uuid}/sites/git`) |
-| xCloud MCP tools | **110** |
-| MCP coverage of authenticated operations | **110 / 110 — full parity** |
+| xCloud MCP tools | **110** at this audit — **190** on 2026-09-22 (188 operation tools + 2 search tools; see the update below) |
+| MCP coverage of authenticated operations | **110 / 110 — full parity** (still full parity on 2026-09-22: 188 / 188) |
 | REST-only operations (by design) | **3** (`GET /health`, `GET /user/tokens`, `DELETE /user/tokens/{tokenUuid}`) |
 | Distinct operations documented by the skills | **122** |
 | Documented operations that match the live spec | **113 / 113 — no live gaps** |
@@ -34,7 +34,12 @@ Every authenticated REST operation has exactly one MCP tool named after its
 path (`servers_reboot` ← `POST /servers/{uuid}/reboot`;
 `sites_sslCertificates_create` ← `POST /sites/{uuid}/ssl-certificates`; …).
 Arithmetic check: 113 spec operations − 3 REST-only = **110 = the MCP tool
-count**. The three REST-only operations are intentional: `/health` is an
+count**. **Update, 2026-09-22 (verified against the live server):** the spec has
+grown to **191** operations on production; the same three REST-only exclusions
+leave **188** operation tools (110 read, 17 write, 61 destructive), and the
+server also lists `xcloud_agent_search` and `xcloud_docs_search`, for **190**
+tools on the default profile. `POST /mcp?profile=compact` (alias `/mcp/v2`)
+lists five. The three REST-only operations are intentional: `/health` is an
 unauthenticated probe, and API-token management stays out of the MCP so a
 connection cannot mint or revoke credentials.
 
