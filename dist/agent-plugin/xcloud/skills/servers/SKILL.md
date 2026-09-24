@@ -1,6 +1,6 @@
 ---
 name: servers
-description: Manage xCloud servers — list/inspect servers, monitoring, services, tasks, reboot, snapshots, sudo users, PHP versions, databases & database users, server cron jobs, firewall rules, fail2ban, and provisioning new sites onto a server (WordPress or Git-deployed PHP/Node apps). Use for any server-level infrastructure or server security (firewall/fail2ban) request. NOT site-level config (see sites), NOT SSL certs (see ssl), NOT WordPress app management (see wordpress).
+description: Manage xCloud servers — list/inspect servers, buy a new xCloud-managed server (plans, prices, regions, provisioning progress), monitoring, services (install, enable, restart, disable), Node.js and PHP versions, verified reboots, tasks, snapshots, sudo users, server cron jobs, firewall rules, fail2ban, IP whitelisting, and checking whether a domain's DNS points at a server. Use for any server-level infrastructure, capacity, or server security request. Deploying apps and creating sites on a server → deploy. NOT site-level config (see sites), NOT SSL certs (see ssl), NOT WordPress app management (see wordpress).
 ---
 
 # xCloud Servers
@@ -11,9 +11,10 @@ first for auth, base URL, envelope, pagination, and rate limits:
 - `references/shared/auth.md`
 - `references/shared/conventions.md`
 - `references/shared/mcp.md` — **prefer `servers_*` MCP
-  tools when connected** (e.g. `servers_index`, `servers_show`, `servers_reboot`,
-  `servers_sites_wordpress_create`, `servers_sites_git_create`); the `$XC` calls
-  below are the REST fallback.
+  tools when connected** (e.g. `servers_index`, `servers_show`,
+  `servers_plans`, `servers_store`, `servers_reboots_store`,
+  `servers_services_install`, `servers_dns_check`); the `$XC` calls below are
+  the REST fallback.
 
 Resolve the absolute directory that contains this `SKILL.md` before running
 shell commands. Do not resolve scripts from the user's current working directory:
@@ -47,6 +48,7 @@ Big domain — detailed per-sub-resource guidance lives in `references/domain/`:
 
 | Sub-resource | Reference file |
 |---|---|
+| Buying a server: plans, prices, regions, provisioning progress | `references/domain/provisioning.md` |
 | PHP versions (install, default, opcache, patch) | `references/domain/php-versions.md` |
 | Server cron jobs (CRUD, execute, output) | `references/domain/cron-jobs.md` |
 | Databases & database users ⚠️ _(404 on the current API — see file)_ | `references/domain/databases.md` |
@@ -59,26 +61,28 @@ Big domain — detailed per-sub-resource guidance lives in `references/domain/`:
 |---|---|
 | List servers | `GET /servers` |
 | Get server | `GET /servers/{uuid}` |
+| **Buy a new server** (billable) | `POST /servers` — see `references/domain/provisioning.md` |
+| Plans this team can buy | `GET /servers/plans` |
+| Provisioning progress | `GET /servers/{uuid}/provisioning-progress` |
 | List sites on server | `GET /servers/{uuid}/sites` |
 | Monitoring (+ history) | `GET /servers/{uuid}/monitoring[/history]` |
 | Services | `GET /servers/{uuid}/services` |
-| Restart a service | `POST /servers/{uuid}/services/restart` |
-| Disable a service | `POST /servers/{uuid}/services/disable` |
+| Install / enable / restart / disable a service | `POST /servers/{uuid}/services/{install,enable,restart,disable}` |
+| Node.js versions (read, change default) | `GET /servers/{uuid}/node-versions` · `POST /servers/{uuid}/node-versions/{version}/default` |
 | Recent tasks | `GET /servers/{uuid}/tasks` |
 | Snapshots | `GET /servers/{uuid}/snapshots` |
 | Supervisor processes | `GET /servers/{uuid}/supervisor-processes` |
-| Reboot server | `POST /servers/{uuid}/reboot` |
-| Create WordPress site on server | `POST /servers/{uuid}/sites/wordpress` |
-| **Deploy from Git (auto-detect)** | `POST /servers/{uuid}/sites/git/auto` |
-| Deploy from Git (explicit settings) | `POST /servers/{uuid}/sites/git` |
-| Deploy from Git to a Docker server | `POST /servers/{uuid}/sites/git/docker` |
-| Preview a repository / scan its compose file | `POST /git/detect` · `POST /git/compose-scan` |
-| Deploy keys for private SSH repos | `GET|POST /servers/{uuid}/git/deploy-keys[/{key_uuid}/verify]` |
-| Staging hostname a create would mint | `POST /servers/{uuid}/staging-hostname/suggest` |
-| Node.js versions (read, change default) | `GET /servers/{uuid}/node-versions` · `POST /servers/{uuid}/node-versions/{version}/default` |
+| **Verified reboot** (preferred) | `POST /servers/{uuid}/reboots` → `GET /servers/{uuid}/reboots/{operationUuid}` |
+| Recheck an unconfirmed reboot | `POST /servers/{uuid}/reboots/{operationUuid}/check` |
+| Reboot (legacy, fire-and-forget) | `POST /servers/{uuid}/reboot` |
+| Does a domain resolve to this server? | `POST /servers/{server}/dns/check` |
+| Create sites on this server (WordPress, Git, Docker, one-click) | owned by the `deploy` skill |
+| Staging hostname a create would mint | `GET /servers/{uuid}/staging-hostname?label=…` |
+| Deploy keys for private repositories | `GET /servers/{uuid}/git/deploy-keys` · `POST /servers/{uuid}/git/deploy-keys` |
 
-**Not here:** site settings → the `sites` skill; SSL → the `ssl` skill; WordPress
-plugins/themes/updates → the `wordpress` skill.
+**Not here:** creating and deploying sites → the `deploy` skill; site settings →
+the `sites` skill; SSL → the `ssl` skill; WordPress plugins/themes/updates →
+the `wordpress` skill; invoices and prices → the `billing` skill.
 
 ## Common reads
 
@@ -86,7 +90,7 @@ List servers:
 
 ```bash
 "$XC" GET "/servers?per_page=100" \
-  | jq '(.data.items // .data.data // []) | map({uuid, name, status, ip: (.ip_address // .ip)})'
+  | jq '(.data.items // .data.data // []) | map({uuid, name, status, status_readable, stack, ip: (.ip_address // .ip)})'
 ```
 
 One server + its monitoring:
@@ -97,23 +101,45 @@ SERVER_UUID='replace-me'
 "$XC" GET "/servers/$SERVER_UUID/monitoring" | jq '.data'
 ```
 
+Fleet check ("flag any server above 80% disk"): list servers, read each one's
+monitoring, and report one line per server. `status_readable` values such as
+*Low disk space* or *Reboot Required* are worth surfacing on their own.
+
 Recent tasks (use after any async write to confirm progress):
 
 ```bash
 "$XC" GET "/servers/$SERVER_UUID/tasks" | jq '(.data.items // .data) | map({uuid, type, status, created_at})'
 ```
 
-## Common writes
-
-Reboot (async — poll tasks afterward):
+Is `shop.example.com` pointing at this server yet?
 
 ```bash
-"$XC" POST "/servers/$SERVER_UUID/reboot" | jq '.message'
+jq -n --arg d "shop.example.com" '{domain:$d}' \
+  | "$XC" POST "/servers/$SERVER_UUID/dns/check" - | jq '.data'
 ```
 
-Restart a service:
+It makes one lookup per call — poll while a record propagates. A record behind
+Cloudflare's proxy is reported separately (`cloudflare_proxy: true`); relay
+`next_actions`. On a site xCloud manages through Cloudflare
+(`cloudflare_managed: true`) the proxied record is the finished state — never
+tell the user to turn the proxy off there.
+
+## Common writes
+
+Verified reboot — records one reboot operation, then confirms the machine came
+back with a new boot identity (a repeat while one is unresolved returns the same
+operation instead of rebooting twice):
 
 ```bash
+OP=$("$XC" POST "/servers/$SERVER_UUID/reboots" | jq -r '.data.uuid')
+"$XC" GET "/servers/$SERVER_UUID/reboots/$OP" | jq '.data'
+```
+
+Install and enable a service (e.g. Redis), then restart one:
+
+```bash
+"$XC" POST "/servers/$SERVER_UUID/services/install" '{"service":"redis"}' | jq '.message'
+"$XC" POST "/servers/$SERVER_UUID/services/enable"  '{"service":"redis"}' | jq '.message'
 "$XC" POST "/servers/$SERVER_UUID/services/restart" '{"service":"nginx"}' | jq '.message'
 ```
 
@@ -123,65 +149,35 @@ Disable a service (synchronous; can take a service offline):
 "$XC" POST "/servers/$SERVER_UUID/services/disable" '{"service":"redis"}' | jq '.message'
 ```
 
-Before disabling, xCloud must confirm the exact server, service name, and impact
-with the user. Accepted `service` values include `mysql`, `mariadb`,
+Before any service change, xCloud must confirm the exact server, service name,
+and impact with the user. Accepted `service` values include `mysql`, `mariadb`,
 `postgresql`, `nginx`, `redis`, `php`, `ssh`, `supervisor`, `docker`, `lsws`,
-`nodejs`, `openclaw`, `paperclip`, and `hermes`. For PHP services, pass
-`version` when the server has multiple PHP versions.
+`nodejs`, `openclaw`, `paperclip`, `hermes`, and `deepseek_harness`. For PHP
+services, pass `version` when the server has multiple PHP versions.
 
-Create a WordPress site on the server (live mode needs `domain` + `ssl`; omit
-`domain` for demo). `blueprint_uuid` and `snapshot_uuid` are mutually exclusive;
-auto-generated credentials are returned only once.
-
-```bash
-"$XC" POST "/servers/$SERVER_UUID/sites/wordpress" '{
-  "mode": "live",
-  "domain": "example.com",
-  "title": "My Site",
-  "php_version": "8.2",
-  "ssl": {"provider": "letsencrypt"},
-  "cache": {"full_page": true, "object_cache": true}
-}' | jq '.data'
-# then poll site provisioning:  GET /sites/{new_uuid}/status   (sites)
-```
-
-Deploy a **Git repository** — preview first, then `git/auto`, which detects
-everything you omit (`site_type` is one of `laravel`, `nodejs`, `custom-php`,
-`wordpress`, `lovable`; Node `ssr`/`hybrid` apps get `start_command` + `port`
-from detection). Repository source is ONE of: a connected provider
-(`repository.provider_uuid` + `full_name`, required for private provider
-repos), a public HTTPS `repository.url`, or a private SSH `url` together with
-`deploy_key_uuid` (prepare and verify the key first, documented with the `sites` skill). `domain.mode` is `live` or `staging`; omit `domain` for a
-staging hostname derived from the repo. Send `dry_run: true` first: it runs
-every check and returns `would_create` without creating anything; then the same
-body with `confirm: true` on MCP and an `Idempotency-Key`:
+Change the server's default Node.js (affects **every** Node site on the server —
+say so before asking):
 
 ```bash
-"$XC" POST "/git/detect" '{"repository_url": "https://github.com/acme/app.git", "server_uuid": "'"$SERVER_UUID"'"}' \
-  | jq '.data | {detection, repository_access, compatibility, warnings}'
-"$XC" POST "/servers/$SERVER_UUID/sites/git/auto" '{
-  "repository": {"url": "https://github.com/acme/app.git", "branch": "main"},
-  "domain": {"mode": "live", "name": "app.example.com", "ssl_provider": "xcloud"},
-  "dry_run": true
-}' | jq '.data | {dry_run, would_create, warnings}'
-# same body without dry_run (add -H "Idempotency-Key: <uuid>") → 202 with poll_url
-# then: GET /sites/{uuid}/status until terminal; on failed → GET /sites/{uuid}/deploy-diagnosis
-#       → POST /sites/{uuid}/provision-retry — documented with the `sites` skill
+"$XC" GET  "/servers/$SERVER_UUID/node-versions" | jq '.data'
+"$XC" POST "/servers/$SERVER_UUID/node-versions/22/default" | jq '.message'
 ```
 
-Docker servers: `git/auto` resolves the container config from the repository;
-run `POST /git/compose-scan` first so `port` is one the compose file publishes.
-Use `POST /servers/{uuid}/sites/git` or `.../git/docker` only to pin explicit
-values the human gave you.
+Sites are created on a server through the `deploy` skill (Git repositories, Docker
+Compose apps, WordPress, one-click apps): it runs the detection, dry-run preview,
+approval, polling, and failure recovery.
 
 ## Pitfalls
 
 - Server writes are async; success is returned before work completes — poll
-  `GET /servers/{uuid}/tasks`.
+  `GET /servers/{uuid}/tasks` (or the reboot operation / provisioning progress).
 - Disabling `ssh`, `nginx`, database, runtime, agent, or queue services can cause
   lockout or downtime. Require explicit confirmation immediately before calling
   `POST /servers/{uuid}/services/disable`.
-- Site creation (WordPress and Git) lives here (the URL is `/servers/...`), but
-  the resulting site is then managed via the `sites` skill / the `wordpress` skill.
+- `POST /servers` buys a server and charges the team's default card — never
+  without an approved plan, region and price (`references/domain/provisioning.md`).
+  Connecting a server from the user's own cloud account is dashboard-only.
+- Agentic servers (OpenClaw, Paperclip, Hermes, DeepSeek Harness) host only the
+  site created with them; Docker servers cannot host WordPress.
 - `setting default PHP` and `patching PHP` do not enforce a `write:servers`
   scope line in the docs but still require server write permission in practice.

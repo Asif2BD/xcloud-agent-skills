@@ -72,12 +72,12 @@ Rule: Upgrade all existing 7.4 sites → 8.1 within 90 days
 What SSL should I use?
 │
 ├─ Standard domain (*.com, *.org, etc.)
-│   └─ → letsencrypt (free, auto-renews)
+│   └─ → xcloud (free Let's Encrypt, auto-renews)
 │
 ├─ Wildcard domain (*.example.com)
 │   └─ → Requires DNS challenge support
-│       ├─ Cloudflare DNS → letsencrypt with Cloudflare API
-│       └─ Other DNS → Manual cert upload
+│       ├─ Cloudflare DNS → cloudflare (connected Cloudflare integration)
+│       └─ Other DNS → custom (upload your own certificate)
 │
 └─ Internal/test domain
     └─ → Self-signed or no SSL

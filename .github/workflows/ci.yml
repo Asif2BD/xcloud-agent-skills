@@ -98,6 +98,15 @@ jobs:
             python3 -c "import json,sys; json.load(open('$f')); print('valid', '$f')"
           done
 
+      - name: Scalar landing page matches its generator
+        run: |
+          set -euo pipefail
+          node docs/scalar/build.mjs >/dev/null
+          if ! git diff --exit-code -- docs/scalar/xcloud-skills.openapi.json; then
+            echo 'docs/scalar/xcloud-skills.openapi.json is stale: edit docs/scalar/build.mjs and regenerate.'
+            exit 1
+          fi
+
       - name: Version consistency across manifests
         run: |
           python3 - <<'PY'
@@ -177,6 +186,8 @@ jobs:
             echo "== ssl =="; plugins/xcloud/skills/ssl/tests/smoke.sh || rc=1
           fi
           echo "== account =="; plugins/xcloud/skills/account/tests/smoke.sh || rc=1
+          echo "== deploy =="; plugins/xcloud/skills/deploy/tests/smoke.sh || rc=1
+          echo "== billing =="; plugins/xcloud/skills/billing/tests/smoke.sh || rc=1
           if [ -n "${XCLOUD_TEST_WP_SITE_UUID:-}" ]; then
             echo "== wordpress =="; \
               XCLOUD_TEST_SITE_UUID="$XCLOUD_TEST_WP_SITE_UUID" \

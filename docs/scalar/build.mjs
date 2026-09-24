@@ -14,11 +14,14 @@
  * Output: ./xcloud-skills.openapi.json  (loaded by ./index.html)
  */
 
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
+const PLUGIN_VERSION = JSON.parse(
+  readFileSync(join(HERE, '../../plugins/xcloud/.claude-plugin/plugin.json'), 'utf8'),
+).version;
 
 // The full xCloud Public API reference. When this document is served by the
 // xCloud app (routes/web.php → /agent/skills), the `app.xcloud.host` host is
@@ -45,17 +48,19 @@ a REST fallback:
 ### → [Connect the xCloud MCP](${XCLOUD_MCP_DOCS_URL})
 ### → [xCloud API](${XCLOUD_API_DOCS_URL})
 
-## The five skills
+## The seven skills
 
 You never name them — the agent picks the right one from what you ask.
 
 | Skill | Owns |
 |---|---|
-| \`xcloud:servers\` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, WordPress and Git-site provisioning |
-| \`xcloud:sites\` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git, deletion |
-| \`xcloud:wordpress\` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed |
+| \`xcloud:deploy\` | Deploy a GitHub URL, Docker Compose app, one-click app, Git staging environment or WordPress site end to end; diagnose and retry failed deploys |
+| \`xcloud:servers\` | Servers: buy a server, services, Node/PHP versions, verified reboots, cron, firewall/fail2ban, sudo users, DNS checks |
+| \`xcloud:sites\` | Site lifecycle: status, backups (incl. Docker apps), staging, domains, cache, SSH, site cron, deletion |
+| \`xcloud:wordpress\` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed, broken links |
 | \`xcloud:ssl\` | SSL certificates: view, install, renew, status, delete |
-| \`xcloud:account\` | Current user, API tokens, Cloudflare integrations, blueprints, health |
+| \`xcloud:billing\` | Plan, invoices, prices, paying an invoice, mailboxes and mail delivery |
+| \`xcloud:account\` | Current user, teams, incident alerts, API tokens, Git/Cloudflare integrations, blueprints, health |
 
 ## Install in Claude Code
 
@@ -93,6 +98,14 @@ the copy button.
 **One-liners**
 
 \`\`\`text
+Deploy https://github.com/acme/shop to my Frankfurt server.
+\`\`\`
+
+\`\`\`text
+The last deploy of the API site failed — fix it.
+\`\`\`
+
+\`\`\`text
 List my xCloud servers.
 \`\`\`
 
@@ -125,9 +138,9 @@ runs a vulnerability scan, and runs a PageSpeed scan, then returns one summary.
 Audit example.com — is it up, is SSL healthy, any vulnerabilities, and how's performance?
 \`\`\`
 
-*Safe WordPress update* — takes a labelled backup and waits for it, applies the
-update, then confirms the site is still healthy. Follow up with *"restore the
-backup you just took"* to roll back.
+*Safe WordPress update* — takes a backup and waits for it, applies the update,
+then confirms the site is still healthy; if anything breaks it points you to that
+backup (restore is one click in the dashboard).
 
 \`\`\`text
 WooCommerce has an update — apply it to example.com, but back up first and tell me if anything looks off.
@@ -168,7 +181,7 @@ const doc = {
   openapi: '3.1.0',
   info: {
     title: 'xCloud Agent Skills',
-    version: '4.0.0',
+    version: PLUGIN_VERSION,
     description: INFO_DESCRIPTION,
   },
   // No contact / license / externalDocs — they render in Scalar's right column,

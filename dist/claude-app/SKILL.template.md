@@ -1,11 +1,11 @@
 ---
 name: xcloud
-description: Operate xCloud from plain language — servers, sites, WordPress, SSL, and account. List/inspect/manage servers and sites, provision WordPress, install/renew SSL certificates, scan vulnerabilities, run PageSpeed, manage API tokens, Cloudflare integrations and blueprints. Use for any xCloud hosting or infrastructure request.
+description: Operate xCloud from plain language — deploy any GitHub/GitLab repo, Docker Compose app, one-click app or WordPress site end to end (detect, dry run, approve, provision, verify, auto-diagnose and retry failures), and manage servers, sites, WordPress, SSL, billing, add-ons, teams and alerts. Use for any xCloud hosting, deployment, or infrastructure request, or whenever the user pastes a repository URL and asks to host it.
 ---
 
 # xCloud
 
-One skill for the whole xCloud Public API, organized into five capability areas.
+One skill for the whole xCloud Public API, organized into seven capability areas.
 Read the shared layer first, then the area file for the task at hand.
 
 ## Setup
@@ -31,11 +31,13 @@ Set the token per `reference/auth.md`:
 
 | The request is about… | Read |
 |---|---|
-| Servers, PHP, cron, firewall/fail2ban, sudo users, services, provisioning WordPress | `reference/servers.md` |
-| Sites: status, backups, domains, cache, SSH, site cron, git settings, manual deploys | `reference/sites.md` |
-| WordPress: plugins/themes/updates, WP_DEBUG, magic login, site/team vulnerabilities, PageSpeed | `reference/wordpress.md` |
+| **Deploy**: a GitHub/GitLab URL, Docker Compose app, one-click app, staging from a branch, new WordPress site, failed-deploy recovery, redeploys | `reference/deploy.md` |
+| Servers: buy a server, plans, services, Node/PHP, verified reboots, cron, firewall/fail2ban, sudo users, DNS checks | `reference/servers.md` |
+| Sites: status, backups (incl. Docker apps), staging, domains, cache, SSH, site cron, monitoring, deletion | `reference/sites.md` |
+| WordPress: plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed, broken links | `reference/wordpress.md` |
 | SSL certificates: view, install, renew, status, delete | `reference/ssl.md` |
-| Account: current user, API tokens, Cloudflare integrations, blueprints, health | `reference/account.md` |
+| Billing: plan, invoices, prices, paying an invoice, mailboxes and mail delivery | `reference/billing.md` |
+| Account: current user, teams, incident alerts, API tokens, Git and Cloudflare integrations, blueprints, health | `reference/account.md` |
 
 Each area file lists its endpoints, scopes, examples, and pitfalls, and points to
 deeper sub-resource files (named `reference/<area>-<topic>.md`, e.g.

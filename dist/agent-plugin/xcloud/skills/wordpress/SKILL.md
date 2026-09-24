@@ -1,11 +1,12 @@
 ---
 name: wordpress
-description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings, and run PageSpeed Insights scans. Use for WordPress app management, security scans, or site performance. For SSL see ssl; for site backups/domains/cache see sites; for server infra see servers.
+description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings (per site and team-wide), run PageSpeed Insights scans, and scan for broken links. Use for WordPress app management, "which sites need updates", security scans, site performance, or broken links. For SSL see ssl; for site backups/domains/cache see sites; for server infra see servers.
 ---
 
 # xCloud WordPress
 
-Owns WordPress app management plus site vulnerability scanning and PageSpeed.
+Owns WordPress app management plus site vulnerability scanning, PageSpeed, and
+broken-link scans.
 Read the shared layer first for auth, base URL, and conventions:
 
 - `references/shared/auth.md`
@@ -13,7 +14,8 @@ Read the shared layer first for auth, base URL, and conventions:
 - `references/shared/mcp.md` — **prefer the MCP tools when
   connected**: `sites_wordpress_*` (plugins/themes/updates/status/update/
   activate/refresh), `sites_vulnerabilities_*`, `vulnerabilities_index`
-  (team-wide), `sites_pagespeed_*`, `sites_wp-debug`, `sites_magic-login`;
+  (team-wide), `sites_pagespeed_*`, `sites_broken-links_*`, `sites_wp-debug`,
+  `sites_magic-login`;
   the `$XC` calls below are the REST fallback.
 
 Resolve the absolute directory that contains this `SKILL.md` before running
@@ -50,6 +52,7 @@ block — once per conversation.
 | Plugins, themes, updates, activate, refresh | `references/domain/plugins-themes.md` |
 | Vulnerabilities (scan, list, ignore) | `references/domain/vulnerabilities.md` |
 | PageSpeed Insights | `references/domain/pagespeed.md` |
+| Broken links (scan, poll, findings) | `references/domain/broken-links.md` |
 
 ## Core endpoints
 
@@ -85,6 +88,14 @@ Generate a one-time admin magic-login URL:
 "$XC" POST "/sites/$SITE_UUID/magic-login" '{"login_as":"admin"}' | jq -r '.data.url // .data'
 ```
 
+## Fleet questions
+
+"Which of my sites have pending core, plugin or theme updates?" → list sites
+(the `sites` skill), keep the WordPress ones, read each one's updates summary, and
+answer grouped by site with counts; offer to update the ones the user picks
+(back up first — `references/domain/plugins-themes.md`). For vulnerabilities across the
+team, `GET /vulnerabilities` answers in one call — sort worst first.
+
 ## Cross-domain note
 
 `vulnerabilities` and `pagespeed` are addressed at `/sites/{uuid}/…` and work on
@@ -96,4 +107,6 @@ cross-link.
 
 - Plugin/theme updates and activations are async and can optionally back up
   first — see `references/domain/plugins-themes.md`.
-- Magic-login URLs are single-use and short-lived; never log them.
+- Magic-login URLs are single-use and expire after about ten minutes; treat them
+  like passwords, never log them. The first call on a site installs the
+  magic-login plugin over SSH, which is why it is confirm-gated on MCP.

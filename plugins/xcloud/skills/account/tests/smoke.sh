@@ -20,4 +20,6 @@ fi
 check "current user" "/user"
 check "blueprints"   "/blueprints?per_page=1"
 check "cloudflare"   "/integrations/cloudflare"
+check "teams"        "/teams"
+check "alerts"       "/alerts?per_page=1"
 echo; echo "Smoke: ${PASS} passed, ${FAIL} failed"; (( FAIL == 0 ))

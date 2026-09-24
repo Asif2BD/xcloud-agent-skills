@@ -8,7 +8,8 @@ URL, envelope, pagination, and rate limits:
 - `reference/conventions.md`
 - `reference/mcp.md` — **prefer `mcp__xcloud__sites_*`
   tools when connected** (e.g. `sites_index`, `sites_show`, `sites_status`,
-  `sites_rescue`, `sites_destroy`); the `$XC` calls below are the REST fallback.
+  `sites_backup`, `sites_docker_backup`, `sites_stagingSites`, `sites_rescue`,
+  `sites_destroy`); the `$XC` calls below are the REST fallback.
 
 ```bash
 XC="scripts/xcloud.sh"
@@ -37,11 +38,11 @@ block — once per conversation.
 | Sub-resource | Reference file |
 |---|---|
 | Backups (trigger, list, settings, status, count) | `reference/sites-backups.md` |
+| Docker app backups (back up now, notes, schedule, retention) | `reference/sites-docker-backups.md` |
 | Domains, redirections, web rules | `reference/sites-domains.md` |
 | Cache (purge, purge-all, settings) | `reference/sites-cache.md` |
 | SSH/SFTP config & keys | `reference/sites-ssh.md` |
 | Site cron jobs | `reference/sites-cron-jobs.md` |
-| Git deploys: detect, dry run, deploy keys, polling, diagnosis and retry | `reference/sites-git.md` |
 
 ## Core endpoints
 
@@ -54,21 +55,18 @@ block — once per conversation.
 | Deployment logs | `GET /sites/{uuid}/deployment-logs` |
 | Monitoring (+ history) | `GET /sites/{uuid}/monitoring[/history]` |
 | Access logs | `GET /sites/{uuid}/access-logs` |
-| Git deployment info | `GET /sites/{uuid}/git` |
-| Update Git deployment settings | `PUT /sites/{uuid}/git` |
-| Trigger Git deployment | `POST /sites/{uuid}/git/deploy` |
-| Deploy config (read / change without deploying) | `GET|PUT /sites/{uuid}/deploy-config` |
-| Diagnose a failed deploy | `GET /sites/{uuid}/deploy-diagnosis` |
-| Retry a failed deploy on the same site | `POST /sites/{uuid}/provision-retry` |
+| One event's full output | `GET /sites/{uuid}/events/{task_uuid}` |
+| Git settings, deploys, diagnosis, retry | owned by `xcloud:deploy` |
 | Snapshots | `GET /sites/{uuid}/snapshots` |
-| Staging sites | `GET /sites/{uuid}/staging-sites` |
+| Staging environments (list / create for Git sites) | `GET\|POST /sites/{uuid}/staging-sites` — creating is a deploy (`xcloud:deploy`) |
 | Custom nginx / site scripts / IP access | `GET /sites/{uuid}/{custom-nginx,site-scripts,ip-access}` |
 | Domain update status | `GET /sites/{uuid}/domain/status` |
 | Rescue site | `POST /sites/{uuid}/rescue` |
 | **Delete site** | `DELETE /sites/{uuid}` |
 
-**Not here:** SSL → `xcloud:ssl`; WordPress/vulns/pagespeed → `xcloud:wordpress`;
-servers → `xcloud:servers`.
+**Not here:** deploys → `xcloud:deploy`; SSL → `xcloud:ssl`;
+WordPress/vulns/pagespeed/broken links → `xcloud:wordpress`; servers →
+`xcloud:servers`.
 
 ## Common reads
 
@@ -128,4 +126,7 @@ staging sites are removed too):
   `/sites/{uuid}/ssh` (`site_user`) and the server tasks to confirm.
 - Site deletion requires the `site:delete` team permission; sites tied to their
   server's lifecycle (e.g. OpenClaw) cannot be deleted independently.
-- Monitoring history is a paid feature — expect `403` on free plans.
+- Monitoring history is a paid feature — expect `403` on free plans. It takes a
+  `range` query parameter.
+- A site whose status looks wrong after a deploy → hand over to `xcloud:deploy`
+  (diagnosis and retry on the same site), never delete and recreate it.

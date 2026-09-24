@@ -12,16 +12,18 @@ Claude does it.
 
 ## What you get
 
-Five skills, each owning one area. You never name them — Claude picks the right
+Seven skills, each owning one area. You never name them — Claude picks the right
 one from what you ask.
 
 | If you want to… | Just say something like | Skill |
 |---|---|---|
-| Manage servers, PHP, databases, services, firewall | "reboot my Hermes server" | `xcloud:servers` |
-| Work with a site: backups, cache, domains, SSH, Git deploys | "deploy the latest commit for example.com" | `xcloud:sites` |
+| Put an app online: a GitHub URL, Docker app, one-click app, staging, WordPress | "deploy https://github.com/acme/shop" | `xcloud:deploy` |
+| Manage servers, PHP/Node, services, firewall, buy a server | "reboot my Hermes server" | `xcloud:servers` |
+| Work with a site: backups, cache, domains, SSH, staging | "back up example.com before I update it" | `xcloud:sites` |
 | Update WordPress, scan vulnerabilities, check speed | "show team-wide critical vulnerabilities" | `xcloud:wordpress` |
 | Set up or renew HTTPS | "renew SSL for example.com" | `xcloud:ssl` |
-| Check who you are, tokens, blueprints | "list my API tokens" | `xcloud:account` |
+| Plans, invoices, prices, mailboxes | "show last month's invoice" | `xcloud:billing` |
+| Teams, alerts, tokens, blueprints | "any unread alerts on the Acme team?" | `xcloud:account` |
 
 ---
 
@@ -66,6 +68,9 @@ That's it. Everything below is just talking to Claude.
 Use plain language. Name the site or server by its domain or name — Claude looks
 up the IDs for you.
 
+- "Deploy https://github.com/acme/shop to my Frankfurt server."
+- "The last deploy of the API site failed — fix it."
+- "Install Uptime Kuma on my Docker server."
 - "List my xCloud servers."
 - "Is example.com up right now?"
 - "Renew the SSL certificate for shop.example.com."
@@ -105,10 +110,11 @@ No endpoints, no dashboards — one question, one answer.
 > **You:** "WooCommerce has an update — apply it to example.com, but back up
 > first and tell me if anything looks off."
 
-**What Claude does:** takes a labelled backup and waits for it to finish, applies
-the update (with its own pre-update snapshot too), then confirms the site is
-still healthy. If something breaks, Claude tells you immediately and you can
-follow up with *"restore the backup you just took"* — a built-in rollback path.
+**What Claude does:** takes a backup and waits for it to finish, applies the
+update (with its own pre-update snapshot too), then confirms the site is still
+healthy. If something breaks, Claude tells you immediately and points you to the
+backup it just took — restoring is one click in the dashboard (**Site →
+Backups → Restore**).
 
 ### 3. New site go-live
 
@@ -127,7 +133,18 @@ scan so you know where you're starting from.
 to spot the usual culprits (stopped service, missing OS user, failed deploy), and
 reports back what it found.
 
-### 5. Lock down an abusive IP
+### 5. Deploy a GitHub repo
+
+> **You:** "Deploy https://github.com/acme/shop to my Frankfurt server."
+
+**What Claude does:** analyses the repository (app type, framework, build and
+start commands, whether the server can run it), shows you a dry-run preview —
+URL, branch, commands, port, runtime — and asks once. After your yes it creates
+the site, follows the deploy to the end, opens the URL to check it answers, and
+gives you the link. If the deploy fails, it reads xCloud's diagnosis, proposes
+the fix, and retries on the same site after you approve.
+
+### 6. Lock down an abusive IP
 
 > **You:** "Something's hammering my server from 203.0.113.7 — block it."
 

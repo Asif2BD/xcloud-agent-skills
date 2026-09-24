@@ -1,20 +1,26 @@
 # PageSpeed Insights
 
-`XC="scripts/xcloud.sh"` · scope `read:sites` / `write:sites`.
+`XC="scripts/xcloud.sh"` · scope `read:sites` / `write:sites`,
+plus the `site:manage-update` team permission.
 
 | Operation | Method + path |
 |---|---|
-| Latest snapshot | `GET /sites/{uuid}/pagespeed` |
-| History | `GET /sites/{uuid}/pagespeed/history` |
+| Latest completed run (mobile + desktop) | `GET /sites/{uuid}/pagespeed` |
+| History (newest first, `strategy=mobile\|desktop`) | `GET /sites/{uuid}/pagespeed/history` |
 | Trigger scan | `POST /sites/{uuid}/pagespeed/scan` |
+| One scan (poll this) | `GET /sites/{uuid}/pagespeed/scans/{scan_uuid}` |
 
 ```bash
 SITE_UUID='replace-me'
-"$XC" POST "/sites/$SITE_UUID/pagespeed/scan" | jq '.message'           # async
-"$XC" GET  "/sites/$SITE_UUID/pagespeed" \
-  | jq '.data | {performance, lcp, cls, inp, fetched_at}'
-"$XC" GET  "/sites/$SITE_UUID/pagespeed/history" | jq '(.data.items // .data) | .[0:10]'
+SCAN=$("$XC" POST "/sites/$SITE_UUID/pagespeed/scan" | jq -r '.data.scan_uuid')   # 202, async
+"$XC" GET "/sites/$SITE_UUID/pagespeed/scans/$SCAN" | jq '.data'   # poll until both strategies finish
+"$XC" GET "/sites/$SITE_UUID/pagespeed" | jq '.data'
+"$XC" GET "/sites/$SITE_UUID/pagespeed/history?strategy=mobile" | jq '(.data.items // .data) | .[0:10]'
 ```
 
-- Scans are async — poll `GET /sites/{uuid}/pagespeed` for the fresh snapshot.
+- One scan runs both strategies; it is complete only when the mobile **and**
+  desktop results for that `scan_uuid` are in. `409` means a scan already ran
+  in the last hour — read the latest result instead.
+- "Compare with previous scans" → latest run against `history` for the same
+  strategy; report the score change and the metric that moved most.
 - Applies to any site, not only WordPress (owned here by convention).
