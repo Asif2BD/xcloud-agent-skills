@@ -46,10 +46,12 @@ server**).
 "$XC" GET /servers/plans \
   | jq '.data.plans | map({slug, name, specs, pricing, regions: [.regions[].id]})'
 KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
-jq -n '{name:"sg-app-1", size:"vc2-1c-1gb", region:"sgp", stack:"nginx",
-        database_type:"mysql8", renewal_period:"monthly", backups:false}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST /servers - \
-  | jq '.data | {uuid, name, status, ip_address, region}'
+NEW=$(jq -n '{name:"sg-app-1", size:"vc2-1c-1gb", region:"sgp", stack:"nginx",
+              database_type:"mysql8", renewal_period:"monthly", backups:false}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST /servers -)
+printf '%s' "$NEW" | jq '.data | {uuid, name, status, ip_address, region}'
+SERVER_UUID=$(printf '%s' "$NEW" | jq -er '.data.uuid') \
+  || echo "create failed or no response — read GET /servers, then retry with the same KEY"
 "$XC" GET "/servers/$SERVER_UUID/provisioning-progress" | jq '.data | {percent_complete}'
 ```
 

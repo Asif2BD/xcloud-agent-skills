@@ -323,8 +323,9 @@ jq -n --arg r "https://github.com/acme/shop" '{repository:{url:$r}, dry_run:true
   | "$XC" POST "/servers/$SRV/sites/git/auto" -                # preview — creates nothing
 # after "yes": same body without dry_run; keep KEY — a retry must reuse it
 KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
-jq -n --arg r "https://github.com/acme/shop" '{repository:{url:$r}}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SRV/sites/git/auto" -
+SITE=$(jq -n --arg r "https://github.com/acme/shop" '{repository:{url:$r}}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SRV/sites/git/auto" - \
+  | jq -er '.data.uuid') || echo "create failed — check the server's sites, retry with the same KEY"
 "$XC" GET "/sites/$SITE/status"                                # poll until terminal, then open the URL
 ```
 
