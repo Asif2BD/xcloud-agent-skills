@@ -2,6 +2,13 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.3.2] — 2026-09-24
+
+- Harden the shipped REST fallback to GET-only, no body, no write override. Rejected methods stop before network activity.
+- Deployments, infrastructure changes and payments require connected MCP tools with user approval/server confirmation; unavailable operations stop at the dashboard rather than bypassing the wrapper.
+- Mark non-GET reference examples as upstream API documentation, not executable fallback commands. Recommend read-scoped REST credentials.
+- Add offline enforcement tests. This is a capability restriction for REST-only clients, not a claim of a guaranteed registry verdict.
+
 ## [4.3.1] - 2026-09-24
 
 ### Documentation and distribution
