@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# smoke.sh — read-only checks for xcloud:deploy. No mutations: repository
-# detection is side-effect free and nothing here creates, retries or installs.
+# smoke.sh — read-only checks for xcloud:deploy through the bundled GET-only
+# wrapper. Repository detection is a POST, so it is MCP-only and not covered
+# here; nothing in this suite creates, retries or installs.
 # Usage: XCLOUD_API_TOKEN=... [XCLOUD_TEST_SERVER_UUID=...] ./smoke.sh
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 XC="${CLAUDE_PLUGIN_ROOT:-$(cd "${SCRIPT_DIR}/../../.." && pwd)}/scripts/xcloud.sh"
 : "${XCLOUD_API_TOKEN:?XCLOUD_API_TOKEN must be set}"
-REPO="${XCLOUD_TEST_REPO_URL:-https://github.com/heroku/node-js-getting-started}"
 PASS=0; FAIL=0
 verdict(){ local l="$1" p="$2" o="$3"
   if ! echo "${o}" | jq -e '.success == true and .data != null' >/dev/null 2>&1; then
@@ -18,11 +18,11 @@ check(){ local l="$1" p="$2" o
 check "one-click catalog" "/oneclick-apps?per_page=1"
 check "app requirements"  "/catalog/apps"
 check "git integrations"  "/integrations/git"
-body=$(jq -n --arg r "${REPO}" '{repository_url:$r}')
-if o=$(printf '%s' "${body}" | "${XC}" POST /git/detect - 2>&1); then
-  verdict "git detect" "/git/detect" "${o}"
+# The wrapper must refuse a POST before any request (detection runs on MCP).
+if "${XC}" POST /git/detect '{}' >/dev/null 2>&1; then
+  echo "FAIL wrapper accepted a POST" >&2; FAIL=$((FAIL+1))
 else
-  echo "FAIL git detect: ${o}" >&2; FAIL=$((FAIL+1))
+  echo "PASS wrapper refuses POST (detection is MCP-only)"; PASS=$((PASS+1))
 fi
 if [[ -n "${XCLOUD_TEST_SERVER_UUID:-}" ]]; then
   S="${XCLOUD_TEST_SERVER_UUID}"

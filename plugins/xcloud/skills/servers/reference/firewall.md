@@ -1,8 +1,5 @@
 # Firewall, fail2ban & IP whitelisting
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 `XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"` · scope `read:servers` / `write:servers`.
 Server-level security lives here (not in a separate security skill).
 
@@ -19,15 +16,10 @@ Server-level security lives here (not in a separate security skill).
 Create body — required `name`, `protocol`, `traffic` (plus `port`, optional
 `ip_address` to scope the rule to a source):
 
-```bash
-SERVER_UUID='replace-me'
-"$XC" POST "/servers/$SERVER_UUID/firewall-rules" '{
-  "name": "Allow Postgres from office",
-  "protocol": "tcp",
-  "traffic": "allow",
-  "port": "5432",
-  "ip_address": "203.0.113.10"
-}' | jq '.data'
+```text
+servers_firewallRules_create  {"uuid": "<server-uuid>", "name": "Allow Postgres from office",
+                               "protocol": "tcp", "traffic": "allow", "port": "5432",
+                               "ip_address": "203.0.113.10"}  # destructive: confirm: true after the user's yes
 ```
 
 ## fail2ban
@@ -46,8 +38,8 @@ SERVER_UUID='replace-me'
 | Whitelist caller IP | `POST /servers/{uuid}/firewall/whitelist-caller-ip` |
 | Whitelist xCloud infra IPs | `POST /servers/{uuid}/firewall/whitelist-xcloud-ips` |
 
-```bash
-"$XC" POST "/servers/$SERVER_UUID/firewall/whitelist-caller-ip" | jq '.message'
+```text
+servers_firewall_whitelist-caller-ip  {"uuid": "<server-uuid>"}  # destructive: confirm: true after the user's yes
 ```
 
 - `ip_addresses` (array) is required when banning.

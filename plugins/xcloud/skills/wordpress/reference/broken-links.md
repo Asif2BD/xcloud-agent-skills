@@ -1,8 +1,5 @@
 # Broken links
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 `XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"` · scope `read:sites` /
 `write:sites`, plus the `site:manage-broken-links` team permission. WordPress
 sites.
@@ -27,7 +24,7 @@ sites.
 
 ```bash
 SITE_UUID='replace-me'
-RUN=$("$XC" POST "/sites/$SITE_UUID/broken-links/scan" | jq -r '.data.run.uuid')
+RUN='run.uuid-from-sites_broken-links_scan'   # MCP: sites_broken-links_scan {"uuid": "<site-uuid>"} (confirm)
 "$XC" GET "/sites/$SITE_UUID/broken-links/scans/$RUN" | jq '.data'
 "$XC" GET "/sites/$SITE_UUID/broken-links?per_page=100" | jq '.data'
 ```

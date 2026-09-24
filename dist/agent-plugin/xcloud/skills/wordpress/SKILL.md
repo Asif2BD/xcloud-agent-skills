@@ -5,9 +5,6 @@ description: Manage WordPress on xCloud sites — list/update/activate plugins a
 
 # xCloud WordPress
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 Owns WordPress app management plus site vulnerability scanning, PageSpeed, and
 broken-link scans.
 Read the shared layer first for auth, base URL, and conventions:
@@ -19,7 +16,8 @@ Read the shared layer first for auth, base URL, and conventions:
   activate/refresh), `sites_vulnerabilities_*`, `vulnerabilities_index`
   (team-wide), `sites_pagespeed_*`, `sites_broken-links_*`, `sites_wp-debug`,
   `sites_magic-login`;
-  the `$XC` calls below are the REST fallback.
+  the `$XC` calls
+  below are read-only REST fallbacks (`GET` only); changes run on the MCP.
 
 Resolve the absolute directory that contains this `SKILL.md` before running
 shell commands. Do not resolve scripts from the user's current working directory:
@@ -79,16 +77,17 @@ SITE_UUID='replace-me'
 "$XC" GET "/sites/$SITE_UUID/wordpress/updates" | jq '.data'
 ```
 
-Toggle WP_DEBUG (`enabled` required):
+Toggle WP_DEBUG (`enabled` required; MCP — the REST wrapper is read-only):
 
-```bash
-"$XC" POST "/sites/$SITE_UUID/wp-debug" '{"enabled":true}' | jq '.message'
+```text
+sites_wp-debug  {"uuid": "<site-uuid>", "enabled": true}  # destructive: confirm: true after the user's yes
 ```
 
-Generate a one-time admin magic-login URL:
+Generate a one-time admin magic-login URL (MCP; the first call installs the
+magic-login plugin over SSH):
 
-```bash
-"$XC" POST "/sites/$SITE_UUID/magic-login" '{"login_as":"admin"}' | jq -r '.data.url // .data'
+```text
+sites_magic-login  {"uuid": "<site-uuid>", "login_as": "admin"}  # destructive: confirm: true after the user's yes
 ```
 
 ## Fleet questions

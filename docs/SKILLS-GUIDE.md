@@ -1,7 +1,7 @@
 # xCloud Skills — Install & Usage Guide
 
 A step-by-step guide to installing and using the **xCloud Public API skills**
-(plugin `xcloud` v4.3.2) inside Claude Code.
+(plugin `xcloud` v4.3.3) inside Claude Code.
 
 The plugin ships **seven skills**, each owning one capability area of the API.
 You don't call them directly — you describe what you want in plain language and
@@ -67,16 +67,20 @@ Other clients (Claude Desktop, claude.ai, Cursor): add a custom connector with
 URL `https://app.xcloud.host/mcp`. Full instructions:
 <https://app.xcloud.host/mcp/docs>.
 
-With the MCP connected you can **skip the token setup below** — it's only
-needed for agents without MCP support, and for API-token list/revoke (which is
-intentionally REST-only).
+With the MCP connected you can **skip the token setup below** — every read and
+every change runs through it. The token below is only for agents without MCP
+support, and it is **read-only**: the bundled wrapper sends `GET` requests only.
+Changes (deploys, SSL, backups, purchases) always need the MCP; revoking API
+tokens is done in the dashboard (**Profile → API Tokens**).
 
-### 2.1 REST fallback — API token
+### 2.1 Read-only REST fallback — API token
 
-Without MCP, every skill needs a Sanctum personal access token. Generate one in
+Without MCP, the skills can still look at your account with a Sanctum personal
+access token. Generate one in
 the xCloud dashboard → **Profile → API Tokens → Generate New Token**, choosing
-the scopes you need (`read:sites`, `write:sites`, `read:servers`,
-`write:servers`, or `*`). Copy it immediately — it's shown only once.
+**read** scopes only (`read:sites`, `read:servers`, and `read:billing` /
+`read:addons` if you want billing answers). Write scopes add risk and no
+capability here. Copy it immediately — it's shown only once.
 
 Pick **one** persistent option:
 
@@ -149,8 +153,15 @@ XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
 
 ## 5. Use cases per skill (with small examples)
 
-Each example shows the **prompt** you'd give Claude and the **call** the skill
-makes under the hood (`$XC` = the shared wrapper, `$SITE`/`$SRV` = a resolved UUID).
+Each example shows the **prompt** you'd give Claude and the **calls** the skill
+makes under the hood. Two notations:
+
+- `"$XC" GET …` — a read through the bundled REST wrapper (`$SITE`/`$SRV` = a
+  resolved UUID). The wrapper is read-only: `GET` only.
+- `tool_name  {…}` — an xCloud MCP tool call with its arguments. Every change
+  runs this way; tools marked *destructive* are sent with `confirm: true` only
+  after your explicit yes. Without the MCP connection the skill offers to
+  connect it first.
 
 ### 5.1 `xcloud:servers`
 
@@ -158,28 +169,28 @@ Server infrastructure and server-level security.
 
 **Reboot a server** (verified: xCloud confirms the machine came back)
 > "Reboot my Hermes server."
-```bash
-OP=$("$XC" POST "/servers/$SRV/reboots" | jq -r '.data.uuid')
-"$XC" GET "/servers/$SRV/reboots/$OP"
+```text
+servers_reboots_store  {"uuid": "<server-uuid>"}  # destructive: confirm: true after the user's yes
+servers_reboots_show   {"uuid": "<server-uuid>", "operationUuid": "<data.uuid from the store call>"}
 ```
 
 **Install and default a PHP version**
 > "Install PHP 8.3 on that server and make it the default."
-```bash
-"$XC" POST "/servers/$SRV/php-versions" '{"php_version":"8.3"}'
-"$XC" POST "/servers/$SRV/php-versions/8.3/default"
+```text
+servers_php-versions_install  {"uuid": "<server-uuid>", "php_version": "8.3"}  # destructive: confirm: true after the user's yes
+servers_php-versions_default  {"uuid": "<server-uuid>", "version": "8.3"}  # destructive: confirm: true after the user's yes
 ```
 
 **Ban an abusive IP (fail2ban)**
 > "Ban 203.0.113.7 on server X."
 ```bash
-"$XC" POST "/servers/$SRV/fail2ban/banned-ips" '{"ip_addresses":["203.0.113.7"]}'
+servers_fail2ban_ban  {"uuid": "<server-uuid>", "ip_addresses": ["203.0.113.7"]}  # destructive: confirm: true after the user's yes
 ```
 
 **Disable a service**
 > "Disable Redis on server X."
-```bash
-"$XC" POST "/servers/$SRV/services/disable" '{"service":"redis"}'
+```text
+servers_services_disable  {"uuid": "<server-uuid>", "service": "redis"}  # destructive: confirm: true after the user's yes
 ```
 Require explicit confirmation first; disabling services can cause downtime or
 lockout.
@@ -188,11 +199,11 @@ lockout.
 endpoints return 404 today (see `docs/API-COVERAGE.md`); shown as a
 forward-looking example only*
 > "Create a database app_prod with a user on server X."
-```bash
-"$XC" POST "/servers/$SRV/databases" '{"database_name":"app_prod"}'
-jq -n --arg pw "$DB_PASSWORD" '{username:"app_user",password:$pw,databases:["app_prod"]}' \
-  | "$XC" POST "/servers/$SRV/database-users" -
+```text
+POST /servers/{uuid}/databases       {"database_name": "app_prod"}
+POST /servers/{uuid}/database-users  {"username": "app_user", "password": "<strong>", "databases": ["app_prod"]}
 ```
+(No MCP tool exists for these yet; nothing to run today.)
 
 ### 5.2 `xcloud:sites`
 
@@ -200,8 +211,8 @@ Site lifecycle and delivery.
 
 **Back up a site**
 > "Back up example.com before I deploy."
-```bash
-"$XC" POST "/sites/$SITE/backup" '{"type":"local"}'
+```text
+sites_backup  {"uuid": "<site-uuid>", "type": "local"}
 "$XC" GET  "/sites/$SITE/backup-status"
 ```
 
@@ -215,14 +226,14 @@ Site lifecycle and delivery.
 
 **Purge cache**
 > "Clear the cache on example.com."
-```bash
-"$XC" POST "/sites/$SITE/cache/purge-all"
+```text
+sites_cache_purge-all  {"uuid": "<site-uuid>"}
 ```
 
 **Switch SSH to key auth**
 > "Set example.com SSH to public-key auth with my key."
-```bash
-"$XC" PUT "/sites/$SITE/ssh" '{"authentication_mode":"public_key","ssh_public_keys":["ssh-ed25519 AAAA..."]}'
+```text
+sites_ssh_update  {"uuid": "<site-uuid>", "authentication_mode": "public_key", "ssh_public_keys": ["ssh-ed25519 AAAA..."]}  # destructive: confirm: true after the user's yes
 ```
 
 ### 5.3 `xcloud:wordpress`
@@ -231,29 +242,29 @@ WordPress app management, vulnerabilities, PageSpeed.
 
 **Update specific plugins, with a backup first**
 > "Update WooCommerce and Akismet on example.com, back up first."
-```bash
-"$XC" POST "/sites/$SITE/wordpress/update" '{"type":"plugin","slugs":["woocommerce","akismet"],"backup_before_update":true}'
+```text
+sites_wordpress_update  {"uuid": "<site-uuid>", "type": "plugin", "slugs": ["woocommerce", "akismet"], "backup_before_update": true}  # destructive: confirm: true after the user's yes
 ```
 
 **Run a vulnerability scan and review**
 > "Scan example.com for vulnerabilities and show me the critical ones."
-```bash
-"$XC" POST "/sites/$SITE/vulnerability-scan"
+```text
+sites_vulnerability-scan  {"uuid": "<site-uuid>"}
 "$XC" GET  "/sites/$SITE/vulnerabilities/count"
 "$XC" GET  "/sites/$SITE/vulnerabilities"
 ```
 
 **Check performance**
 > "What's the PageSpeed score for example.com?"
-```bash
-"$XC" POST "/sites/$SITE/pagespeed/scan"
+```text
+sites_pagespeed_scan  {"uuid": "<site-uuid>"}
 "$XC" GET  "/sites/$SITE/pagespeed"
 ```
 
 **One-time admin login**
 > "Give me a magic login link for example.com."
-```bash
-"$XC" POST "/sites/$SITE/magic-login" '{"login_as":"admin"}'
+```text
+sites_magic-login  {"uuid": "<site-uuid>", "login_as": "admin"}  # destructive: confirm: true after the user's yes
 ```
 
 ### 5.4 `xcloud:ssl`
@@ -262,15 +273,15 @@ SSL certificates and HTTPS.
 
 **Install a Let's Encrypt certificate**
 > "Set up HTTPS for newsite.example.com with Let's Encrypt."
-```bash
-"$XC" POST "/sites/$SITE/ssl-certificates" '{"provider":"xcloud"}'
+```text
+sites_sslCertificates_create  {"uuid": "<site-uuid>", "provider": "xcloud"}  # destructive: confirm: true after the user's yes
 ```
 
 **Renew before expiry**
 > "Renew the SSL cert for example.com."
-```bash
-"$XC" POST "/sites/$SITE/ssl/renew" '{}'            # only fires if within 7 days
-"$XC" POST "/sites/$SITE/ssl/renew" '{"force":true}' # force now
+```text
+sites_ssl_renew  {"uuid": "<site-uuid>"}   # only fires if within 7 days
+sites_ssl_renew  {"uuid": "<site-uuid>", "force": true}   # force now
 ```
 
 **Check cert status**
@@ -289,12 +300,13 @@ Identity and org-level reads.
 "$XC" GET /user
 ```
 
-**List and revoke tokens** (needs `*` scope; revoke by the token's `uuid`)
-> "List my API tokens and revoke the old CI token."
+**List tokens; revoke in the dashboard**
+> "List my API tokens — which one is the old CI token?"
 ```bash
-"$XC" GET /user/tokens
-"$XC" DELETE "/user/tokens/$TOKEN_UUID"
+"$XC" GET /user/tokens    # needs a full-access (*) token; otherwise use the dashboard
 ```
+Revoking is dashboard-only (**Profile → API Tokens**): neither the read-only
+wrapper nor the MCP can revoke a token.
 
 **Teams and alerts**
 > "Which teams can you see? Any unread error alerts on the Acme team?"
@@ -316,33 +328,28 @@ runs `xcloud_agent_search` first and follows the returned steps.
 
 **Deploy a GitHub URL**
 > "Deploy https://github.com/acme/shop to my Frankfurt server."
-```bash
-jq -n --arg r "https://github.com/acme/shop" --arg s "$SRV" '{repository_url:$r, server_uuid:$s}' \
-  | "$XC" POST /git/detect -                                   # what is it? can this server run it?
-jq -n --arg r "https://github.com/acme/shop" '{repository:{url:$r}, dry_run:true}' \
-  | "$XC" POST "/servers/$SRV/sites/git/auto" -                # preview — creates nothing
-# after "yes": same body without dry_run; keep KEY — a retry must reuse it
-KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
-SITE=$(jq -n --arg r "https://github.com/acme/shop" '{repository:{url:$r}}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SRV/sites/git/auto" - \
-  | jq -er '.data.uuid') || echo "create failed — check the server's sites, retry with the same KEY"
-"$XC" GET "/sites/$SITE/status"                                # poll until terminal, then open the URL
+```text
+git_detect              {"repository_url": "https://github.com/acme/shop", "server_uuid": "<server-uuid>"}
+servers_sites_git_auto  {"uuid": "<server-uuid>", "repository": {"url": "https://github.com/acme/shop"}, "dry_run": true}
+# after "yes" on the preview: the same arguments without dry_run
+servers_sites_git_auto  {"uuid": "<server-uuid>", "repository": {"url": "https://github.com/acme/shop"},
+                         "Idempotency-Key": "<one key for this site>", "confirm": true}
+sites_status            {"uuid": "<new site uuid>"}   # poll until terminal, then open the URL
 ```
 
 **Recover a failed deploy**
 > "The last deploy of the API site failed — fix it."
-```bash
+```text
 "$XC" GET "/sites/$SITE/deploy-diagnosis"     # classification, explanation, correctable_fields
-KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
-jq -n '{corrections:{build_command:"npm run build"}}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/sites/$SITE/provision-retry" -
+sites_provision-retry  {"uuid": "<site-uuid>", "corrections": {"build_command": "npm run build"},
+                        "Idempotency-Key": "<one key for this retry>"}  # destructive: confirm: true after the user's yes
 ```
 
 **Ship the latest commit / change deploy settings**
 > "Deploy the latest Git commit for example.com."
-```bash
-"$XC" PUT  "/sites/$SITE/git" '{"git_branch":"main","enable_push_deploy":true}'
-"$XC" POST "/sites/$SITE/git/deploy"
+```text
+sites_git_update  {"uuid": "<site-uuid>", "git_branch": "main", "enable_push_deploy": true}  # destructive: confirm: true after the user's yes
+sites_git_deploy  {"uuid": "<site-uuid>"}  # destructive: confirm: true after the user's yes
 ```
 
 **Install a one-click app**
@@ -366,9 +373,9 @@ an explicit yes with the price.
 
 **Mailbox DNS**
 > "Which DNS records do I still need for hello@example.com?"
-```bash
+```text
 "$XC" GET /addons/mailbox
-"$XC" POST "/addons/mailbox/$MAILBOX/verify-dns"
+addons_mailbox_verify-dns  {"mailbox": "<mailbox-uuid>"}  # destructive: confirm: true after the user's yes
 ```
 
 ---
@@ -386,15 +393,15 @@ end-to-end flows:
 
 Claude resolves the site UUID once, then fans out across **three** skills:
 
-```bash
+```text
 # xcloud:sites  — is it alive?
 "$XC" GET "/sites/$SITE/status"
 # xcloud:ssl    — cert valid / expiring?
 "$XC" GET "/sites/$SITE/ssl"
 # xcloud:wordpress — security + speed
-"$XC" POST "/sites/$SITE/vulnerability-scan"
+sites_vulnerability-scan  {"uuid": "<site-uuid>"}
 "$XC" GET  "/sites/$SITE/vulnerabilities/count"
-"$XC" POST "/sites/$SITE/pagespeed/scan"
+sites_pagespeed_scan  {"uuid": "<site-uuid>"}
 "$XC" GET  "/sites/$SITE/pagespeed"
 ```
 
@@ -406,32 +413,33 @@ count, PageSpeed score — without naming a single endpoint.
 > "WooCommerce has an update — apply it to example.com but back up first and
 > tell me if anything looks off."
 
-```bash
+```text
 # 1. snapshot first (xcloud:sites)
-"$XC" POST "/sites/$SITE/backup" '{"type":"local"}'
+sites_backup  {"uuid": "<site-uuid>", "type": "local"}
 "$XC" GET  "/sites/$SITE/backup-status"          # wait for "completed"
 # 2. update with built-in pre-update backup (xcloud:wordpress)
-"$XC" POST "/sites/$SITE/wordpress/update" \
-  '{"type":"plugin","slugs":["woocommerce"],"backup_before_update":true}'
+sites_wordpress_update  {"uuid": "<site-uuid>", "type": "plugin", "slugs": ["woocommerce"],
+                         "backup_before_update": true}  # destructive: confirm: true after the user's yes
 # 3. confirm the site still serves (xcloud:sites)
 "$XC" GET "/sites/$SITE/status"
 ```
 
-If status comes back unhealthy, Claude surfaces it immediately and you can ask
-it to restore the snapshot — one prompt, two skills, a rollback path.
+If status comes back unhealthy, Claude surfaces it immediately and points you to
+the backup it just took — restoring is one click in the dashboard (**Site →
+Backups → Restore**).
 
 ### 6.3 New site go-live
 
 > "I just provisioned shop.example.com — set up HTTPS and confirm it's serving."
 
-```bash
+```text
 # 1. install Let's Encrypt cert (xcloud:ssl)
-"$XC" POST "/sites/$SITE/ssl-certificates" '{"provider":"xcloud"}'
+sites_sslCertificates_create  {"uuid": "<site-uuid>", "provider": "xcloud"}  # destructive: confirm: true after the user's yes
 "$XC" GET  "/sites/$SITE/ssl"                    # wait for issued/active
 # 2. verify delivery (xcloud:sites)
 "$XC" GET "/sites/$SITE/status"
 # 3. baseline performance (xcloud:wordpress)
-"$XC" POST "/sites/$SITE/pagespeed/scan"
+sites_pagespeed_scan  {"uuid": "<site-uuid>"}
 ```
 
 The point: users think in **tasks** ("go live", "audit", "update safely"), not

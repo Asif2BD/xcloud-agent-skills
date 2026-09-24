@@ -22,7 +22,7 @@ The shell wrapper enforces **GET only, exactly two arguments, and no request bod
 
 All modifications, deployments and payments must go through the connected xCloud MCP tool with the required user approval and server confirmation. If that operation or confirmation is unavailable, stop and use the dashboard; never bypass the restriction with direct curl, the repository's legacy SDK, another script, or by modifying the wrapper. Historical endpoint examples remain API reference material, not permission to execute REST writes.
 
-The wrapper redacts tokens in stderr and validates team/idempotency headers. The Authorization header is passed in curl arguments, so a trusted, process-isolated runtime is required. Read responses can contain sensitive account data; filter them before sharing. GET-only enforcement is not an endpoint authorization system: use least-privilege read scopes and the correct team. MCP and the service enforce write permissions; this skill does not itself implement the remote confirmation mechanism or guarantee every client supports it.
+The wrapper redacts tokens in stderr and validates the team header. The Authorization header is passed in curl arguments, so a trusted, process-isolated runtime is required. Read responses can contain sensitive account data; filter them before sharing. GET-only enforcement is not an endpoint authorization system: use least-privilege read scopes and the correct team. MCP and the service enforce write permissions; this skill does not itself implement the remote confirmation mechanism or guarantee every client supports it.
 
 ## Deployment and billing risks
 

@@ -5,20 +5,19 @@ description: Deploy anything to xCloud from one plain request — a GitHub, GitL
 
 # xCloud Deploy
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 Owns getting code and apps **live** on xCloud, and getting failed deploys
 **back on track**. Read the shared layer first for auth, conventions, and the
 MCP rules:
 
 - `${CLAUDE_PLUGIN_ROOT}/reference/auth.md`
 - `${CLAUDE_PLUGIN_ROOT}/reference/conventions.md` — including **Proactive mode**
-- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer the MCP tools when
-  connected** (`xcloud_agent_search`, `git_detect`, `git_compose-scan`,
+- `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **deploying needs the MCP
+  tools** (`xcloud_agent_search`, `git_detect`, `git_compose-scan`,
   `servers_sites_git_auto`, `sites_status`, `sites_deploy-diagnosis`,
-  `sites_provision-retry`, `oneclickApps_*`, `sites_stagingSites_create`); the
-  `$XC` calls in the reference files are the REST fallback.
+  `sites_provision-retry`, `oneclickApps_*`, `sites_stagingSites_create`). The
+  bundled `$XC` wrapper is read-only: it can list servers and follow a deploy's
+  status, diagnosis and settings, but it cannot detect, create, retry or
+  redeploy.
 
 ```bash
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
@@ -74,13 +73,20 @@ request — start the playbook without asking the user to rephrase.
 
 ## The deploy playbook (run it end to end)
 
+**No MCP connection?** Do the looking that is possible (list servers, read the
+repository's public README if the user shared a URL), then offer to connect the
+xCloud MCP in one step and pick the playbook up at step 1 once the tools appear
+(`reference/conventions.md` → A change is asked for and MCP is not connected).
+Only if the user will not connect: give the dashboard path that
+`xcloud_docs_search` returns for deploying from Git.
+
 On MCP, call `xcloud_agent_search` once with the job in plain words ("deploy a
 Node app from GitHub", "deploy a Docker Compose app") — it returns this flow with
 every step's request body and the platform notes. Then:
 
 1. **Team.** If the user names a team or client, or the server/site they name is
    not in the default team, call `teams_index` and pass that team's uuid as
-   `team` on every later call (`X-Team-Id` on REST).
+   `team` on every later call.
 2. **Server.** Use the server the user named — do not ask again. Otherwise list
    servers and let the user choose; **never pick one silently**. Only offer
    servers that can run the app: Node, PHP and static output run on `nginx` /
@@ -102,7 +108,8 @@ every step's request body and the platform notes. Then:
    and every warning.
 6. **One approval.** Ask once, naming the server, the URL, and that it creates a
    real (billable) site. On yes, send the **same** body without `dry_run`, with
-   `confirm: true` and an `Idempotency-Key` (`XCLOUD_IDEMPOTENCY_KEY` on REST).
+   `confirm: true` and one `Idempotency-Key` for this site (reuse it only to
+   retry this same create).
 7. **Poll.** `sites_status` every ten seconds (or `poll_after_seconds`) until
    `terminal`, branching on `deploy_state` only. Give the user one progress line
    per real change (`current_step`), not one per poll. Live domain →

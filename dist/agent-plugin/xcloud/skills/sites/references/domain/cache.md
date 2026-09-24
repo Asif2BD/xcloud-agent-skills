@@ -1,8 +1,5 @@
 # Site cache
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 `XC="$SKILL_ROOT/scripts/xcloud.sh"` · scope `read:sites` / `write:sites`.
 
 | Operation | Method + path |
@@ -13,9 +10,12 @@
 
 ```bash
 SITE_UUID='replace-me'
-"$XC" GET  "/sites/$SITE_UUID/cache/settings" | jq '.data'
-"$XC" POST "/sites/$SITE_UUID/cache/purge"     | jq '.message'   # full-page only
-"$XC" POST "/sites/$SITE_UUID/cache/purge-all" | jq '.message'   # full-page + object + CDN
+"$XC" GET "/sites/$SITE_UUID/cache/settings" | jq '.data'
+```
+
+```text
+sites_cache_purge      {"uuid": "<site-uuid>"}   # full-page only
+sites_cache_purge-all  {"uuid": "<site-uuid>"}   # full-page + object + CDN
 ```
 
 - `purge` clears the full-page cache; `purge-all` clears every cache layer.

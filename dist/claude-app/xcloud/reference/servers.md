@@ -1,9 +1,6 @@
 
 # xCloud Servers
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 Owns server infrastructure and server-level security. Read the shared layer
 first for auth, base URL, envelope, pagination, and rate limits:
 
@@ -12,8 +9,8 @@ first for auth, base URL, envelope, pagination, and rate limits:
 - `reference/mcp.md` — **prefer `mcp__xcloud__servers_*`
   tools when connected** (e.g. `servers_index`, `servers_show`,
   `servers_plans`, `servers_store`, `servers_reboots_store`,
-  `servers_services_install`, `servers_dns_check`); the `$XC` calls below are
-  the REST fallback.
+  `servers_services_install`, `servers_dns_check`); the `$XC` calls
+  below are read-only REST fallbacks (`GET` only); changes run on the MCP.
 
 ```bash
 XC="scripts/xcloud.sh"
@@ -106,11 +103,11 @@ Recent tasks (use after any async write to confirm progress):
 "$XC" GET "/servers/$SERVER_UUID/tasks" | jq '(.data.items // .data) | map({uuid, type, status, created_at})'
 ```
 
-Is `shop.example.com` pointing at this server yet?
+Is `shop.example.com` pointing at this server yet? The check is read-only but
+is a `POST`, so it runs on MCP:
 
-```bash
-jq -n --arg d "shop.example.com" '{domain:$d}' \
-  | "$XC" POST "/servers/$SERVER_UUID/dns/check" - | jq '.data'
+```text
+servers_dns_check  {"server": "<server-uuid>", "domain": "shop.example.com"}
 ```
 
 It makes one lookup per call — poll while a record propagates. A record behind
@@ -119,29 +116,32 @@ Cloudflare's proxy is reported separately (`cloudflare_proxy: true`); relay
 (`cloudflare_managed: true`) the proxied record is the finished state — never
 tell the user to turn the proxy off there.
 
-## Common writes
+## Common changes (MCP)
+
+Changes run on the MCP tools below; the REST wrapper is read-only. Without MCP,
+offer to connect it (`reference/conventions.md` → Transports).
 
 Verified reboot — records one reboot operation, then confirms the machine came
 back with a new boot identity (a repeat while one is unresolved returns the same
 operation instead of rebooting twice):
 
-```bash
-OP=$("$XC" POST "/servers/$SERVER_UUID/reboots" | jq -r '.data.uuid')
-"$XC" GET "/servers/$SERVER_UUID/reboots/$OP" | jq '.data'
+```text
+servers_reboots_store  {"uuid": "<server-uuid>"}  # destructive: confirm: true after the user's yes
+servers_reboots_show   {"uuid": "<server-uuid>", "operationUuid": "<data.uuid from the store call>"}
 ```
 
 Install and enable a service (e.g. Redis), then restart one:
 
-```bash
-"$XC" POST "/servers/$SERVER_UUID/services/install" '{"service":"redis"}' | jq '.message'
-"$XC" POST "/servers/$SERVER_UUID/services/enable"  '{"service":"redis"}' | jq '.message'
-"$XC" POST "/servers/$SERVER_UUID/services/restart" '{"service":"nginx"}' | jq '.message'
+```text
+servers_services_install  {"uuid": "<server-uuid>", "service": "redis"}  # destructive: confirm: true after the user's yes
+servers_services_enable   {"uuid": "<server-uuid>", "service": "redis"}
+servers_services_restart  {"uuid": "<server-uuid>", "service": "nginx"}
 ```
 
 Disable a service (synchronous; can take a service offline):
 
-```bash
-"$XC" POST "/servers/$SERVER_UUID/services/disable" '{"service":"redis"}' | jq '.message'
+```text
+servers_services_disable  {"uuid": "<server-uuid>", "service": "redis"}  # destructive: confirm: true after the user's yes
 ```
 
 Before any service change, xCloud must confirm the exact server, service name,
@@ -154,8 +154,11 @@ Change the server's default Node.js (affects **every** Node site on the server �
 say so before asking):
 
 ```bash
-"$XC" GET  "/servers/$SERVER_UUID/node-versions" | jq '.data'
-"$XC" POST "/servers/$SERVER_UUID/node-versions/22/default" | jq '.message'
+"$XC" GET "/servers/$SERVER_UUID/node-versions" | jq '.data'
+```
+
+```text
+servers_node-versions_default  {"uuid": "<server-uuid>", "version": "22"}  # destructive: confirm: true after the user's yes
 ```
 
 Sites are created on a server through `xcloud:deploy` (Git repositories, Docker
@@ -168,7 +171,7 @@ approval, polling, and failure recovery.
   `GET /servers/{uuid}/tasks` (or the reboot operation / provisioning progress).
 - Disabling `ssh`, `nginx`, database, runtime, agent, or queue services can cause
   lockout or downtime. Require explicit confirmation immediately before calling
-  `POST /servers/{uuid}/services/disable`.
+  `servers_services_disable`.
 - `POST /servers` buys a server and charges the team's default card — never
   without an approved plan, region and price (`reference/servers-provisioning.md`).
   Connecting a server from the user's own cloud account is dashboard-only.

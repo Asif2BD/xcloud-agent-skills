@@ -2,6 +2,54 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.3.3] - 2026-09-24
+
+**The read-only REST wrapper and the docs now agree, and a missing MCP
+connection is no longer a dead end.** 4.3.2 made `scripts/xcloud.sh` GET-only
+but left the guides full of REST write examples under a pasted warning banner;
+this release reconciles the content itself.
+
+### Changed
+
+- **One transport rule** (`reference/conventions.md` → Transports): the MCP
+  does every read and every change; the bundled wrapper only looks (`GET`, no
+  body). Replaces the 32 copies of the boundary banner in the skills, README and
+  root `SKILL.md`.
+- **Offer to connect instead of stopping.** Asked for a change without MCP, the
+  agent finishes the looking, gives the one connect step for the user's client,
+  continues the same job once the tools appear, and falls back to a dashboard
+  path only if the user will not connect. The deploy playbook starts with this
+  branch.
+- **Every write example is an MCP call.** 59 write examples across 24 skill
+  files, and the install guide's use cases, are now written as tool name +
+  arguments, with argument names checked against the live spec
+  (`cronJobUuid`, `sudo_user_uuid`, `vulnerabilityUuid`, `version`, …) and
+  destructive tools marked for `confirm: true`. REST reads stay runnable.
+- **Tokens:** REST tokens are recommended with read scopes only. Revoking an
+  API token is documented as dashboard-only (Profile → API Tokens), since the
+  wrapper is read-only and the MCP keeps token management out.
+- **Default team:** documented that it is fixed at authorization to the team
+  active in the dashboard, and how to change it (switch team, reconnect).
+
+### Removed
+
+- `XCLOUD_IDEMPOTENCY_KEY` from the GET-only wrapper, where it could never
+  apply; creates send the `Idempotency-Key` argument on the MCP tool. A wrapper
+  test asserts the header is never sent.
+
+### Fixed
+
+- The deploy smoke suite still called `POST /git/detect` through the GET-only
+  wrapper, so it would fail against a live token; it now asserts the wrapper
+  refuses the POST (detection is MCP-only).
+- The vulnerability "ignore" example sent a `reason` field the API does not
+  accept.
+
+### CI
+
+- New step "Docs match the read-only REST wrapper": fails on any documented
+  `"$XC"` write or on the retired idempotency variable.
+
 ## [4.3.2] — 2026-09-24
 
 - Harden the shipped REST fallback to GET-only, no body, no write override. Rejected methods stop before network activity.
