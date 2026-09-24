@@ -1,6 +1,6 @@
 # xCloud Agent Skills
 
-[![Version](https://img.shields.io/badge/version-4.3.3-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.4.1-brightgreen.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-0EA5E9.svg)](https://clawhub.ai/asif2bd/xcloud)
 
@@ -63,11 +63,13 @@ My last deploy failed. Diagnose it and propose a correction before retrying.
 
 See the [complete Git deployment guide](plugins/xcloud/skills/deploy/reference/git.md).
 
-## Seven capabilities in one package
+## Nine capabilities in one package
 
 | Area | What you can ask for |
 |---|---|
 | **Deploy** | Git deployment and redeployment, repository detection, Docker/Compose, one-click apps, branch staging, new WordPress sites, diagnosis and recovery |
+| **Troubleshoot** | Why a site returns 500/502/503 or a critical error: status, recent events, nginx access and error logs, WordPress health, WP_DEBUG and services; hands off the logs only **Site → Logs** shows |
+| **Performance** | Why a site is slow: site and server monitoring, cache layers, PageSpeed, traffic spikes and bots, the site's PHP version; hands off the switches that are dashboard-only |
 | **Servers** | Inventory, monitoring, disk usage, services, Node/PHP, databases, firewall/fail2ban, cron, snapshots, reboots and approved server purchases |
 | **Sites** | Domains, cache, backups and Docker app backups, restore/rescue, deployment events, SSH/SFTP, access logs, cron and staging environments |
 | **WordPress** | Health, plugin/theme updates, vulnerability checks and fleet summaries, broken-link scans, PageSpeed polling, WP_DEBUG and magic-login URLs |
@@ -77,7 +79,7 @@ See the [complete Git deployment guide](plugins/xcloud/skills/deploy/reference/g
 
 Billing changes and add-ons can spend money. The agent must show the item, price, renewal period and payment method before an approved purchase. Payment and add-on operations do not all support idempotency; a timeout is not permission to charge again.
 
-Some settings remain dashboard-only, including changing a live site's domain after creation and certain subscription changes. The agent should provide the documented dashboard path rather than invent an API operation.
+Some settings remain dashboard-only, including changing a live site's domain after creation and certain subscription changes. The agent gives the documented dashboard path rather than inventing an API operation; every such job is listed in the [capability map](plugins/xcloud/reference/capability-map.md).
 
 ## Choose one installation path
 
@@ -95,7 +97,7 @@ Connect the xCloud MCP server through your client's MCP settings if supported:
 https://app.xcloud.host/mcp
 ```
 
-Otherwise configure the REST fallback below. The ClawHub package contains the root router, seven capability skills, shared references and API wrapper. It does not automatically configure MCP or supply credentials.
+Otherwise configure the REST fallback below. The ClawHub package contains the root router, nine capability skills, shared references and API wrapper. It does not automatically configure MCP or supply credentials.
 
 ### Claude Code
 
@@ -112,11 +114,11 @@ To add the MCP connection from a terminal:
 claude mcp add xcloud --transport http https://app.xcloud.host/mcp
 ```
 
-Complete authorization through the client. Skill names include `xcloud:deploy`, `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`, `xcloud:billing` and `xcloud:account`.
+Complete authorization through the client. Skill names include `xcloud:deploy`, `xcloud:troubleshoot`, `xcloud:performance`, `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`, `xcloud:billing` and `xcloud:account`.
 
 ### Other compatible agents
 
-Use the portable **Agent Plugins** package from [GitHub Releases](https://github.com/xCloudDev/xcloud-agent-skills/releases), or the source at [`dist/agent-plugin/xcloud`](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/dist/agent-plugin/xcloud). It contains `plugin.json`, `mcp.json` and seven self-contained skills. Import support and OAuth behavior depend on the client; see the [installation guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md).
+Use the portable **Agent Plugins** package from [GitHub Releases](https://github.com/xCloudDev/xcloud-agent-skills/releases), or the source at [`dist/agent-plugin/xcloud`](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/dist/agent-plugin/xcloud). It contains `plugin.json`, `mcp.json` and nine self-contained skills. Import support and OAuth behavior depend on the client; see the [installation guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md).
 
 For hosts that accept individual skills, use the generated directories under `dist/agent-plugin/xcloud/skills/`. They resolve their own `SKILL_ROOT` rather than requiring Claude Code's plugin variable. Do not copy only SKILL.md and omit its references/wrapper.
 
@@ -151,7 +153,7 @@ Read [SECURITY.md](SECURITY.md) for executable-file behavior, network destinatio
 
 ## Release and verification
 
-v4.3.3 reconciles every guide with the read-only REST wrapper: changes are written as MCP tool calls, and a missing MCP connection becomes an offer to connect rather than a dead end. v4.3.2 made the wrapper read-only; v4.3.1 brought the v4.1–v4.3 upstream capabilities to the ClawHub distribution. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
+v4.4.1 brings the upstream v4.4.0 troubleshoot and performance skills and the shared capability map together with the 4.3.x fixes, all on the read-only REST rule. v4.3.3 reconciles every guide with the read-only REST wrapper: changes are written as MCP tool calls, and a missing MCP connection becomes an offer to connect rather than a dead end. v4.3.2 made the wrapper read-only; v4.3.1 brought the v4.1–v4.3 upstream capabilities to the ClawHub distribution. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
 
 The development checks include shell syntax/ShellCheck, offline wrapper tests, legacy JSON-safety tests, portable package validation, version consistency and generated-artifact checks. Live smoke tests are read-only and require scoped credentials; a skipped smoke job is not a live-operation pass. This documentation release does not need a production deployment or purchase to validate packaging.
 

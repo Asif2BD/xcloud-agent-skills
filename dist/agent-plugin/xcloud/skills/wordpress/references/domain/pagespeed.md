@@ -19,8 +19,9 @@ SCAN='scan_uuid-from-sites_pagespeed_scan'   # MCP: sites_pagespeed_scan {"uuid"
 ```
 
 - One scan runs both strategies; it is complete only when the mobile **and**
-  desktop results for that `scan_uuid` are in. `409` means a scan already ran
-  in the last hour — read the latest result instead.
+  desktop results for that `scan_uuid` are in. `409` means a scan for this
+  site is still pending or running — poll it instead of starting another (a
+  scan stuck for over an hour is marked failed).
 - "Compare with previous scans" → latest run against `history` for the same
   strategy; report the score change and the metric that moved most.
 - Applies to any site, not only WordPress (owned here by convention).

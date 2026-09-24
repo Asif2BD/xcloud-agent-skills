@@ -53,7 +53,7 @@ block — once per conversation.
 | One alert | `GET /alerts/{alertUuid}` | `read:servers` or `read:sites` |
 | Mark an alert read / unread | `PUT /alerts/{alertUuid}/read` | `read:servers` or `read:sites` |
 | List API tokens | `GET /user/tokens` | token (`*`) |
-| Revoke a token | `DELETE /user/tokens/{tokenUuid}` — **dashboard only** (Profile → API Tokens) | token (`*`) |
+| Revoke a token | `DELETE /user/tokens/{tokenUuid}` — **dashboard only** (Account → API Tokens) | token (`*`) |
 | List Cloudflare integrations | `GET /integrations/cloudflare` | `read:servers` |
 | List connected Git providers | `GET /integrations/git` | `read:servers` |
 | Repositories a provider exposes | `GET /integrations/git/{provider_uuid}/repositories` | `read:servers` |
@@ -100,13 +100,13 @@ Who am I (verifies the token):
 
 List API tokens — this read needs a full-access `*` token, which the
 read-only setup does not recommend giving an agent; when the runtime token has
-read scopes only, send the user to **Profile → API Tokens** instead:
+read scopes only, send the user to **Account → API Tokens** instead:
 
 ```bash
 "$XC" GET /user/tokens | jq '(.data.items // .data.data // .data) | map({uuid, name, last_used_at})'
 ```
 
-Revoke a token: **dashboard only** — Profile → API Tokens → delete. Name the
+Revoke a token: **dashboard only** — Account → API Tokens → delete. Name the
 token (and when it was last used) so the user deletes the right one; treat any
 token that has appeared in a chat transcript as exposed.
 

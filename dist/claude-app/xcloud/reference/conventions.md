@@ -37,32 +37,9 @@ Do not dead-end at "use the dashboard". Finish the looking first, then:
    verify with `user_show` / `teams_index` and continue the original job from
    where it stopped — the same preview, one approval, then the change.
 4. Only if they cannot or will not connect: give the dashboard path for that
-   one action from the table below. `xcloud_docs_search` is an MCP tool, so it
-   is not available on this branch.
-
-| Change | Dashboard path |
-|---|---|
-| Deploy from Git | **Add New Site** → pick the server → **Deploy via Git** |
-| New WordPress site | **Add New Site** → pick the server → **Install a New WordPress Website** |
-| New server | **Servers** → **Create server** |
-| Purge cache | **Site → Cache** → **Purge Cache** |
-| HTTPS / SSL | **Site → Domain → SSL/HTTPS** |
-| Staging | **Site → Staging** (create, **Push / Pull**) |
-| Backups | **Site → Backups** (**Backup settings**, **Restore**) |
-| Plugin, theme, core updates | **Site → WordPress → Updates**; across sites: **Team Settings → Updates Manager** |
-| Vulnerabilities | **Site → WordPress → Vulnerability Scan** |
-| PHP version | **Site → Settings → PHP version** |
-| Redirects, web rules, custom Nginx | **Site → Tools → Redirects / Web rules / Custom nginx** |
-| Delete a site | The site's **⋯** menu → **Delete Site** |
-| Cron jobs | **Server → Cron Jobs** → **Add Cron Job** |
-| Firewall | **Server → Security → Firewall Management** |
-| Restart a service | **Server → Server Management** (services) |
-| Restart the server | The server's **Actions** menu → **Restart Server** |
-| API tokens | **Profile → API Tokens** |
-| Cloudflare integration | **Profile → Integrations → Cloudflare** |
-
-For anything not listed, name the site or server page that owns the setting and
-say the exact label may differ; never invent a path.
+   one action from `reference/capability-map.md` → **Without an MCP
+   connection**. `xcloud_docs_search` is an MCP tool, so it is not available
+   on this branch.
 
 Recognise the xCloud MCP by its tool names, not by the prefix: the prefix is
 whatever name the client or the user gave the connection. Tools named
@@ -208,6 +185,8 @@ Act like an operator who finishes the job, not a lookup tool:
   the fix you can run. Offering is free; running it still needs a yes.
 - **Say what cannot be done here.** When a step is dashboard-only, give the exact
   dashboard path (for example **Site → Domain**) instead of guessing an API.
+  `reference/capability-map.md` lists every dashboard-only and impossible job
+  in one place.
 
 ## Operating style
 
@@ -227,8 +206,8 @@ answer came from xCloud. Apply to natural-language responses — not to the raw
 `jq`/curl you run internally.
 
 - **Header (required):** lead with `☁️ **xCloud · <AREA>** — <resource>`, where
-  `<AREA>` is the skill's domain (`Deploy`, `Servers`, `Sites`, `WordPress`,
-  `SSL`, `Billing`, `Account`) and `<resource>` is the site domain, server name,
+  `<AREA>` is the skill's domain (`Deploy`, `Troubleshoot`, `Performance`,
+  `Servers`, `Sites`, `WordPress`, `SSL`, `Billing`, `Account`) and `<resource>` is the site domain, server name,
   repository, or scope of the
   answer (omit `— <resource>` when there is no single subject).
 - **Body:** the trimmed result — relevant fields only.
@@ -356,7 +335,7 @@ terminal). It is ~35 cols wide, so it fits an 80-column terminal without wrappin
                       #*******
                         #******
 
-   v4.3.3 · Managed hosting, from your terminal
+   v4.4.1 · Managed hosting, from your terminal
 ```
 ````
 

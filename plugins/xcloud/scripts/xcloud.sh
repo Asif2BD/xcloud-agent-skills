@@ -35,7 +35,7 @@ if [[ -z "${XCLOUD_API_TOKEN:-}" ]]; then
 error: XCLOUD_API_TOKEN is not set.
 
 Step 1 — Create an API token in xCloud:
-  xCloud dashboard -> Profile -> API Tokens -> Generate New Token
+  xCloud dashboard -> Account -> API Tokens -> Generate New Token
   -> choose read-only scopes only (e.g. read:servers) -> copy it (shown only once).
 
 Step 2 — Store it persistently for Claude Code:

@@ -1,6 +1,6 @@
 ---
 name: sites
-description: Manage existing xCloud sites — list/inspect sites, status, events, deployment logs, monitoring and uptime history, backups (including Docker app backups and schedules), rescue, snapshots, staging environments, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, access logs, and site deletion. Use for any day-2 site request. Deploying, redeploying, Git settings and failed-deploy recovery → deploy; SSL/certs → ssl; WordPress plugins/updates/vulnerabilities/PageSpeed/broken links → wordpress; server-level infra → servers.
+description: Manage existing xCloud sites — list/inspect sites, status, events, deployment logs, monitoring and uptime history, backups (including Docker app backups and schedules), rescue, snapshots, staging environments, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, access logs, and site deletion. Use for any day-2 site request. A site that errors (500/502, critical error) → troubleshoot; a slow site or "is caching on" → performance; deploying, redeploying, Git settings and failed-deploy recovery → deploy; SSL/certs → ssl; WordPress plugins/updates/vulnerabilities/PageSpeed/broken links → wordpress; server-level infra → servers.
 ---
 
 # xCloud Sites
@@ -73,7 +73,8 @@ block — once per conversation.
 | Rescue site | `POST /sites/{uuid}/rescue` |
 | **Delete site** | `DELETE /sites/{uuid}` |
 
-**Not here:** deploys → the `deploy` skill; SSL → the `ssl` skill;
+**Not here:** a site that errors → the `troubleshoot` skill; a slow site →
+the `performance` skill; deploys → the `deploy` skill; SSL → the `ssl` skill;
 WordPress/vulns/pagespeed/broken links → the `wordpress` skill; servers →
 the `servers` skill.
 

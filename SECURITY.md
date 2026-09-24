@@ -4,7 +4,7 @@
 
 This package contains Markdown instructions, public manifests/references, branding assets and `plugins/xcloud/scripts/xcloud.sh`, a Bash/curl REST wrapper. Installation does not execute API requests or grant access. The host agent, connected MCP server and xCloud permissions enforce access; skill prose is not a technical sandbox.
 
-The seven areas cover Deploy, Servers, Sites, WordPress, SSL, Billing and Account. Invoking write operations can change production infrastructure, delete data, interrupt services or spend money. A security review should consider these capabilities—not dismiss them as false positives because the package is mostly documentation.
+The nine areas cover Deploy, Troubleshoot, Performance, Servers, Sites, WordPress, SSL, Billing and Account. Invoking write operations can change production infrastructure, delete data, interrupt services or spend money. A security review should consider these capabilities—not dismiss them as false positives because the package is mostly documentation.
 
 ## Authentication and network destinations
 

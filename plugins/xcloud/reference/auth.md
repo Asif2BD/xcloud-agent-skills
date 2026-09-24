@@ -70,7 +70,7 @@ original task.
 ## Setting the token (Claude Code / CLI)
 
 **Step 1 — generate the token first.** In the xCloud dashboard:
-**Profile → API Tokens → Generate New Token** → choose **read** scopes only (e.g.
+**Account → API Tokens → Generate New Token** → choose **read** scopes only (e.g.
 `read:servers`, `read:sites`) → copy it immediately (shown only once). Always tell the user to
 create the token *before* the storage steps below.
 
@@ -122,7 +122,7 @@ echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
 
 ## Generating a token
 
-xCloud dashboard → **Profile → API Tokens → Generate New Token** → choose read
+xCloud dashboard → **Account → API Tokens → Generate New Token** → choose read
 scopes → copy immediately (shown once). The team active in the dashboard becomes
 the token's default team; tick any others it should read.
 

@@ -102,7 +102,7 @@ storage. Restart the client if it does not reload environment changes.
 
 ## Generating a token
 
-xCloud dashboard → **Profile → API Tokens → Generate New Token** → choose read
+xCloud dashboard → **Account → API Tokens → Generate New Token** → choose read
 scopes → copy immediately (shown once). The team active in the dashboard becomes
 the token's default team; tick any others it should read.
 

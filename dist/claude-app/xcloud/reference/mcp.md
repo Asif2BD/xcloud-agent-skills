@@ -225,7 +225,7 @@ The MCP does **not** expose these:
 |---|---|---|
 | API health | `GET /health` | `scripts/xcloud.sh` (unauthenticated probe) |
 | List API tokens | `GET /user/tokens` | `scripts/xcloud.sh` (needs a `*`-scope token) |
-| Revoke a token | `DELETE /user/tokens/{tokenUuid}` | **dashboard only** — Profile → API Tokens (the wrapper is read-only and the MCP keeps token management out) |
+| Revoke a token | `DELETE /user/tokens/{tokenUuid}` | **dashboard only** — Account → API Tokens (the wrapper is read-only and the MCP keeps token management out) |
 
 Eight more operations have no tool and are **not for agents at all**: the xCloud
 mobile app's sign-in (`/auth/config`, `/auth/token`, `/auth/session`) and its

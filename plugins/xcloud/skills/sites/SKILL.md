@@ -1,6 +1,6 @@
 ---
 name: sites
-description: Manage existing xCloud sites — list/inspect sites, status, events, deployment logs, monitoring and uptime history, backups (including Docker app backups and schedules), rescue, snapshots, staging environments, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, access logs, and site deletion. Use for any day-2 site request. Deploying, redeploying, Git settings and failed-deploy recovery → xcloud:deploy; SSL/certs → xcloud:ssl; WordPress plugins/updates/vulnerabilities/PageSpeed/broken links → xcloud:wordpress; server-level infra → xcloud:servers.
+description: Manage existing xCloud sites — list/inspect sites, status, events, deployment logs, monitoring and uptime history, backups (including Docker app backups and schedules), rescue, snapshots, staging environments, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, access logs, and site deletion. Use for any day-2 site request. A site that errors (500/502, critical error) → xcloud:troubleshoot; a slow site or "is caching on" → xcloud:performance; deploying, redeploying, Git settings and failed-deploy recovery → xcloud:deploy; SSL/certs → xcloud:ssl; WordPress plugins/updates/vulnerabilities/PageSpeed/broken links → xcloud:wordpress; server-level infra → xcloud:servers.
 ---
 
 # xCloud Sites
@@ -69,7 +69,8 @@ block — once per conversation.
 | Rescue site | `POST /sites/{uuid}/rescue` |
 | **Delete site** | `DELETE /sites/{uuid}` |
 
-**Not here:** deploys → `xcloud:deploy`; SSL → `xcloud:ssl`;
+**Not here:** a site that errors → `xcloud:troubleshoot`; a slow site →
+`xcloud:performance`; deploys → `xcloud:deploy`; SSL → `xcloud:ssl`;
 WordPress/vulns/pagespeed/broken links → `xcloud:wordpress`; servers →
 `xcloud:servers`.
 

@@ -65,7 +65,8 @@ block — once per conversation.
 | Rescue site | `POST /sites/{uuid}/rescue` |
 | **Delete site** | `DELETE /sites/{uuid}` |
 
-**Not here:** deploys → `xcloud:deploy`; SSL → `xcloud:ssl`;
+**Not here:** a site that errors → `xcloud:troubleshoot`; a slow site →
+`xcloud:performance`; deploys → `xcloud:deploy`; SSL → `xcloud:ssl`;
 WordPress/vulns/pagespeed/broken links → `xcloud:wordpress`; servers →
 `xcloud:servers`.
 
