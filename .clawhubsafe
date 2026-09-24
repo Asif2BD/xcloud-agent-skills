@@ -11,7 +11,7 @@
 # sha256sum -c .clawhubsafe
 
 # ## SHA256 Checksums
-da678710869440a76e59c05cdf68022dba9bff0e86b96db3b7723555eea095db  CHANGELOG.md
+348dce163451b80b3c471bed3cf268b1f20ac5c04deae3af04440a24e7391056  CHANGELOG.md
 454345eec0f06dbbc49367b5e8cdb12834d2bd29775f63b33694cf58500de8f9  CONTEXT.md
 41b389edee08f481e91c26ca9c49a4059e867c170ae1a85d0b2dbc567c39ea80  plugins/xcloud/reference/auth.md
 bd1fa2cd8f20d73c5fea253ddcc0d8daaa74d40672d06fc542b3cc2b850a122e  plugins/xcloud/reference/conventions.md

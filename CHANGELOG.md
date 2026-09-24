@@ -4,13 +4,19 @@ All notable changes to the xCloud Public API skill are documented in this file.
 
 ## [4.3.0] - 2026-09-24
 
-**The proactive deploy release.** Paste a repository URL and say "deploy" — the
-agent now finishes the job. Built on xCloud v2.8.8 (multi-team access, deploy
-diagnosis and retry, dry-run previews, Git staging, Cloudflare-assisted deploys)
-and verified against the live server on 2026-09-24: 199 API operations, 191 of
-them agent-facing, 190 MCP tools. The end-to-end flow was exercised read-only
-with a real dry run (a public Express repository → Node.js site preview on a
-staging hostname; nothing created).
+**Full sync with the latest xCloud MCP server and Public API (xCloud v2.8.8).**
+Verified against the live server on 2026-09-24: the API has 199 operations, 191
+of them for agents (the other 8 are the xCloud mobile app's own sign-in and push
+endpoints), and **all 191 are now documented** in a skill — up from 127 before
+this release. The MCP server's 190 tools (188 operations + two search tools)
+are all covered, including multi-team access, deploy diagnosis and retry,
+dry-run previews, Git staging, one-click apps, billing, add-ons, alerts and
+server purchase.
+
+On top of the sync, the skills are proactive: paste a repository URL and say
+"deploy", and the agent finishes the job. The end-to-end flow was exercised
+read-only with a real dry run (a public Express repository → Node.js site
+preview on a staging hostname; nothing created).
 
 ### Added
 

@@ -38,6 +38,7 @@
     "v4.3.0": {
       "date": "2026-09-24",
       "changes": [
+        "Full sync with the latest xCloud MCP server and Public API (xCloud v2.8.8): all 191 agent-facing API operations documented (up from 127) and all 190 MCP tools covered, verified live on 2026-09-24",
         "New xcloud:deploy skill: deploy any GitHub/GitLab/Bitbucket URL, Docker Compose or Dockerfile app, one-click app, Git staging environment or new WordPress site end to end — detect, dry run, one approval, provision, poll, verify the live URL, then diagnose and retry failures on the same site",
         "New xcloud:billing skill: plan, invoices, bills, subscriptions, prices, paying an invoice, and mailbox / mail-delivery add-ons with explicit money-approval rules",
         "Multi-team support (xCloud v2.8.8): skills pick the right granted team per request (team argument on MCP, X-Team-Id via XCLOUD_TEAM_ID on REST) and explain how to re-authorize a single-team connection",
