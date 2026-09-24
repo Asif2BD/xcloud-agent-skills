@@ -1,8 +1,5 @@
 # Site vulnerabilities
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 `XC="scripts/xcloud.sh"` · scope `read:sites` / `write:sites`.
 
 | Operation | Method + path |
@@ -16,7 +13,7 @@
 
 ```bash
 SITE_UUID='replace-me'
-"$XC" POST "/sites/$SITE_UUID/vulnerability-scan" | jq '.message'        # async
+# start a scan on MCP first: sites_vulnerability-scan {"uuid": "<site-uuid>"}  (async)
 "$XC" GET  "/sites/$SITE_UUID/vulnerabilities/count" | jq '.data'        # {critical,high,medium,low}
 "$XC" GET  "/sites/$SITE_UUID/vulnerabilities" \
   | jq '(.data.items // .data) | map({uuid, slug, severity, source, title})'
@@ -24,10 +21,9 @@ SITE_UUID='replace-me'
 
 Ignore / un-ignore a specific finding:
 
-```bash
-VULN_UUID='replace-me'
-"$XC" POST   "/sites/$SITE_UUID/vulnerabilities/$VULN_UUID/ignore" '{"reason":"false positive"}' | jq '.message'
-"$XC" DELETE "/sites/$SITE_UUID/vulnerabilities/$VULN_UUID/ignore" | jq '.message'
+```text
+sites_vulnerabilities_ignore    {"uuid": "<site-uuid>", "vulnerabilityUuid": "<vuln-uuid>"}  # destructive: confirm: true after the user's yes
+sites_vulnerabilities_unignore  {"uuid": "<site-uuid>", "vulnerabilityUuid": "<vuln-uuid>"}  # destructive: confirm: true after the user's yes
 ```
 
 Team-wide rollup across every site in the current team:

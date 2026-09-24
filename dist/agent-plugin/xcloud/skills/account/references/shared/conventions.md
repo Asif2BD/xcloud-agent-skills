@@ -1,20 +1,68 @@
 # API conventions (shared)
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 Shared by every xCloud domain skill. Read this once; the domain skills do not
 repeat it.
 
-## Transports: MCP first, REST fallback
+## Transports: MCP does everything, REST only looks
 
-**If tools from the MCP server named `xcloud` are available in the session, use them instead
-of `$SKILL_ROOT/scripts/xcloud.sh`** — every endpoint the skills document has a same-named
-MCP tool (see `references/shared/mcp.md` for naming, connect instructions, and the
-`confirm: true` destructive-tool contract). The REST wrapper remains the path
-for agents without MCP and for the REST-only operations (`/health`, API-token
-list/revoke). Everything else in this file — envelope, pagination shapes,
-identifiers, async polling, branding — applies identically on both transports.
+- **xCloud MCP — every read and every change.** If tools from the MCP server named `xcloud` are
+  available in the session, use them for everything they cover. Every endpoint
+  the skills document has a same-named MCP tool (`references/shared/mcp.md`: naming,
+  connect instructions, and the `confirm: true` contract that xCloud enforces
+  server-side on destructive tools).
+- **Bundled REST wrapper — read-only.** `$SKILL_ROOT/scripts/xcloud.sh` sends `GET`
+  requests with no body and nothing else; any other method exits 64 before a
+  request is made. Use it for reads when MCP is not connected, and for the
+  REST-only reads (`GET /health`, `GET /user/tokens`). Give it a token with
+  read scopes only. Never work around it — no direct `curl`, SDK or other script
+  for a change, and no editing the wrapper.
+- In the skills, `$XC GET …` blocks are runnable REST reads. Changes are
+  written as MCP tool calls (tool name + arguments); the method and path in each
+  endpoint table are the API reference behind that tool.
+
+Everything else in this file — envelope, pagination shapes, identifiers, async
+polling, branding — applies identically on both transports.
+
+### A change is asked for and MCP is not connected
+
+Do not dead-end at "use the dashboard". Finish the looking first, then:
+
+1. Say in one line that changes run through the xCloud MCP connection — it has
+   xCloud's own approval step — and that the preview or diagnosis is ready.
+2. Give the one connect step for their client (`references/shared/mcp.md` →
+   Connecting); tell them to tick every team they want to manage. Offer to run
+   the setup command yourself where the client allows it; the sign-in itself
+   happens in their browser.
+3. Once the xCloud tools are available (some clients need a new conversation),
+   verify with `user_show` / `teams_index` and continue the original job from
+   where it stopped — the same preview, one approval, then the change.
+4. Only if they cannot or will not connect: give the dashboard path for that
+   one action from the table below. `xcloud_docs_search` is an MCP tool, so it
+   is not available on this branch.
+
+| Change | Dashboard path |
+|---|---|
+| Deploy from Git | **Add New Site** → pick the server → **Deploy via Git** |
+| New WordPress site | **Add New Site** → pick the server → **Install a New WordPress Website** |
+| New server | **Servers** → **Create server** |
+| Purge cache | **Site → Cache** → **Purge Cache** |
+| HTTPS / SSL | **Site → Domain → SSL/HTTPS** |
+| Staging | **Site → Staging** (create, **Push / Pull**) |
+| Backups | **Site → Backups** (**Backup settings**, **Restore**) |
+| Plugin, theme, core updates | **Site → WordPress → Updates**; across sites: **Team Settings → Updates Manager** |
+| Vulnerabilities | **Site → WordPress → Vulnerability Scan** |
+| PHP version | **Site → Settings → PHP version** |
+| Redirects, web rules, custom Nginx | **Site → Tools → Redirects / Web rules / Custom nginx** |
+| Delete a site | The site's **⋯** menu → **Delete Site** |
+| Cron jobs | **Server → Cron Jobs** → **Add Cron Job** |
+| Firewall | **Server → Security → Firewall Management** |
+| Restart a service | **Server → Server Management** (services) |
+| Restart the server | The server's **Actions** menu → **Restart Server** |
+| API tokens | **Profile → API Tokens** |
+| Cloudflare integration | **Profile → Integrations → Cloudflare** |
+
+For anything not listed, name the site or server page that owns the setting and
+say the exact label may differ; never invent a path.
 
 Recognise the xCloud MCP by its tool names, not by the prefix: the prefix is
 whatever name the client or the user gave the connection. Tools named
@@ -29,7 +77,10 @@ Which team a call runs against).
 
 A token or MCP connection may be granted several teams; every call runs against
 exactly one — the default, unless a team is selected (`team` argument on MCP,
-`X-Team-Id` header on REST via `XCLOUD_TEAM_ID`).
+`X-Team-Id` header on REST reads via `XCLOUD_TEAM_ID`). The default is fixed
+when the connection is authorized or the token created: it is the team that was
+active in the dashboard at that moment. To change it, switch team in the
+dashboard and reconnect (or create a new token).
 
 - The user names a team or client ("the Startise team", "for Acme") → call
   `teams_index`, match by name, pass that uuid on **every** call of the task.
@@ -305,7 +356,7 @@ terminal). It is ~35 cols wide, so it fits an 80-column terminal without wrappin
                       #*******
                         #******
 
-   v4.3.2 · Managed hosting, from your terminal
+   v4.3.3 · Managed hosting, from your terminal
 ```
 ````
 

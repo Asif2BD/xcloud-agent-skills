@@ -1,8 +1,5 @@
 # Git deployments
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 `XC="scripts/xcloud.sh"` · scopes `read:servers` /
 `write:servers` to create, `read:sites` / `write:sites` for everything after.
 
@@ -35,25 +32,30 @@ diagnose, retry, redeploy — is owned here. On MCP, start with
 Compose app") — it returns this whole flow with every operation's body in one
 response.
 
-## REST fallback: the whole flow
+## The whole flow on MCP
+
+```text
+# 1. detect — side-effect free, but a POST: MCP only
+git_detect              {"repository_url": "https://github.com/acme/app", "server_uuid": "<server-uuid>"}
+# 2. preview — creates nothing, needs no confirm
+servers_sites_git_auto  {"uuid": "<server-uuid>", "repository": {"url": "https://github.com/acme/app"}, "dry_run": true}
+# 3. after the user's yes on would_create: the SAME arguments without dry_run
+servers_sites_git_auto  {"uuid": "<server-uuid>", "repository": {"url": "https://github.com/acme/app"},
+                         "Idempotency-Key": "<one key for this site>", "confirm": true}
+# keep data.uuid from the 202 — after a dropped response, list the server's
+# sites first and retry only with the same Idempotency-Key
+# 4. poll until terminal
+sites_status            {"uuid": "<new site uuid>"}
+```
+
+Without MCP the bundled wrapper can still follow a deploy someone else started —
+`GET /sites/{uuid}/status`, `/deploy-diagnosis`, `/deploy-config`, `/git`,
+`/events/{task_uuid}` and `GET /servers/{uuid}/staging-hostname` — but it cannot
+detect, create, retry or redeploy: offer to connect MCP
+(`reference/conventions.md` → A change is asked for and MCP is not connected).
 
 ```bash
-SERVER_UUID='replace-me'
-REPO='https://github.com/acme/app'
-# 1. detect (side-effect free)
-jq -n --arg r "$REPO" --arg s "$SERVER_UUID" '{repository_url:$r, server_uuid:$s}' \
-  | "$XC" POST /git/detect - | jq '.data | {repository_access, detection, compatibility}'
-# 2. preview (creates nothing)
-jq -n --arg r "$REPO" '{repository:{url:$r}, dry_run:true}' \
-  | "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" - | jq '.data | {would_create, warnings}'
-# 3. after the user approves the preview: same body, no dry_run, idempotent
-KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
-NEW=$(jq -n --arg r "$REPO" '{repository:{url:$r}}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" -)
-printf '%s' "$NEW" | jq '.data | {uuid, domain, type, poll_url}'
-SITE_UUID=$(printf '%s' "$NEW" | jq -er '.data.uuid') \
-  || echo "create failed or no response — list the server's sites, then retry with the same KEY"
-# 4. poll until terminal
+SITE_UUID='replace-me'
 "$XC" GET "/sites/$SITE_UUID/status" | jq '.data | {deploy_state, terminal, current_step, poll_after_seconds}'
 ```
 
@@ -204,11 +206,14 @@ recovery path for a failed deploy.
 ```bash
 SITE_UUID='replace-me'
 "$XC" GET "/sites/$SITE_UUID/git" | jq '.data'
-"$XC" PUT "/sites/$SITE_UUID/git" '{"git_branch":"main","enable_push_deploy":true}' | jq '.data'
 "$XC" GET "/sites/$SITE_UUID/deploy-config" | jq '.data'
-"$XC" POST "/sites/$SITE_UUID/git/deploy" | jq '.message'
 "$XC" GET "/sites/$SITE_UUID/status" | jq '.data | {deploy_state, terminal, poll_after_seconds}'
 "$XC" GET "/sites/$SITE_UUID/deploy-diagnosis" | jq '.data | {classification, explanation, correctable_fields, next}'
+```
+
+```text
+sites_git_update  {"uuid": "<site-uuid>", "git_branch": "main", "enable_push_deploy": true}  # destructive: confirm: true after the user's yes
+sites_git_deploy  {"uuid": "<site-uuid>"}  # destructive: confirm: true after the user's yes
 ```
 
 `git_branch` is required on the update; every other field keeps its current

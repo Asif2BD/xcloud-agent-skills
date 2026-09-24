@@ -1,8 +1,5 @@
 # Buying a server
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 `XC="scripts/xcloud.sh"` · scopes `read:servers` /
 `write:servers`; checking the card on file needs `read:billing`.
 
@@ -48,14 +45,17 @@ server**).
 ```bash
 "$XC" GET /servers/plans \
   | jq '.data.plans | map({slug, name, specs, pricing, regions: [.regions[].id]})'
-KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
-NEW=$(jq -n '{name:"sg-app-1", size:"vc2-1c-1gb", region:"sgp", stack:"nginx",
-              database_type:"mysql8", renewal_period:"monthly", backups:false}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST /servers -)
-printf '%s' "$NEW" | jq '.data | {uuid, name, status, ip_address, region}'
-SERVER_UUID=$(printf '%s' "$NEW" | jq -er '.data.uuid') \
-  || echo "create failed or no response — read GET /servers, then retry with the same KEY"
-"$XC" GET "/servers/$SERVER_UUID/provisioning-progress" | jq '.data | {percent_complete}'
+```
+
+Buying the server runs on MCP. Keep the new server's `uuid` from the response and
+poll with it; after a dropped response, list servers before retrying, and retry
+only with the same key:
+
+```text
+servers_store  {"name": "sg-app-1", "size": "vc2-1c-1gb", "region": "sgp", "stack": "nginx",
+                "database_type": "mysql8", "renewal_period": "monthly", "backups": false,
+                "Idempotency-Key": "<one key for this purchase>"}  # destructive: confirm: true after the user's yes
+servers_provisioning-progress  {"uuid": "<uuid from servers_store>"}   # poll: percent_complete, stages
 ```
 
 A declined card or a 3-D Secure challenge leaves an unpaid invoice: settle it

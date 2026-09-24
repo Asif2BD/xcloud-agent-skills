@@ -1,8 +1,5 @@
 # Email add-ons: mailboxes and mail delivery
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 `XC="$SKILL_ROOT/scripts/xcloud.sh"` · scopes `read:addons` /
 `write:addons`; purchases need the `addon:create` team permission, deletion
 `addon:delete`.
@@ -35,11 +32,12 @@
 5. When the user says the records are in, run `addons.mailbox.verify-dns` and
    report which records are still unverified.
 
-```bash
-jq -n --arg e "hello@example.com" --arg p "$MAILBOX_PASSWORD" --arg plan "mailbox_8gb" \
-  '{email:$e, password:$p, plan:$plan}' \
-  | "$XC" POST /addons/mailbox/purchase - | jq '.data | {uuid, email, status, records, webmail_url}'
+```text
+addons_mailbox_purchase  {"email": "hello@example.com", "password": "<set by the user>", "plan": "mailbox_8gb"}  # destructive: confirm: true after the user's yes
 ```
+
+The response carries `uuid`, `status`, `records` and `webmail_url`. Never echo
+the password back.
 
 ## Client settings
 

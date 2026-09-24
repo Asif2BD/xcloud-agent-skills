@@ -98,6 +98,21 @@ jobs:
             python3 -c "import json,sys; json.load(open('$f')); print('valid', '$f')"
           done
 
+      - name: Docs match the read-only REST wrapper
+        run: |
+          set -euo pipefail
+          # The bundled wrapper sends GET only; a documented "$XC" write would
+          # fail at run time, so changes must be written as MCP tool calls.
+          docs=(plugins README.md SKILL.md docs/SKILLS-GUIDE.md docs/USER_GUIDE.md)
+          if grep -rnE '"\$XC"[[:space:]]+(POST|PUT|PATCH|DELETE)' "${docs[@]}"; then
+            echo '^ REST write documented against the GET-only wrapper: write it as an MCP tool call'
+            exit 1
+          fi
+          if grep -rn --exclude-dir=tests 'XCLOUD_IDEMPOTENCY_KEY' "${docs[@]}"; then
+            echo '^ XCLOUD_IDEMPOTENCY_KEY is retired: creates run on MCP with an Idempotency-Key argument'
+            exit 1
+          fi
+
       - name: Scalar landing page matches its generator
         run: |
           set -euo pipefail

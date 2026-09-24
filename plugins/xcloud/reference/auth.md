@@ -1,8 +1,5 @@
 # Authentication (shared)
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 Shared by every `xcloud-*` domain skill.
 
 ## Two ways to connect — MCP first
@@ -14,8 +11,11 @@ Shared by every `xcloud-*` domain skill.
    confirm-before-destructive contract. If the user has no connection yet,
    onboard them with the MCP connect instructions in `reference/mcp.md`
    **before** falling back to a raw API token.
-2. **REST API token (fallback).** For agents without MCP support, and for the
-   REST-only operations (`/health`, API-token list/revoke). The Public API
+2. **REST API token (read-only fallback).** For looking at the account from
+   agents without MCP support, and for the REST-only reads (`/health`, API-token
+   list). The bundled wrapper sends `GET` only, so create the token with **read
+   scopes only** — a write scope would add risk and no capability. Changes need
+   the MCP connection (`reference/conventions.md` → Transports). The Public API
    authenticates via [Sanctum personal access tokens](https://laravel.com/docs/sanctum)
    (Bearer auth) — everything below covers this path.
 
@@ -28,34 +28,23 @@ export XCLOUD_API_BASE_URL="https://app.xcloud.host"  # default (live)
 export XCLOUD_API_BASE_URL="http://xcloud.test"
 export XCLOUD_ALLOW_INSECURE_HTTP=1
 # Per call, optional:
-XCLOUD_TEAM_ID="team-uuid"      # run against a non-default granted team (X-Team-Id)
-XCLOUD_IDEMPOTENCY_KEY="$KEY"   # make a create safe to retry (Idempotency-Key)
+XCLOUD_TEAM_ID="team-uuid"      # read a non-default granted team (X-Team-Id)
 ```
 
-A token can be granted several teams when it is created; `GET /teams` lists
-them, and `XCLOUD_TEAM_ID` selects one per call. Set both per call (prefix the
-command), not globally, so a later request never runs against the wrong team or
-reuses a key.
-
-Make the idempotency key **once per create and keep it** — a retry after a
-timeout must send the same key, or it is a second create. Generate it with
-tools every supported runtime has (no `uuidgen` needed):
-
-```bash
-KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
-```
-
-The wrapper refuses a set-but-empty `XCLOUD_IDEMPOTENCY_KEY` or
-`XCLOUD_TEAM_ID` (exit 64), so a failed generation or lookup stops the write
-instead of silently dropping the header.
+A token can be granted several teams when it is created (its default is the team
+active in the dashboard at that moment); `GET /teams` lists them, and
+`XCLOUD_TEAM_ID` selects one per call. Set it per call (prefix the command), not
+globally, so a later request never reads the wrong team. The wrapper refuses a
+set-but-empty or malformed `XCLOUD_TEAM_ID` (exit 64) instead of silently
+reading the default team.
 
 The base URL is the **only** thing that changes between local and live — never
 hardcode a host in a skill body.
 
 ## Proactive token onboarding
 
-If `XCLOUD_API_TOKEN` is missing or a request returns `401`, stop before any
-write operation and guide the user through setup. **Offer the xCloud MCP
+If `XCLOUD_API_TOKEN` is missing or a request returns `401`, guide the user
+through setup before continuing. **Offer the xCloud MCP
 connector first** (`reference/mcp.md` → Connecting) — OAuth, no secret to
 store. Only if MCP isn't an option for their client, walk them through the
 token path below. Be proactive and helpful, but do **not** ask the user to
@@ -81,8 +70,8 @@ original task.
 ## Setting the token (Claude Code / CLI)
 
 **Step 1 — generate the token first.** In the xCloud dashboard:
-**Profile → API Tokens → Generate New Token** → choose the scopes you need (e.g.
-`read:servers`) → copy it immediately (shown only once). Always tell the user to
+**Profile → API Tokens → Generate New Token** → choose **read** scopes only (e.g.
+`read:servers`, `read:sites`) → copy it immediately (shown only once). Always tell the user to
 create the token *before* the storage steps below.
 
 **Step 2 — store it.** The token must live in the **environment Claude Code uses
@@ -126,15 +115,16 @@ echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
 >
 > **If a token is exposed (pasted in the wrong place, shared transcript,
 > committed):** revoke it immediately — xCloud dashboard → **Profile → API
-> Tokens** → delete it, or via the API: `GET /user/tokens` to find its `uuid`,
-> then `DELETE /user/tokens/{tokenUuid}` (`xcloud:account`; needs a `*`-scope
-> token). Then generate a fresh scoped token and update the runtime. Rotate
-> routinely, not only after incidents.
+> Tokens** → delete it (`GET /user/tokens` helps find it; revoking is
+> dashboard-only — neither the read-only wrapper nor the MCP can revoke a
+> token). Then generate a fresh read-scoped token and update the runtime.
+> Rotate routinely, not only after incidents.
 
 ## Generating a token
 
-xCloud dashboard → **Profile → API Tokens → Generate New Token** → choose scopes
-→ copy immediately (shown once).
+xCloud dashboard → **Profile → API Tokens → Generate New Token** → choose read
+scopes → copy immediately (shown once). The team active in the dashboard becomes
+the token's default team; tick any others it should read.
 
 ## Scopes (Sanctum abilities)
 
@@ -148,6 +138,9 @@ xCloud dashboard → **Profile → API Tokens → Generate New Token** → choos
 | `read:addons` | Mailbox and mail-delivery reads |
 | `write:addons` | Add-on purchases and deletion, paying an invoice |
 | `*` | Full access (incl. token management) |
+
+For the bundled read-only wrapper, grant only the `read:*` scopes the task
+needs. The `write:*` scopes and `*` matter only to other API clients.
 
 ## Fine-grained authorization
 

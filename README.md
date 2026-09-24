@@ -1,9 +1,6 @@
 # xCloud Agent Skills
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
-[![Version](https://img.shields.io/badge/version-4.3.2-brightgreen.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.3.3-brightgreen.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-0EA5E9.svg)](https://clawhub.ai/asif2bd/xcloud)
 
@@ -12,6 +9,8 @@
 Deploy a Git repository, launch a Docker app, create a WordPress site, check your servers, renew SSL, investigate a failed deployment or review your hosting bill—all from plain-language requests.
 
 Built by [xCloud](https://xcloud.host). Works with **OpenClaw, Claude Code and other compatible repository/skill-capable agents** through the xCloud MCP server or the bundled REST wrapper. The agent needs an authorized xCloud connection; installing these instructions alone does not grant infrastructure access.
+
+> **How changes happen:** every change — deploys, SSL, backups, purchases — runs through the **xCloud MCP connection**, where xCloud itself asks for approval before anything destructive. The bundled REST wrapper is **read-only** (`GET` only) for agents without MCP. If you ask for a change without MCP connected, the agent offers to connect it and then carries on with the same job.
 
 [Dashboard](https://app.xcloud.host) · [MCP documentation](https://app.xcloud.host/mcp/docs) · [API reference](https://app.xcloud.host/api/v1/docs) · [Installation guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [User guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md)
 
@@ -134,8 +133,7 @@ The source documents OAuth discovery/write-grant limitations in some clients. If
 Optional runtime settings:
 
 - `XCLOUD_API_BASE_URL`: normally `https://app.xcloud.host`. Change only to a trusted xCloud host; credentials are sent there.
-- `XCLOUD_TEAM_ID`: select the authorized team for REST calls (`X-Team-Id`).
-- `XCLOUD_IDEMPOTENCY_KEY`: reuse for a retry of the same supported create request; use a new key for a different create.
+- `XCLOUD_TEAM_ID`: select the authorized team for REST reads (`X-Team-Id`).
 
 Verify the authenticated identity and available teams before operations. Keep secrets and raw sensitive responses out of logs. See [authentication details](plugins/xcloud/reference/auth.md).
 
@@ -153,7 +151,7 @@ Read [SECURITY.md](SECURITY.md) for executable-file behavior, network destinatio
 
 ## Release and verification
 
-v4.3.2 brings the v4.1–v4.3 upstream capabilities to the ClawHub distribution and rewrites onboarding/security explanations. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
+v4.3.3 reconciles every guide with the read-only REST wrapper: changes are written as MCP tool calls, and a missing MCP connection becomes an offer to connect rather than a dead end. v4.3.2 made the wrapper read-only; v4.3.1 brought the v4.1–v4.3 upstream capabilities to the ClawHub distribution. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
 
 The development checks include shell syntax/ShellCheck, offline wrapper tests, legacy JSON-safety tests, portable package validation, version consistency and generated-artifact checks. Live smoke tests are read-only and require scoped credentials; a skipped smoke job is not a live-operation pass. This documentation release does not need a production deployment or purchase to validate packaging.
 

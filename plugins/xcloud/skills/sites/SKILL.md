@@ -5,9 +5,6 @@ description: Manage existing xCloud sites — list/inspect sites, status, events
 
 # xCloud Sites
 
-> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
-
-
 Owns site lifecycle and delivery. Read the shared layer first for auth, base
 URL, envelope, pagination, and rate limits:
 
@@ -16,7 +13,8 @@ URL, envelope, pagination, and rate limits:
 - `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer `mcp__xcloud__sites_*`
   tools when connected** (e.g. `sites_index`, `sites_show`, `sites_status`,
   `sites_backup`, `sites_docker_backup`, `sites_stagingSites`, `sites_rescue`,
-  `sites_destroy`); the `$XC` calls below are the REST fallback.
+  `sites_destroy`); the `$XC` calls
+  below are read-only REST fallbacks (`GET` only); changes run on the MCP.
 
 ```bash
 XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"
@@ -92,20 +90,18 @@ SITE_UUID='replace-me'
 "$XC" GET "/sites/$SITE_UUID/events" | jq '(.data.items // .data) | .[0:10]'
 ```
 
-## Writes
+## Changes (MCP)
+
+Changes run on the MCP tools below; the REST wrapper is read-only. Without MCP,
+offer to connect it (`reference/conventions.md` → Transports).
 
 Rescue a broken site (all flags optional booleans; pick the repairs you need —
 supported options depend on site type: `repair_node`, `repair_pm2`, and
 `repair_openclaw` exist for Node/OpenClaw sites, `reinstall_php` for PHP sites):
 
-```bash
-"$XC" POST "/sites/$SITE_UUID/rescue" '{
-  "isolate_user": true,
-  "regenerate_nginx": true,
-  "restart_nginx": true,
-  "directory_permissions": true,
-  "reinstall_php": false
-}' | jq '.message'
+```text
+sites_rescue  {"uuid": "<site-uuid>", "isolate_user": true, "regenerate_nginx": true,
+               "restart_nginx": true, "directory_permissions": true, "reinstall_php": false}  # destructive: confirm: true after the user's yes
 ```
 
 Delete a site — **destructive and irreversible; never call without explicit
@@ -113,15 +109,10 @@ user confirmation naming the exact domain**. The `delete_*` flags choose what
 is removed alongside the record; deletion is async (`status` → `deleting`,
 staging sites are removed too):
 
-```bash
-"$XC" DELETE "/sites/$SITE_UUID" '{
-  "delete_files": true,
-  "delete_database": true,
-  "delete_user": true,
-  "delete_local_backups": false,
-  "delete_dns_record": false
-}' | jq '.message'
-# poll: GET /sites/{uuid}/status until the site is gone
+```text
+sites_destroy  {"uuid": "<site-uuid>", "delete_files": true, "delete_database": true, "delete_user": true,
+                "delete_local_backups": false, "delete_dns_record": false}  # destructive: confirm: true after the user's yes
+# poll sites_status until it answers 404 — that is the completion
 ```
 
 ## Pitfalls
