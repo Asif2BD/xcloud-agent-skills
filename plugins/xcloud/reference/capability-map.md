@@ -96,7 +96,8 @@ status code alone:
 | Docker deploy (`servers.sites.git.docker`) on any non-Docker server, agentic included | `422` | `errors.code: incompatible_server` |
 | One-click install on a server of the wrong stack | `422` | "This app requires a … server. This server is on the … stack." |
 | WordPress create on a Docker server | `422` | "WordPress is not supported on Docker servers" |
-| Staging create for a WordPress site | `422` | "WordPress staging is not available via the API…" (and `403` on a free plan) |
+| Staging create for a WordPress site | `422` | "WordPress staging is not available via the API…" |
+| Staging create for a Git site on a free plan | `403` | Staging needs a paid plan — a plan limit, not a missing permission |
 | Monitoring history on a free plan | `403` | "Monitoring history is not available on the free plan." — a plan limit, not a permission |
 | The caller's team role or team permissions do not allow it | `403` | "Your team permissions do not allow: site:manage-monitoring" (the permission is named), or "Your team role does not permit access to site resources" |
 | The token lacks the scope (ability) | `403` | "This action is unauthorized." |

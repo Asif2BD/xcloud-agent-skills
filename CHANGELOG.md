@@ -28,6 +28,9 @@ new skills to the same read-only REST rule.
   server) is dashboard-only under **Server → Backups**. `servers.snapshots`
   lists the site snapshots taken on the server, not server backups, as the API
   spec says; the servers and performance skills now label it that way.
+- Capability map, status codes: WordPress staging is refused with `422`; the
+  free-plan `403` belongs to Git-backed staging (the spec: staging "requires a
+  paid plan"), so it has its own row and is read as a plan limit.
 - The API-token page is named **Account → API Tokens** everywhere, as in
   xCloud's own documentation (was "Profile → API Tokens"), including the
   portable package's token section (generated from `dist/agent-plugin/build.py`)
