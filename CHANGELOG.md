@@ -18,8 +18,9 @@ this release reconciles the content itself.
 - **Offer to connect instead of stopping.** Asked for a change without MCP, the
   agent finishes the looking, gives the one connect step for the user's client,
   continues the same job once the tools appear, and falls back to a dashboard
-  path only if the user will not connect. The deploy playbook starts with this
-  branch.
+  path only if the user will not connect. The paths for common changes are
+  listed in the skills themselves (checked against xCloud's docs), because
+  looking one up needs the MCP. The deploy playbook starts with this branch.
 - **Every write example is an MCP call.** 59 write examples across 24 skill
   files, and the install guide's use cases, are now written as tool name +
   arguments, with argument names checked against the live spec

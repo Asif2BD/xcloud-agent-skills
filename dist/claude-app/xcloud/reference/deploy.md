@@ -73,8 +73,8 @@ request — start the playbook without asking the user to rephrase.
 repository's public README if the user shared a URL), then offer to connect the
 xCloud MCP in one step and pick the playbook up at step 1 once the tools appear
 (`reference/conventions.md` → A change is asked for and MCP is not connected).
-Only if the user will not connect: give the dashboard path that
-`xcloud_docs_search` returns for deploying from Git.
+Only if the user will not connect: **Add New Site** → pick the server →
+**Deploy via Git**, with the repository URL and branch you already found.
 
 On MCP, call `xcloud_agent_search` once with the job in plain words ("deploy a
 Node app from GitHub", "deploy a Docker Compose app") — it returns this flow with

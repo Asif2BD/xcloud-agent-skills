@@ -36,8 +36,33 @@ Do not dead-end at "use the dashboard". Finish the looking first, then:
 3. Once the xCloud tools are available (some clients need a new conversation),
    verify with `user_show` / `teams_index` and continue the original job from
    where it stopped — the same preview, one approval, then the change.
-4. Only if they cannot or will not connect: give the exact dashboard path for
-   that one action (`xcloud_docs_search` returns `dashboard_paths`).
+4. Only if they cannot or will not connect: give the dashboard path for that
+   one action from the table below. `xcloud_docs_search` is an MCP tool, so it
+   is not available on this branch.
+
+| Change | Dashboard path |
+|---|---|
+| Deploy from Git | **Add New Site** → pick the server → **Deploy via Git** |
+| New WordPress site | **Add New Site** → pick the server → **Install a New WordPress Website** |
+| New server | **Servers** → **Create server** |
+| Purge cache | **Site → Cache** → **Purge Cache** |
+| HTTPS / SSL | **Site → Domain → SSL/HTTPS** |
+| Staging | **Site → Staging** (create, **Push / Pull**) |
+| Backups | **Site → Backups** (**Backup settings**, **Restore**) |
+| Plugin, theme, core updates | **Site → WordPress → Updates**; across sites: **Team Settings → Updates Manager** |
+| Vulnerabilities | **Site → WordPress → Vulnerability Scan** |
+| PHP version | **Site → Settings → PHP version** |
+| Redirects, web rules, custom Nginx | **Site → Tools → Redirects / Web rules / Custom nginx** |
+| Delete a site | The site's **⋯** menu → **Delete Site** |
+| Cron jobs | **Server → Cron Jobs** → **Add Cron Job** |
+| Firewall | **Server → Security → Firewall Management** |
+| Restart a service | **Server → Server Management** (services) |
+| Restart the server | The server's **Actions** menu → **Restart Server** |
+| API tokens | **Profile → API Tokens** |
+| Cloudflare integration | **Profile → Integrations → Cloudflare** |
+
+For anything not listed, name the site or server page that owns the setting and
+say the exact label may differ; never invent a path.
 
 Recognise the xCloud MCP by its tool names, not by the prefix: the prefix is
 whatever name the client or the user gave the connection. Tools named

@@ -39,7 +39,7 @@
       "date": "2026-09-24",
       "changes": [
         "Every guide now matches the read-only REST wrapper: 59 write examples across 24 files rewritten as MCP tool calls with verified argument names, plus the install guide's examples, and the 32 pasted boundary banners replaced by one transport rule",
-        "No more dead end without MCP: asked for a change, the agent offers to connect the xCloud MCP, then continues the same job; the dashboard is the last resort",
+        "No more dead end without MCP: asked for a change, the agent offers to connect the xCloud MCP, then continues the same job; the dashboard is the last resort, with the paths for common changes listed in the skills",
         "API-token revocation documented as dashboard-only (the wrapper is read-only and the MCP keeps token management out); REST tokens recommended with read scopes only",
         "Default team explained: fixed at authorization to the team active in the dashboard; switch team and reconnect to change it",
         "Removed the dead XCLOUD_IDEMPOTENCY_KEY path from the GET-only wrapper; creates use the MCP Idempotency-Key argument",
