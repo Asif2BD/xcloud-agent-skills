@@ -14,13 +14,15 @@ check(){ local l="$1" p="$2" o
     echo "FAIL ${l} (${p}): bad envelope" >&2; FAIL=$((FAIL+1)); return; fi
   echo "PASS ${l}"; PASS=$((PASS+1)); }
 # check_opt: reads a site type may not support (404, or 422 "not supported" —
-# e.g. WordPress status on a non-WordPress site) count as SKIP, not FAIL.
+# e.g. WordPress status on a non-WordPress site) and reads gated by a team
+# permission the test token's role may lack (403 — nginx logs need
+# site:manage-logs, WordPress status site:manage-update) count as SKIP, not FAIL.
 check_opt(){ local l="$1" p="$2" o rc code
   o=$("${XC}" GET "${p}" 2>&1) && rc=0 || rc=$?
   if (( rc == 0 )) && echo "${o}" | jq -e '.success == true and .data != null' >/dev/null 2>&1; then
     echo "PASS ${l}"; PASS=$((PASS+1)); return; fi
   code=$(printf '%s\n' "${o}" | sed -n 's/.*HTTP \([0-9][0-9][0-9]\).*/\1/p' | tail -n1)
-  if [[ "${code}" == "404" ]] || { [[ "${code}" == "422" ]] && printf '%s' "${o}" | grep -qiE 'not supported|not available|unsupported|does not support|not applicable|not a wordpress'; }; then
+  if [[ "${code}" == "403" || "${code}" == "404" ]] || { [[ "${code}" == "422" ]] && printf '%s' "${o}" | grep -qiE 'not supported|not available|unsupported|does not support|not applicable|not a wordpress'; }; then
     echo "SKIP ${l} (optional: HTTP ${code:-?})"; SKIP=$((SKIP+1)); return; fi
   echo "FAIL ${l} (${p}): ${o}" >&2; FAIL=$((FAIL+1)); }
 S="${XCLOUD_TEST_SITE_UUID}"

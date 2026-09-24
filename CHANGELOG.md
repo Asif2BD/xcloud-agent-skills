@@ -42,6 +42,9 @@ new skills to the same read-only REST rule.
   afterwards, instead of always turning it off.
 - Performance: the site's PHP version comes from `sites.show` (`php_version`),
   so Laravel and custom-PHP sites are covered, not only WordPress.
+- Troubleshoot smoke suite: a `403` on the permission-gated optional reads
+  (nginx logs, WordPress status) is a skip, as in the performance suite, so a
+  least-privilege test token does not fail CI.
 - Servers, sudo users: `username` and `ssh_public_keys` are the required
   fields; the stale "pipe the JSON on stdin" note from the REST era is gone.
 - The API-token page is named **Account → API Tokens** everywhere, as in
