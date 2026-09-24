@@ -19,8 +19,9 @@ SCAN=$("$XC" POST "/sites/$SITE_UUID/pagespeed/scan" | jq -r '.data.scan_uuid') 
 ```
 
 - One scan runs both strategies; it is complete only when the mobile **and**
-  desktop results for that `scan_uuid` are in. `409` means a scan already ran
-  in the last hour — read the latest result instead.
+  desktop results for that `scan_uuid` are in. `409` means a scan for this
+  site is still pending or running — poll it instead of starting another (a
+  scan stuck for over an hour is marked failed).
 - "Compare with previous scans" → latest run against `history` for the same
   strategy; report the score change and the metric that moved most.
 - Applies to any site, not only WordPress (owned here by convention).

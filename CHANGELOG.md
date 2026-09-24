@@ -2,6 +2,53 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.4.0] - 2026-09-24
+
+**Two diagnosis skills for the two most common support jobs.** Both are
+derived from the xCloud brain's agent guides (XC-AGT-005 "Troubleshoot a 500
+error" and XC-AGT-012 "Diagnose a slow site"), and every operation they name,
+every field and every status code was checked against the xCloud Public API
+contract and the v2.8.8 source.
+
+### Added
+
+- **`xcloud:troubleshoot`** — a site returning 500/502/503, a critical error,
+  a site that is down. A fixed read order, cheapest first: `sites.status` (a
+  site mid-deploy explains a 500 by itself) → `sites.events` → the nginx
+  access **and** error log (`sites.access-logs?type=nginx`, bounded with
+  `limit`) → staging push history → `sites.wordpress.status` → `sites.wp-debug`
+  (confirmed, turned back off) → `servers.services`. Says plainly that the
+  PHP-FPM error log and `debug.log` are **Site → Logs** only; temporary sudo
+  access is revoked when the investigation ends; never restarts or reboots to
+  "clear" an error before the cause is known.
+- **`xcloud:performance`** — a slow site. Site and server monitoring (and
+  their history, a `403` plan limit on free plans), `sites.cacheSettings`
+  (which of page, object and edge cache are on — always read before saying
+  anything about caching), PageSpeed (latest first; a scan is spent only after
+  telling the user), the access log for spikes and bots, services, and the
+  site's PHP version. Four usual causes with what each looks like in the data.
+  Enabling a cache layer (**Site → Cache**) and changing one site's PHP version
+  (**Site → Settings → PHP version**) are dashboard-only — the skill hands
+  them off with the site's `dashboard_url` and never offers them as API
+  actions.
+- **`reference/capability-map.md`** (shared) — every dashboard-only and
+  impossible job in one table with its dashboard path and what the API does
+  instead, plus **status codes are not uniform**: an agentic-server refusal is
+  `403` on the WordPress and Git creates and `422` on the Docker and one-click
+  paths, a free-plan monitoring `403` is a plan limit — match on the message.
+- `xcloud:deploy` (`reference/git.md`): **which compose file xCloud runs** —
+  `docker-compose.yml` unless `docker.compose_file` says otherwise (the auto
+  endpoint always uses the default), with `git.compose-scan` resolving
+  `compose.yaml` / subdirectories and returning `compose_file_resolved` to send
+  back; the pinned Docker dry run does not probe HTTPS reachability; and the
+  four `cloudflare_*` `422` refusal codes with what to do for each.
+- Read-only smoke suites for both new skills; CI runs them.
+
+### Fixed
+
+- `xcloud:wordpress` PageSpeed: a `409` on a scan means one is still pending
+  or running for the site, not a one-hour cooldown.
+
 ## [4.3.0] - 2026-09-24
 
 **Full sync with the latest xCloud MCP server and Public API (xCloud v2.8.8).**

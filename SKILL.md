@@ -1,7 +1,7 @@
 ---
 name: xcloud-agent-skills
 description: "Official xCloud plugin for agents: deploy any GitHub repo, Docker app, one-click app or WordPress site end to end, and manage servers, sites, WordPress, SSL, billing, teams and alerts — MCP-first via the xCloud MCP server, with a bundled REST fallback."
-version: 4.3.0
+version: 4.4.0
 author: xCloudDev
 homepage: https://xcloud.host
 category: deployment
@@ -74,9 +74,9 @@ metadata:
   }
 ---
 
-# xCloud Agent Skills v4.3.0
+# xCloud Agent Skills v4.4.0
 
-[![Version](https://img.shields.io/badge/version-4.3.0-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.4.0-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
 [![MCP](https://img.shields.io/badge/MCP-app.xcloud.host%2Fmcp-0EA5E9.svg)](https://app.xcloud.host/mcp/docs)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-hosting-0EA5E9.svg)](https://xcloud.host)
@@ -94,6 +94,8 @@ This root skill describes the official xCloud Public API plugin bundle for agent
 The runnable skills live under `plugins/xcloud/skills/` and are invoked as:
 
 - `xcloud:deploy`
+- `xcloud:troubleshoot`
+- `xcloud:performance`
 - `xcloud:servers`
 - `xcloud:sites`
 - `xcloud:wordpress`
@@ -107,6 +109,7 @@ Use this package when an agent needs to operate xCloud hosting infrastructure. I
 
 - Deploy any GitHub, GitLab or Bitbucket URL end to end — detect the app, preview with a dry run, ask once, provision, poll, verify the live URL — and diagnose and retry a failed deploy on the same site
 - Deploy Docker Compose and Dockerfile apps, install one-click apps (Ghost, Uptime Kuma, Vaultwarden, …), create Git staging environments from a branch, and create WordPress sites
+- Diagnose a site that returns 500s or a critical error (status, events, nginx access and error logs, WordPress health, WP_DEBUG, services) and a site that is slow (monitoring, cache layers, PageSpeed, traffic, PHP version), handing off dashboard-only switches with their exact path
 - Buy xCloud-managed servers (plans, prices, regions, provisioning progress); manage services, Node.js and PHP versions, verified reboots, monitoring, firewall rules, fail2ban, sudo users, cron, and DNS checks
 - Manage sites, domains, cache, backups (including Docker app backups), staging, rescue workflows, SSH/SFTP, cron jobs, access logs, and safe site deletion
 - Manage WordPress health, updates, plugins, themes, vulnerabilities (per site and team-wide), PageSpeed, broken links, WP_DEBUG, and magic-login URLs

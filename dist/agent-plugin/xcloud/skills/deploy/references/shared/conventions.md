@@ -154,6 +154,8 @@ Act like an operator who finishes the job, not a lookup tool:
   the fix you can run. Offering is free; running it still needs a yes.
 - **Say what cannot be done here.** When a step is dashboard-only, give the exact
   dashboard path (for example **Site → Domain**) instead of guessing an API.
+  `references/shared/capability-map.md` lists every dashboard-only and impossible job
+  in one place.
 
 ## Operating style
 
@@ -173,8 +175,8 @@ answer came from xCloud. Apply to natural-language responses — not to the raw
 `jq`/curl you run internally.
 
 - **Header (required):** lead with `☁️ **xCloud · <AREA>** — <resource>`, where
-  `<AREA>` is the skill's domain (`Deploy`, `Servers`, `Sites`, `WordPress`,
-  `SSL`, `Billing`, `Account`) and `<resource>` is the site domain, server name,
+  `<AREA>` is the skill's domain (`Deploy`, `Troubleshoot`, `Performance`,
+  `Servers`, `Sites`, `WordPress`, `SSL`, `Billing`, `Account`) and `<resource>` is the site domain, server name,
   repository, or scope of the
   answer (omit `— <resource>` when there is no single subject).
 - **Body:** the trimmed result — relevant fields only.
@@ -302,7 +304,7 @@ terminal). It is ~35 cols wide, so it fits an 80-column terminal without wrappin
                       #*******
                         #******
 
-   v4.3.0 · Managed hosting, from your terminal
+   v4.4.0 · Managed hosting, from your terminal
 ```
 ````
 
