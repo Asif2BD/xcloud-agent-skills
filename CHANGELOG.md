@@ -42,7 +42,8 @@ this release reconciles the content itself.
 
 - The deploy smoke suite still called `POST /git/detect` through the GET-only
   wrapper, so it would fail against a live token; it now asserts the wrapper
-  refuses the POST (detection is MCP-only).
+  refuses the POST (detection is MCP-only). The install guide's smoke-test
+  section now says detection is not covered.
 - The vulnerability "ignore" example sent a `reason` field the API does not
   accept.
 

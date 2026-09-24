@@ -487,8 +487,10 @@ export XCLOUD_TEST_SERVER_UUID="<a-real-server-uuid>"
 bash plugins/xcloud/skills/sites/tests/smoke.sh
 ```
 
-The tests never mutate anything: they perform `GET` requests, plus the deploy
-suite's side-effect-free repository detection (`POST /git/detect`).
+The tests never mutate anything: they send `GET` requests only, through the
+read-only wrapper. Repository detection (`git_detect`) runs on the MCP, so the
+deploy suite does not cover it; it checks the catalog, Git integrations, staging
+hostname and deploy keys, and that the wrapper refuses a `POST`.
 
 ---
 
