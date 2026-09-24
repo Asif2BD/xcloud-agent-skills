@@ -2,8 +2,8 @@
 # build.sh — generate ONE consolidated claude.ai skill from the Claude Code plugin.
 #
 # claude.ai treats an uploaded zip as a SINGLE skill (one SKILL.md at the root).
-# So instead of five separate skills we ship one `xcloud` skill whose SKILL.md
-# routes across all five capability areas, with everything bundled:
+# So instead of seven separate skills we ship one `xcloud` skill whose SKILL.md
+# routes across all seven capability areas, with everything bundled:
 #
 #   xcloud/
 #     SKILL.md                     <- router (dist/claude-app/SKILL.template.md)
@@ -23,7 +23,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SRC="$ROOT/plugins/xcloud"
 OUT="$ROOT/dist/claude-app"
 SKILL="$OUT/xcloud"
-AREAS=(servers sites wordpress ssl account)
+AREAS=(deploy servers sites wordpress ssl billing account)
 
 echo "Building consolidated claude.ai skill from $SRC"
 

@@ -1,6 +1,6 @@
 # API coverage audit
 
-Cross-check of every endpoint documented across the five `xcloud:*` skills
+Cross-check of every endpoint documented across the seven `xcloud:*` skills
 against the **live** xCloud Public API OpenAPI spec **and the xCloud MCP
 server's tool surface**.
 
@@ -8,14 +8,40 @@ server's tool surface**.
   <https://app.xcloud.host/api/v1/docs> (inlined in the Scalar page;
   `openapi: 3.0.3`, `info.version: 1.0.0`), and the live MCP server at
   <https://app.xcloud.host/mcp> (tool list enumerated in-session).
-- **Audited:** 2026-07-29.
+- **Audited:** 2026-07-29; **re-audited 2026-09-24** (v4.3.0, see below).
 - **Method:** extracted every `METHOD /path` from `plugins/xcloud/**/*.md`
   (expanding `[/optional]` suffixes and `{a,b,c}` groups, normalizing `{uuid}` /
   `$VAR` / version segments) and diffed both directions against the spec's
   path+verb set; MCP tool descriptions embed their REST path, giving a
   deterministic tool↔endpoint map.
 
-## Headline
+## Update, 2026-09-24 (v4.3.0)
+
+Re-extracted the live OpenAPI and diffed it against every `METHOD /path` in
+`plugins/xcloud/**/*.md` in both directions.
+
+| Metric | Count |
+|---|---|
+| Operations in the live OpenAPI (175 paths) | **199** |
+| Agent-facing operations (all but the mobile app's 8 native sign-in / push endpoints) | **191** |
+| Agent-facing operations documented by the skills | **191 / 191** |
+| MCP tools on the default profile | **190** = 188 operation tools + `xcloud_agent_search` + `xcloud_docs_search` |
+| Operations without an MCP tool | **11**: `GET /health`, `GET /user/tokens`, `DELETE /user/tokens/{tokenUuid}`, and the 8 native-app operations under `/auth/*` and `/notifications/*` |
+| Documented but absent from the spec | **9** — the caveated `databases` / `database-users` endpoints (section A, unchanged) |
+
+Gaps closed in this release: billing (10), mailbox (9) and mail-delivery (4)
+add-ons, payments (1), alerts (3), one-click apps (7), catalog (2), broken
+links (4), Docker backups (8), teams (1), Git integrations (2), server purchase,
+plans and provisioning progress (3), verified reboots (3), service
+install/enable (2), DNS check (1), staging create (1), deploy-key verify/delete
+(2), PageSpeed scan status (1). Corrected: `GET
+/servers/{uuid}/staging-hostname` (was documented as a `POST …/suggest`).
+
+The session's MCP tool list was compared with the spec's operation ids: every
+agent-facing operation has its tool (`servers.sites.git.auto` →
+`servers_sites_git_auto`), and no tool lacks an operation.
+
+## Headline (2026-07-29 audit)
 
 | Metric | Count |
 |---|---|

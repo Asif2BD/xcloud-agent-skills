@@ -1,6 +1,6 @@
 ---
 name: sites
-description: Manage xCloud sites — list/inspect sites, status, events, deployment logs, monitoring, backups, rescue, snapshots, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, git, access logs, and site deletion. Use for any site lifecycle or delivery request. For SSL/certs see ssl; for WordPress plugins/updates/vulnerabilities/PageSpeed see wordpress; for server-level infra see servers.
+description: Manage existing xCloud sites — list/inspect sites, status, events, deployment logs, monitoring and uptime history, backups (including Docker app backups and schedules), rescue, snapshots, staging environments, domains & redirections, cache purge, SSH/SFTP config, site cron jobs, access logs, and site deletion. Use for any day-2 site request. Deploying, redeploying, Git settings and failed-deploy recovery → deploy; SSL/certs → ssl; WordPress plugins/updates/vulnerabilities/PageSpeed/broken links → wordpress; server-level infra → servers.
 ---
 
 # xCloud Sites
@@ -12,7 +12,8 @@ URL, envelope, pagination, and rate limits:
 - `references/shared/conventions.md`
 - `references/shared/mcp.md` — **prefer `sites_*` MCP
   tools when connected** (e.g. `sites_index`, `sites_show`, `sites_status`,
-  `sites_rescue`, `sites_destroy`); the `$XC` calls below are the REST fallback.
+  `sites_backup`, `sites_docker_backup`, `sites_stagingSites`, `sites_rescue`,
+  `sites_destroy`); the `$XC` calls below are the REST fallback.
 
 Resolve the absolute directory that contains this `SKILL.md` before running
 shell commands. Do not resolve scripts from the user's current working directory:
@@ -45,11 +46,11 @@ block — once per conversation.
 | Sub-resource | Reference file |
 |---|---|
 | Backups (trigger, list, settings, status, count) | `references/domain/backups.md` |
+| Docker app backups (back up now, notes, schedule, retention) | `references/domain/docker-backups.md` |
 | Domains, redirections, web rules | `references/domain/domains.md` |
 | Cache (purge, purge-all, settings) | `references/domain/cache.md` |
 | SSH/SFTP config & keys | `references/domain/ssh.md` |
 | Site cron jobs | `references/domain/cron-jobs.md` |
-| Git deploys: detect, dry run, deploy keys, polling, diagnosis and retry | `references/domain/git.md` |
 
 ## Core endpoints
 
@@ -62,21 +63,18 @@ block — once per conversation.
 | Deployment logs | `GET /sites/{uuid}/deployment-logs` |
 | Monitoring (+ history) | `GET /sites/{uuid}/monitoring[/history]` |
 | Access logs | `GET /sites/{uuid}/access-logs` |
-| Git deployment info | `GET /sites/{uuid}/git` |
-| Update Git deployment settings | `PUT /sites/{uuid}/git` |
-| Trigger Git deployment | `POST /sites/{uuid}/git/deploy` |
-| Deploy config (read / change without deploying) | `GET|PUT /sites/{uuid}/deploy-config` |
-| Diagnose a failed deploy | `GET /sites/{uuid}/deploy-diagnosis` |
-| Retry a failed deploy on the same site | `POST /sites/{uuid}/provision-retry` |
+| One event's full output | `GET /sites/{uuid}/events/{task_uuid}` |
+| Git settings, deploys, diagnosis, retry | owned by the `deploy` skill |
 | Snapshots | `GET /sites/{uuid}/snapshots` |
-| Staging sites | `GET /sites/{uuid}/staging-sites` |
+| Staging environments (list / create for Git sites) | `GET\|POST /sites/{uuid}/staging-sites` — creating is a deploy (the `deploy` skill) |
 | Custom nginx / site scripts / IP access | `GET /sites/{uuid}/{custom-nginx,site-scripts,ip-access}` |
 | Domain update status | `GET /sites/{uuid}/domain/status` |
 | Rescue site | `POST /sites/{uuid}/rescue` |
 | **Delete site** | `DELETE /sites/{uuid}` |
 
-**Not here:** SSL → the `ssl` skill; WordPress/vulns/pagespeed → the `wordpress` skill;
-servers → the `servers` skill.
+**Not here:** deploys → the `deploy` skill; SSL → the `ssl` skill;
+WordPress/vulns/pagespeed/broken links → the `wordpress` skill; servers →
+the `servers` skill.
 
 ## Common reads
 
@@ -136,4 +134,7 @@ staging sites are removed too):
   `/sites/{uuid}/ssh` (`site_user`) and the server tasks to confirm.
 - Site deletion requires the `site:delete` team permission; sites tied to their
   server's lifecycle (e.g. OpenClaw) cannot be deleted independently.
-- Monitoring history is a paid feature — expect `403` on free plans.
+- Monitoring history is a paid feature — expect `403` on free plans. It takes a
+  `range` query parameter.
+- A site whose status looks wrong after a deploy → hand over to the `deploy` skill
+  (diagnosis and retry on the same site), never delete and recreate it.

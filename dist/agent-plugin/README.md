@@ -13,7 +13,7 @@ The generated package is `dist/agent-plugin/xcloud/` and contains:
 
 - root `plugin.json` metadata
 - root `mcp.json` for the xCloud Streamable HTTP MCP endpoint
-- five immediate Agent Skills under `skills/`
+- seven immediate Agent Skills under `skills/`
 - skill-local references and REST fallback wrappers
 
 The builder copies shared files into each skill because Agent Skills file references are relative to the skill root. Each generated skill tells the agent to resolve `SKILL_ROOT` from the loaded `SKILL.md` before executing its wrapper, so shell commands work from unrelated project directories.

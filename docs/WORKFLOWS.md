@@ -51,7 +51,7 @@ RESPONSE=$(curl -sS -X POST \
     \"domain\": \"$DOMAIN\",
     \"title\": \"$DOMAIN\",
     \"php_version\": \"$PHP_VERSION\",
-    \"ssl\": {\"provider\": \"letsencrypt\"},
+    \"ssl\": {\"provider\": \"xcloud\"},
     \"cache\": {\"full_page\": true, \"object_cache\": true}
   }")
 

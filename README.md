@@ -1,20 +1,22 @@
 # xCloud Agent Skills
 
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-blue)](https://clawhub.ai/asif2bd/skills/xcloud)
-[![Version](https://img.shields.io/badge/version-4.1.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.3.0-green)](CHANGELOG.md)
 [![MCP](https://img.shields.io/badge/MCP-app.xcloud.host%2Fmcp-0EA5E9)](https://app.xcloud.host/mcp/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-Official-0EA5E9.svg)](https://xcloud.host)
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-Skill-purple)](https://openclaw.ai)
 
-**Operate xCloud in plain language from any AI agent.** Ask *"reboot my Hermes
-server"*, *"renew SSL for example.com"*, or *"scan example.com for
-vulnerabilities and show me the criticals"* — the agent picks the right skill and
-chains the steps. No endpoints to memorize, no SDK to wire up.
+**Operate xCloud in plain language from any AI agent.** Paste a GitHub URL and
+say *"deploy this"*, or ask *"install Ghost on my Frankfurt server"*, *"renew
+SSL for example.com"*, *"why did my last deploy fail?"* — the agent picks the
+right skill, previews what it will do, asks once, then finishes the job: it
+provisions, polls, checks the live URL, and diagnoses and retries failures. No
+endpoints to memorize, no SDK to wire up.
 
 Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [MCP Docs](https://app.xcloud.host/mcp/docs) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [OpenClaw + ClawHub Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) · [Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48)
 
-This repository ships the **`xcloud` Claude Code plugin** (v4.1.0): five
+This repository ships the **`xcloud` Claude Code plugin** (v4.3.0): seven
 capability skills that pair with the **[xCloud MCP server](https://app.xcloud.host/mcp/docs)**
 — one native tool per authenticated
 [Public API](https://app.xcloud.host/api/v1/docs) operation plus two search
@@ -25,17 +27,19 @@ agents without MCP support.
 > the [Install & Usage Guide](docs/SKILLS-GUIDE.md) (full install, per-skill
 > reference, smoke tests, routing rules).
 
-## The five skills
+## The seven skills
 
 You never name them — the agent picks the right one from what you ask.
 
 | Skill | Owns |
 |---|---|
-| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, services, provisioning WordPress **and Git-deployed (Laravel/Node/PHP) sites** |
-| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git settings, manual deploys, **site deletion** |
-| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site and team vulnerabilities, PageSpeed |
+| `xcloud:deploy` | **Deploy anything**: a GitHub/GitLab/Bitbucket URL, Docker Compose or Dockerfile apps, one-click apps, Git staging environments, new WordPress sites — detect, dry run, approve, provision, verify, and diagnose + retry failures |
+| `xcloud:servers` | Servers: **buy a server** (plans, prices, provisioning), services install/enable/restart, Node.js and PHP versions, verified reboots, cron, firewall/fail2ban, sudo users, DNS checks |
+| `xcloud:sites` | Site lifecycle: status, backups (incl. Docker apps), staging, domains, cache, SSH, site cron, monitoring, site deletion |
+| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site and team vulnerabilities, PageSpeed, broken links |
 | `xcloud:ssl` | SSL certificates: view, install, renew, status, delete |
-| `xcloud:account` | Current user, API tokens, Cloudflare integrations, blueprints, health |
+| `xcloud:billing` | Plan, invoices, bills, subscriptions, prices, paying an invoice, **mailboxes and mail delivery** |
+| `xcloud:account` | Current user, **teams (multi-team)**, **incident alerts**, API tokens, Git and Cloudflare integrations, blueprints, health |
 
 Skills are organized by **capability, not URL root** — each declares what it does
 *not* own with `see xcloud:*` cross-links so trigger keywords don't collide. See
@@ -46,9 +50,16 @@ Skills are organized by **capability, not URL root** — each declares what it d
 The **xCloud MCP server** is the fastest way to give any agent full xCloud
 control — OAuth sign-in, no token to store, and built-in confirmation before
 every destructive operation. **One tool per authenticated API operation, plus
-`xcloud_agent_search` and `xcloud_docs_search`** (190 tools on 2026-09-22); or
+`xcloud_agent_search` and `xcloud_docs_search`** (190 tools on 2026-09-24); or
 the **compact profile** (`/mcp?profile=compact`, five tools) for clients that
 cap tool counts.
+
+**One connection, several teams.** Since xCloud v2.8.8 a single MCP connection
+or API token can be granted several teams. Older connections keep working but
+see only the team they were authorized for — to add teams, reconnect (or remove
+and re-add) the connection and tick every team on the xCloud approval screen.
+The skills then pick the right team per request. Details:
+[multi-team access](https://xcloud.host/docs/multi-team-api-tokens-and-mcp-access/).
 
 **Claude Code:**
 
@@ -117,7 +128,7 @@ exists.
 ### Agent Plugins 1.0.0
 
 The portable package is at [`dist/agent-plugin/xcloud`](dist/agent-plugin/xcloud).
-It includes the five skills and the xCloud MCP connection in the standard layout:
+It includes the seven skills and the xCloud MCP connection in the standard layout:
 
 ```text
 xcloud/
@@ -186,7 +197,15 @@ skill-local REST wrapper and `XCLOUD_API_TOKEN`.
 You describe what you want; Claude chains the steps.
 
 ```text
-List my xCloud servers.
+Deploy https://github.com/acme/shop to my Frankfurt server.
+Deploy github.com/acme/api as a Compose app on a staging hostname — scan the compose file first.
+The last deploy of the API site failed — diagnose it, fix the build command, and retry.
+Install Uptime Kuma on my Docker server and give me the URL.
+Create a staging environment for the API site from the feature/checkout branch.
+List my xCloud servers and flag any above 80% disk.
+Any unread incident alerts on the Acme team?
+Show me last month's invoice and its total.
+Buy a mailbox for hello@example.com and tell me which DNS records to add.
 Is example.com up right now?
 Renew the SSL certificate for shop.example.com.
 Update all plugins on example.com, but back up first.
@@ -223,8 +242,14 @@ Token**, choosing scopes:
 | Scope | Grants |
 |---|---|
 | `read:sites` / `write:sites` | Reads / writes under `/sites/*` and `/ssl-certificates/*` |
-| `read:servers` / `write:servers` | Reads / writes under `/servers/*` |
+| `read:servers` / `write:servers` | Reads / writes under `/servers/*` (incl. buying a server) |
+| `read:billing` | Plan, invoices, bills, subscriptions, payment methods |
+| `read:addons` / `write:addons` | Mailbox and mail-delivery add-ons, paying invoices |
 | `*` | Full access, including token management |
+
+Tokens can be granted several teams; set `XCLOUD_TEAM_ID` per call to pick one
+(sent as `X-Team-Id`), and `XCLOUD_IDEMPOTENCY_KEY` to make a create safe to
+retry.
 
 Prefer the narrowest scopes that cover your use. The base URL is environment
 driven (`XCLOUD_API_BASE_URL`, default `https://app.xcloud.host`) — point it at a
@@ -234,8 +259,10 @@ local or white-label host without touching any skill. Full details in
 ## API & MCP reference
 
 - **MCP endpoint**: `https://app.xcloud.host/mcp` (Streamable HTTP) — [docs](https://app.xcloud.host/mcp/docs)
-- **MCP tools**: one per authenticated REST operation — 188 on 2026-09-22 —
-  plus `xcloud_agent_search` and `xcloud_docs_search`; tool names mirror
+- **MCP tools**: one per agent-facing REST operation — 188 on 2026-09-24 —
+  plus `xcloud_agent_search` and `xcloud_docs_search` (the API's other 11
+  operations are `/health`, token management, and the mobile app's own sign-in
+  and push endpoints); tool names mirror
   endpoint paths (`servers_reboot`, `sites_ssl_renew`, …). Compact profile:
   `/mcp?profile=compact` (two searches + three executors); toolset narrowing:
   `/mcp?toolsets=sites,servers`
@@ -271,8 +298,10 @@ export XCLOUD_TEST_SERVER_UUID="..."   # for the servers suite
 plugins/xcloud/skills/servers/tests/smoke.sh
 ```
 
-The suites are read-only and tolerate optional sub-resources that a given
-server/site type doesn't support.
+The suites are read-only (the deploy suite only runs side-effect-free repository
+detection) and tolerate optional sub-resources a server/site type doesn't
+support, and billing reads a token isn't scoped for. Offline suites need no
+token: `bash plugins/xcloud/scripts/tests/wrapper-test.sh`.
 
 ## Legacy: Python SDK & CLI
 
