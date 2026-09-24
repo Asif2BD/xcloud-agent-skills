@@ -86,9 +86,9 @@ this chain with every request body and the platform notes.
    right after a failed task has usually found its cause here.
    `sites.events.show` reads one task's full output. A failed **git build**
    shows up here too.
-3. **The web server logs.** `sites.access-logs` with `type=nginx` reads every
-   log file of the site — the access log, the **error log** and the 7G
-   firewall log — on nginx and OpenLiteSpeed stacks alike. The error log is
+3. **The web server logs.** `sites.access-logs` with `type=nginx` reads the
+   site's web-server access log **and error log**, on nginx and OpenLiteSpeed
+   stacks alike (the 7G/8G firewall log is not among them — see below). The error log is
    where a PHP fatal surfaces as a 502/500 upstream error. The default
    `type=access` reads the access log only, so always send `type=nginx` here.
    Every call reads the files over SSH, so it is slow: pass a `limit` (1–1000,
@@ -124,9 +124,9 @@ unless a log line or an event you actually retrieved shows it.
 
 ## What only the dashboard shows
 
-The PHP-FPM error log, the contents of the WordPress `debug.log`, and
-docker-compose, PM2 and OpenClaw logs are readable **only** in the dashboard log
-viewer: **Site → Logs**. Say so and give the site's
+The PHP-FPM error log, the contents of the WordPress `debug.log`, the 7G/8G
+firewall logs, and docker-compose, PM2 and OpenClaw logs are readable **only**
+in the dashboard log viewer: **Site → Logs**. Say so and give the site's
 `dashboard_url` (from `sites.show` — never construct one). Do not imply you can
 fetch them. See `reference/capability-map.md`.
 

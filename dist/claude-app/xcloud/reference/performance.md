@@ -113,8 +113,8 @@ guessing gives a support ticket.
    still running — wait for it instead of starting another). Write-class, so no confirmation gate, but **tell the
    human you are spending a scan** first. Scan polling and history:
    `xcloud:wordpress` (PageSpeed).
-7. **Traffic.** `sites.access-logs` with `type=nginx` (every log of the site,
-   access and error included) or the default `type=access`, and a `limit`
+7. **Traffic.** `sites.access-logs` with `type=nginx` (the access and error
+   logs) or the default `type=access`, and a `limit`
    (1–1000, default 200) — a spike, one client hammering a path, or a crawl
    that started the hour the slowness did. Read over SSH on every call, so it
    is slow; ask for a window. Log lines

@@ -42,6 +42,10 @@ new skills to the same read-only REST rule.
   afterwards, instead of always turning it off.
 - Performance: the site's PHP version comes from `sites.show` (`php_version`),
   so Laravel and custom-PHP sites are covered, not only WordPress.
+- `type=nginx` access-log reads return the access and error logs only; the
+  7G/8G firewall logs are dashboard-only (**Site → Logs**), per xCloud's
+  agent guidance XC-AGT-005. Troubleshoot, performance and the capability map
+  said otherwise.
 - Troubleshoot smoke suite: a `403` on the permission-gated optional reads
   (nginx logs, WordPress status) is a skip, as in the performance suite, so a
   least-privilege test token does not fail CI.
