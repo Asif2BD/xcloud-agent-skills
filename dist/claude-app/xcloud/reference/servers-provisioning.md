@@ -16,8 +16,8 @@
 `POST /servers` buys an **xCloud-managed (Vultr)** server on the team's billing
 account and charges the team's default card. Connecting a machine from the
 user's own Hetzner, DigitalOcean, AWS or other account — and enrolling a
-self-managed server — is dashboard-only (**Dashboard → Servers → Create
-server**).
+self-managed server — is dashboard-only (**Servers → Create server → Bring and
+Manage Your Own Server**).
 
 ## "Create a server on the smallest plan in Singapore — show me the price first"
 
@@ -28,7 +28,7 @@ server**).
    offer the region; show slug, vCPU/RAM/disk, price for the renewal period, and
    region. Say which app minimum you sized against, if any.
 3. **Card check.** `GET /billing/payment-methods` — no card means `402` before
-   anything is created; send the user to **Dashboard → Billing**.
+   anything is created; send the user to **Account → Billing → Bills & Payment**.
 4. **Approve.** Restate name, plan, region, stack (`nginx` or `openlitespeed`),
    database (`none`, `mysql8`, `mysql84`, `mariadb10`, `mariadb11`, …), renewal
    period (`monthly`, `yearly`, `two_yearly`) and price. Wait for a yes.

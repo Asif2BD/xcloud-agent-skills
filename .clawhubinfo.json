@@ -1,6 +1,6 @@
 {
   "name": "xcloud-agent-skills",
-  "version": "4.4.0",
+  "version": "4.4.1",
   "display_name": "xCloud Agent Skills",
   "description": "Operate xCloud in plain language from any AI agent — nine capability skills (deploy, troubleshoot, performance, servers, sites, WordPress, SSL, billing, account) paired with the xCloud MCP server (one native tool per API operation plus agent and docs search, or a five-tool compact profile), with a bundled REST fallback.",
   "long_description": "The xCloud agent skills let any AI agent (Claude Code and others) operate xCloud in plain language and finish the job: paste a GitHub URL and say deploy — the agent detects the app, previews the site with a dry run, asks once, provisions, polls, checks the live URL, and diagnoses and retries a failed deploy on the same site. The same proactive flow covers Docker Compose apps, one-click apps, Git staging environments, new WordPress sites and new servers, alongside day-2 work: SSL, backups, WordPress updates, vulnerability and broken-link scans, billing, mailboxes, incident alerts, and multi-team accounts. v4 is MCP-first: connect the xCloud MCP server (https://app.xcloud.host/mcp — OAuth, one tool per API operation plus two search tools, with per-action confirmation on destructive operations) and the skills use it automatically; agents without MCP fall back to the shared auth + curl layer. A legacy Python SDK and CLI remain under src/ for direct scripting.",
@@ -35,6 +35,16 @@
   "repository": "https://github.com/xCloudDev/xcloud-agent-skills",
   "documentation": "https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md",
   "changelog": {
+    "v4.4.1": {
+      "date": "2026-09-24",
+      "changes": [
+        "Capability map re-checked against xCloud v2.8.8: every dashboard-only and impossible row verified in routes, controllers and dashboard navigation",
+        "Fixed: setting the server's default PHP version moves no existing site (it changes the command-line php and new sites only)",
+        "Fixed: the web server error log and the 7G/8G firewall logs are readable through the API; there is no separate PHP-FPM log",
+        "Dashboard paths now match the dashboard's menu labels (Site → WordPress → Caching, Site → Site Monitoring → Logs, Site → Site Settings, …)",
+        "Added: an 'API jobs' list of things that are not dashboard-only, new dashboard-only rows (cache rules, PHP settings, IP management, basic auth, clone/migrate, supervisor, resize/delete a server) and the compose-file limits"
+      ]
+    },
     "v4.4.0": {
       "date": "2026-09-24",
       "changes": [

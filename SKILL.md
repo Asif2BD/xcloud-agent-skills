@@ -1,7 +1,7 @@
 ---
 name: xcloud-agent-skills
 description: "Official xCloud plugin for agents: deploy any GitHub repo, Docker app, one-click app or WordPress site end to end, and manage servers, sites, WordPress, SSL, billing, teams and alerts — MCP-first via the xCloud MCP server, with a bundled REST fallback."
-version: 4.4.0
+version: 4.4.1
 author: xCloudDev
 homepage: https://xcloud.host
 category: deployment
@@ -74,7 +74,7 @@ metadata:
   }
 ---
 
-# xCloud Agent Skills v4.4.0
+# xCloud Agent Skills v4.4.1
 
 [![Version](https://img.shields.io/badge/version-4.4.0-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
 [![MCP](https://img.shields.io/badge/MCP-app.xcloud.host%2Fmcp-0EA5E9.svg)](https://app.xcloud.host/mcp/docs)

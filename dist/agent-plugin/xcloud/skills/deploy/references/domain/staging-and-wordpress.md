@@ -18,7 +18,7 @@
    staging or demo site's uuid answers `422` on both calls above — that means
    "not a production site", not "no staging".
 2. Supported for Git-backed sites only (Laravel, Node.js, custom PHP,
-   Lovable); WordPress staging is a dashboard action (**Site → Staging**).
+   Lovable); WordPress staging is a dashboard action (**Site overview → Add Staging**).
    Needs a paid plan and the `site:deploy-staging` team permission.
 3. Body: `environment_name` (lowercase, digits, hyphens), `branch`, `mode`.
    `demo` puts it on a free test hostname (`subdomain` + `demo_domain`
@@ -34,7 +34,7 @@
    a deploy, then fetch the URL before reporting it ready.
 
 Pushing staging to production (or pulling production down) is dashboard-only
-(**Site → Staging → Push / Pull**); `sites.deployment-logs` is where that
+(on the staging site: **Site → Manage Staging**); `sites.deployment-logs` is where that
 history is readable.
 
 ```bash

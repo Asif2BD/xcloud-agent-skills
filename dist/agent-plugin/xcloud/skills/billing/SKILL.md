@@ -76,8 +76,9 @@ block — once per conversation.
   size, `servers.plans` (or `catalog.pricing.index` for public prices), and the
   user's existing servers first — "it fits on the server you already pay for"
   beats a new plan. Say which minimum you used.
-- Changing or cancelling a subscription is dashboard-only (**Dashboard →
-  Billing**).
+- Changing or cancelling a subscription is dashboard-only (**Account →
+  Subscriptions**; cards and payment history under **Account → Billing → Bills &
+  Payment**).
 
 ## Money rules
 

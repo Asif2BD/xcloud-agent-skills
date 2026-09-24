@@ -2,6 +2,53 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.4.1] - 2026-09-24
+
+**The "what you cannot do" list, re-checked against xCloud v2.8.8.** Every row
+of `reference/capability-map.md` was compared with the v2.8.8 routes
+(`routes/public-api.php`), controllers and dashboard navigation. Wrong claims
+are fixed, dashboard paths now match the dashboard's own menu labels, and
+missing dashboard-only and impossible jobs are added.
+
+### Fixed
+
+- **Server PHP default does not move sites.** `servers.php-versions.default`
+  runs `update-alternatives --set php` and sets the version new sites get; no
+  existing site's PHP version changes. The capability map, `xcloud:performance`
+  and `servers/reference/php-versions.md` said it "moves every site that
+  follows the default".
+- **Logs.** There is no separate PHP-FPM error log: the site's web server error
+  log (where a PHP fatal lands) is read by `sites.access-logs?type=nginx`,
+  together with the 7G **and 8G** firewall logs. Dashboard-only logs are the
+  WordPress `debug.log`, the Laravel log, PM2, docker-compose, agentic-stack
+  journals and server logs (fail2ban, auth.log).
+- **Staging free-plan `403`** applies to Git sites; a WordPress site gets the
+  `422` first.
+- **Dashboard paths** now use the dashboard's menu labels: Site → WordPress →
+  Caching, Site → Site Settings (PHP version), Site → Site Monitoring → Logs,
+  Site → Domain → Domain / Redirection, Site → Tools → Site Rules / Nginx
+  Customization, Site → Site Backup → Previous Backups / Backup Settings,
+  Site → Manage Staging, Site overview → Add Staging, Server → Backup,
+  Account → Global Settings → Site Backup, Account → Integrations → Storage
+  Provider, Account → Developers → API Tokens, Account → Billing → Bills &
+  Payment, Servers → Create server → Bring and Manage Your Own Server.
+
+### Added
+
+- A **"Not on this list: these are API jobs"** section: Git-site staging,
+  the 7G/8G and error logs, correct-and-retry of a failed deploy, server PHP
+  and Node versions, Docker backup settings, firewall/fail2ban, sudo users,
+  cron, services, deploy keys, SSL, verified reboots, vulnerability ignore,
+  magic login and mailboxes.
+- Dashboard-only rows: page-cache duration and exclusions, PHP settings and
+  extensions, per-site IP allow/deny (`sites.ipAccess` reads), basic
+  authentication, clone and migrate, supervisor processes
+  (`servers.supervisorProcesses` reads), resize or delete a server.
+- Impossible row: a compose file that binds 80/443, publishes no port or pulls
+  a private-registry image, as-is.
+- Status table rows: the free-plan staging `403` and the PageSpeed `409`
+  (a scan still running, not a cooldown).
+
 ## [4.4.0] - 2026-09-24
 
 **Two diagnosis skills for the two most common support jobs.** Both are
