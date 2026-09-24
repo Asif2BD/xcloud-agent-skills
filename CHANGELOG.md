@@ -22,6 +22,9 @@ missing dashboard-only and impossible jobs are added.
   together with the 7G **and 8G** firewall logs. Dashboard-only logs are the
   WordPress `debug.log`, the Laravel log, PM2, docker-compose, agentic-stack
   journals and server logs (fail2ban, auth.log).
+- **`servers.snapshots` lists site snapshots**, not a server image (it
+  returns the site snapshots across a server). A server's provider backup at
+  **Server → Backup** is dashboard-only, and nothing on the API reads it.
 - **Staging free-plan `403`** applies to Git sites; a WordPress site gets the
   `422` first.
 - **Dashboard paths** now use the dashboard's menu labels: Site → WordPress →

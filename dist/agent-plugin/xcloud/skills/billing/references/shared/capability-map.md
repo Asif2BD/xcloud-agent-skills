@@ -58,7 +58,8 @@ Older notes called some of these dashboard-only. They are not:
 | Change a native site's backup schedule, retention or destination | api_read | **Site → Site Backup → Backup Settings** | `sites.backupSettings` reads; Docker sites are the exception — `sites.docker.backupSettings.update` writes |
 | Apply backup settings to many sites at once | ui | **Account → Global Settings → Site Backup** | — |
 | Add or change a backup storage provider | ui | **Account → Integrations → Storage Provider** | Backup settings return the provider's uuid and status, never its credentials |
-| Take, schedule or roll back to a server backup or a site snapshot | api_read | **Server → Backup**; **Site → Site Snapshots** (Take Snapshot in the site's menu) | `servers.snapshots`, `sites.snapshots` list them |
+| Take or restore a site snapshot | api_read | **Site → Site Snapshots** (Take Snapshot in the site's menu) | `sites.snapshots` lists one site's snapshots; `servers.snapshots` lists the **site** snapshots across a server — it is not a server image |
+| Turn on, schedule or restore a server's provider backup (a whole-server image) | ui | **Server → Backup** | — nothing on the API reads or writes it |
 | Push staging to production, pull production to staging | api_read | On the staging site: **Site → Manage Staging** (WordPress staging, paid plan) | `sites.deployment-logs` is the push/pull history |
 | Create a **WordPress** staging environment | ui | **Site overview → Add Staging** | `sites.stagingSites.create` covers Git sites only (Laravel, Node.js, custom PHP, Lovable); WordPress answers `422` |
 | Clone a site, or migrate a WordPress site or a whole server into xCloud | ui | Site menu → **Clone Site**; **Add site → Migrate An Existing WordPress Website** / **Migrate Full Server** | — |

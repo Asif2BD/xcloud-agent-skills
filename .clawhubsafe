@@ -11,10 +11,10 @@
 # sha256sum -c .clawhubsafe
 
 # ## SHA256 Checksums
-7691972eae29344ed73837a8a0ebffbc03a626e6698b377dd7ea8376079ea699  CHANGELOG.md
+4ab2430a983418fe8221f77e9cfc88b4e32aeefbe0b883942e5f4f4afc16dc1a  CHANGELOG.md
 9fc4d9de5caefeb912e8a76fd4d73cb884e6e8403a30636decb67eb6e4a57a87  CONTEXT.md
 9e8b10223348f8ded3561006d585b96f45f8716c51c5fd511014def6de170d84  plugins/xcloud/reference/auth.md
-5b473a6e7610aedea18bc96d786c2bc4743a56018dafd7e3d0cf5ff2184ebf26  plugins/xcloud/reference/capability-map.md
+571c7d8339997ec4e7a68558bceb5bc30fb5f6c025347e66ac975de516b0f516  plugins/xcloud/reference/capability-map.md
 857a65a1820e6a13a18b64a249195fec3515c96f8a865a34b638010a7fe5256d  plugins/xcloud/reference/conventions.md
 6e67b1a3ee7ad8657d2c152a4e30f56d951874b159b2d74bafa654dc6b74ab5d  plugins/xcloud/reference/mcp.md
 b4a612f6481a1f9279861d577e4b56f17987ce560e00fa6cbdd3cd63a53b7e18  plugins/xcloud/resources/logo/xcloud-icon.svg
