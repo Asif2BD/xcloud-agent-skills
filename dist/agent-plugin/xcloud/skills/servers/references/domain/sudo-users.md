@@ -9,11 +9,11 @@ OS-level privileged accounts on the server (distinct from the API token user).
 | Create or update | `POST /servers/{uuid}/sudo-users` |
 | Delete | `DELETE /servers/{uuid}/sudo-users/{sudo_user_uuid}` |
 
-Create/update body (all optional in schema, but supply `username` plus either
-keys or a password):
-
-The password is a secret — build the JSON with `jq -n` and pipe it on **stdin**
-(`-`) so it never appears in any process argument list:
+Body: `username` and `ssh_public_keys` are required; `password` and
+`is_temporary` are optional. **A username that already exists is updated, not
+created** — list the users first, and never reuse a name unless the user asked
+to change that account. A password is a secret: take it from the user, never
+echo it back or put it in a summary.
 
 ```text
 servers_sudoUsers_store  {"uuid": "<server-uuid>", "username": "deploy", "password": "<set by the user>",

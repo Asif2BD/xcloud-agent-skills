@@ -65,7 +65,7 @@ retry on the same site). A `526` or certificate warning is `xcloud:ssl`.
 | Toggle WP_DEBUG (destructive) | `sites.wp-debug` | `POST /sites/{uuid}/wp-debug` |
 | Server services | `servers.services` | `GET /servers/{uuid}/services` |
 | Purge a stale cached error page | `sites.cache.purge` · `sites.cache.purge-all` | `POST /sites/{uuid}/cache/purge[-all]` |
-| Temporary shell access (destructive) | `servers.sudoUsers.store` · `.destroy` | `POST /servers/{uuid}/sudo-users` · `DELETE /servers/{uuid}/sudo-users/{sudo_user_uuid}` |
+| Temporary shell access (destructive) | `servers.sudoUsers.index` · `.store` · `.destroy` | `GET` / `POST /servers/{uuid}/sudo-users` · `DELETE /servers/{uuid}/sudo-users/{sudo_user_uuid}` |
 | Server-side repair (destructive) | `sites.rescue` | `POST /sites/{uuid}/rescue` |
 
 On MCP, one `xcloud_agent_search` call ("site returning 500 error") returns
@@ -102,13 +102,15 @@ this chain with every request body and the platform notes.
    WordPress and PHP version, the debug/cron flags, and whether the install
    itself is broken.
 6. **WP_DEBUG** (WordPress, only when the logs so far are inconclusive).
+   Note `wp_debug_enabled` from step 5 first. If it is already on, leave it
+   alone — there is nothing to toggle. Otherwise
    `sites.wp-debug` with `{"enabled": true}` flips `WP_DEBUG` in the live
    `wp-config.php`, synchronously, and answers `wp_debug_enabled` —
    destructive-class, so confirm first. It only flips the flag; it does
    **not** return `debug.log`. Trust the toggle's own response
    for the new state (`sites.wordpress.status` can lag a call or two on older
-   builds — do not re-toggle to force it). **Turn it back off** when the
-   investigation ends.
+   builds — do not re-toggle to force it). When the investigation ends,
+   **restore the state you noted**: turn it back off only if you turned it on.
 7. **Server services** (when the whole server looks wrong, not one site).
    `servers.services` — is the web server, PHP-FPM and the database running?
 
@@ -130,11 +132,16 @@ fetch them. See `reference/capability-map.md`.
   `sites.cache.purge-all` (every layer). Write-class, no confirmation stop,
   asynchronous — completion shows in `sites.events`, not in `sites.status`.
 - **Shell access** — only when the reachable logs do not explain it **and** the
-  human agrees. `servers.sudoUsers.store` with `is_temporary: true` (it
-  expires after 12 hours; asynchronous — the user sits in `updating` until
-  ready; a repeat call with the same username updates rather than duplicates),
-  investigate, then `servers.sudoUsers.destroy` the moment the investigation
-  ends — do not wait for the expiry. A temporary
+  human agrees. First list the server's sudo users (`servers.sudoUsers.index`)
+  and choose a username that is **not** on it and names the incident (for
+  example `xc-debug-0924`): `servers.sudoUsers.store` **updates** an existing
+  user with the same username instead of creating one, so reusing a name
+  would rewrite — and the cleanup below would delete — someone's permanent
+  account. Create it with `is_temporary: true` (it expires after 12 hours;
+  asynchronous — the user sits in `updating` until ready), keep the `uuid` the
+  call returns, investigate, then `servers.sudoUsers.destroy` **that uuid
+  only** the moment the investigation ends — do not wait for the expiry, and
+  never destroy a user this investigation did not create. A temporary
   sudo user that outlives the incident is a standing risk nobody remembers to
   close. Details: `xcloud:servers` (sudo users) and `xcloud:sites` (SSH/SFTP).
 - **Rescue** — `sites.rescue` only when the human asks for it; it is a
@@ -148,10 +155,11 @@ fetch them. See `reference/capability-map.md`.
 ```text
 sites_cache_purge          {"uuid": "<site-uuid>"}
 sites_wp-debug             {"uuid": "<site-uuid>", "enabled": true}  # destructive: confirm: true after the user's yes
-sites_wp-debug             {"uuid": "<site-uuid>", "enabled": false}  # destructive: confirm: true — turn it back off when done
-servers_sudoUsers_store    {"uuid": "<server-uuid>", "username": "<name>", "ssh_public_keys": ["<public key>"],
+sites_wp-debug             {"uuid": "<site-uuid>", "enabled": false}  # destructive: confirm: true — only if it was off before
+servers_sudoUsers_index    {"uuid": "<server-uuid>"}  # the new username must not be on this list
+servers_sudoUsers_store    {"uuid": "<server-uuid>", "username": "xc-debug-<date>", "ssh_public_keys": ["<public key>"],
                             "is_temporary": true}  # destructive: confirm: true after the user's yes
-servers_sudoUsers_destroy  {"uuid": "<server-uuid>", "sudo_user_uuid": "<sudo-user-uuid>"}  # destructive: confirm: true after the user's yes
+servers_sudoUsers_destroy  {"uuid": "<server-uuid>", "sudo_user_uuid": "<uuid the store call returned>"}  # destructive: confirm: true after the user's yes
 sites_rescue               {"uuid": "<site-uuid>", "regenerate_nginx": true, "restart_nginx": true}  # destructive: confirm: true after the user's yes
 ```
 

@@ -58,7 +58,7 @@ more often than not, in a dashboard handoff rather than an API call.
 
 | Step | Operation id | Method + path |
 |---|---|---|
-| Resolve the site (server, stack, `dashboard_url`) | `sites.show` | `GET /sites/{uuid}` |
+| Resolve the site (server, stack, **PHP version**, `dashboard_url`) | `sites.show` | `GET /sites/{uuid}` |
 | Mid-deploy or failed? | `sites.status` | `GET /sites/{uuid}/status` |
 | Site CPU/RAM/disk samples (last week) | `sites.monitoring` | `GET /sites/{uuid}/monitoring` |
 | Site samples as a time series | `sites.monitoring.history` | `GET /sites/{uuid}/monitoring/history?range=24h\|7d` |
@@ -69,7 +69,7 @@ more often than not, in a dashboard handoff rather than an API call.
 | Queue a PageSpeed run (spends a scan) | `sites.pagespeed.scan` | `POST /sites/{uuid}/pagespeed/scan` |
 | Traffic shape: spikes, bots | `sites.access-logs` | `GET /sites/{uuid}/access-logs?type=nginx&limit=…` |
 | php-fpm, nginx/OLS, redis, database | `servers.services` | `GET /servers/{uuid}/services` |
-| WordPress + **the site's PHP version**, pending updates | `sites.wordpress.status` | `GET /sites/{uuid}/wordpress/status` |
+| WordPress health, pending updates | `sites.wordpress.status` | `GET /sites/{uuid}/wordpress/status` |
 | Purge every cache layer | `sites.cache.purge-all` | `POST /sites/{uuid}/cache/purge-all` |
 | Server PHP: available, install, default, opcache | `servers.php-versions.available` · `.install` · `.default` · `.opcache` | see `xcloud:servers` (PHP versions) |
 
@@ -82,7 +82,9 @@ Every step is a read. Nine cheap calls give a diagnosis with numbers in it;
 guessing gives a support ticket.
 
 1. **Resolve** with `sites.show` — the site *and* its server; the answer comes
-   from both.
+   from both. It also carries the site's `php_version` (every PHP site —
+   WordPress, Laravel, custom PHP): note it now, an old version is a real
+   cause.
 2. **Status.** `sites.status` — a site mid-deploy, mid-provision or failed
    explains "slow" without any measurement.
 3. **Site samples.** `sites.monitoring` returns the last week of CPU, RAM and
@@ -121,9 +123,8 @@ guessing gives a support ticket.
    the database: status and version. A stopped redis next to an object cache
    that `sites.cacheSettings` says is on is a found answer.
 9. **WordPress** (WordPress sites). `sites.wordpress.status` — the WP version,
-   **the site's PHP version** (there is no per-site PHP endpoint), the
-   debug/cron flags and pending update counts. An old PHP version and a long
-   list of pending updates are both real causes.
+   the PHP version again, the debug/cron flags and pending update counts. A
+   long list of pending updates is a real cause.
 
 ```bash
 SITE_UUID='replace-me'
@@ -154,7 +155,7 @@ SERVER_UUID=$("$XC" GET "/sites/$SITE_UUID" | jq -er '.data.server_uuid')
   (`sites.cacheSettings`) and purges (`sites.cache.purge*`); no operation
   turns a layer on. Never offer to enable Redis yourself.
 - **Changing one site's PHP version is dashboard-only: Site → Settings → PHP
-  version.** The API reads it (`sites.wordpress.status`) and manages PHP at the
+  version.** The API reads it (`sites.show` → `php_version`) and manages PHP at the
   **server** level only. Installing 8.3 on the server does not move a site onto
   it, and changing the server default moves **every** site that follows the
   default — never a substitute for the per-site change the human asked for.

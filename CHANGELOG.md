@@ -34,6 +34,16 @@ new skills to the same read-only REST rule.
 - Agentic-server refusals: `403` on the WordPress create only, `422` on every
   other path, Git included (xCloud's agent guidance XC-AGT-000/007). The
   capability map and the deploy skill had the Git creates at `403`.
+- Troubleshoot, temporary shell access: list the server's sudo users first and
+  pick an unused, incident-named username — `servers.sudoUsers.store` updates
+  an existing user of that name, so reuse would rewrite and then delete a
+  permanent account; revoke only the uuid the investigation created.
+- Troubleshoot, WP_DEBUG: note `wp_debug_enabled` first and restore that state
+  afterwards, instead of always turning it off.
+- Performance: the site's PHP version comes from `sites.show` (`php_version`),
+  so Laravel and custom-PHP sites are covered, not only WordPress.
+- Servers, sudo users: `username` and `ssh_public_keys` are the required
+  fields; the stale "pipe the JSON on stdin" note from the REST era is gone.
 - The API-token page is named **Account → API Tokens** everywhere, as in
   xCloud's own documentation (was "Profile → API Tokens"), including the
   portable package's token section (generated from `dist/agent-plugin/build.py`)

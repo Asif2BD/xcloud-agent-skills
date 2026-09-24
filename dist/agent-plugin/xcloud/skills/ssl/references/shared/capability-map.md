@@ -25,7 +25,7 @@ guidance.
 | Job | Kind | Dashboard path | What the API does instead |
 |---|---|---|---|
 | Turn page cache, object cache (Redis) or Cloudflare edge cache on or off | api_read | **Site → Cache** | `sites.cacheSettings` reads every layer; `sites.cache.purge` / `sites.cache.purge-all` purge |
-| Change **one site's** PHP version | api_read | **Site → Settings → PHP version** | `sites.wordpress.status` reads it; PHP is managed per **server** (`servers.php-versions.*`) — a server install moves no site, a server default moves every site that follows it |
+| Change **one site's** PHP version | api_read | **Site → Settings → PHP version** | `sites.show` (`php_version`) reads it for every PHP site; PHP is managed per **server** (`servers.php-versions.*`) — a server install moves no site, a server default moves every site that follows it |
 | Read the PHP-FPM error log, the WordPress `debug.log`, docker-compose, PM2 or OpenClaw logs | ui | **Site → Logs** | `sites.access-logs` (`type=nginx`: access, error and 7G logs), `sites.events`; `sites.wp-debug` only toggles the flag |
 | Add, change or remove a domain on an existing site | api_read | **Site → Domain** | `sites.domain`, `sites.domains`, `sites.domainUpdateStatus`, `servers.dns.check`; a live domain is chosen at creation |
 | Create or edit redirects, web rules or custom nginx | api_read | **Site → Tools** | `sites.redirections`, `sites.webRules`, `sites.customNginx` list them |
