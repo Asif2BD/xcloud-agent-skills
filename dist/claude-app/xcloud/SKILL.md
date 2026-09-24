@@ -22,10 +22,7 @@ XC="scripts/xcloud.sh"
 
 Set the token per `reference/auth.md`:
 - **Claude Code:** `~/.claude/settings.json` (`env` block).
-- **Browser/chat-only agents:** use a runtime secret store or environment
-  injection when available. If chat is the only path, explain the risk, ask for a
-  narrow temporary token, and tell the user to revoke it after the session. Never
-  echo the token back.
+- **Browser/chat-only agents:** use a runtime secret store or environment injection. Never request production tokens in chat. If secure credential injection is unavailable, stop authenticated operations and explain the limitation.
 
 ## Capability areas — route to the right one
 
