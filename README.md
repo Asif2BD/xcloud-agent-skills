@@ -1,7 +1,7 @@
 # xCloud Agent Skills
 
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-blue)](https://clawhub.ai/asif2bd/skills/xcloud)
-[![Version](https://img.shields.io/badge/version-4.3.0-green)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.4.0-green)](CHANGELOG.md)
 [![MCP](https://img.shields.io/badge/MCP-app.xcloud.host%2Fmcp-0EA5E9)](https://app.xcloud.host/mcp/docs)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-Official-0EA5E9.svg)](https://xcloud.host)
@@ -16,7 +16,7 @@ endpoints to memorize, no SDK to wire up.
 
 Built by [xCloud](https://xcloud.host) · [Official GitHub](https://github.com/xCloudDev/xcloud-agent-skills) · [MCP Docs](https://app.xcloud.host/mcp/docs) · [User Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md) · [Install Guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [API Docs](https://app.xcloud.host/api/v1/docs) · [OpenClaw + ClawHub Tutorial](https://xcloud.host/openclaw-skills-and-clawhub-on-xcloud-openclaw-agent/) · [Tutorial Video](https://www.youtube.com/watch?v=oEE9OHo3_48)
 
-This repository ships the **`xcloud` Claude Code plugin** (v4.3.0): seven
+This repository ships the **`xcloud` Claude Code plugin** (v4.4.0): nine
 capability skills that pair with the **[xCloud MCP server](https://app.xcloud.host/mcp/docs)**
 — one native tool per authenticated
 [Public API](https://app.xcloud.host/api/v1/docs) operation plus two search
@@ -27,13 +27,15 @@ agents without MCP support.
 > the [Install & Usage Guide](docs/SKILLS-GUIDE.md) (full install, per-skill
 > reference, smoke tests, routing rules).
 
-## The seven skills
+## The nine skills
 
 You never name them — the agent picks the right one from what you ask.
 
 | Skill | Owns |
 |---|---|
 | `xcloud:deploy` | **Deploy anything**: a GitHub/GitLab/Bitbucket URL, Docker Compose or Dockerfile apps, one-click apps, Git staging environments, new WordPress sites — detect, dry run, approve, provision, verify, and diagnose + retry failures |
+| `xcloud:troubleshoot` | **A site that errors**: 500/502/503, critical error, site down — status, recent events, nginx access and error log, WordPress health, WP_DEBUG, services; dashboard handoff for the logs only Site → Logs shows |
+| `xcloud:performance` | **A slow site**: site and server monitoring, which cache layers are on, PageSpeed, traffic spikes and bots, the site's PHP version; dashboard handoff for enabling a cache or changing a site's PHP |
 | `xcloud:servers` | Servers: **buy a server** (plans, prices, provisioning), services install/enable/restart, Node.js and PHP versions, verified reboots, cron, firewall/fail2ban, sudo users, DNS checks |
 | `xcloud:sites` | Site lifecycle: status, backups (incl. Docker apps), staging, domains, cache, SSH, site cron, monitoring, site deletion |
 | `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site and team vulnerabilities, PageSpeed, broken links |
@@ -128,7 +130,7 @@ exists.
 ### Agent Plugins 1.0.0
 
 The portable package is at [`dist/agent-plugin/xcloud`](dist/agent-plugin/xcloud).
-It includes the seven skills and the xCloud MCP connection in the standard layout:
+It includes the nine skills and the xCloud MCP connection in the standard layout:
 
 ```text
 xcloud/

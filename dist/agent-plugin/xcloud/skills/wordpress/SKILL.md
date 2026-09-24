@@ -1,6 +1,6 @@
 ---
 name: wordpress
-description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings (per site and team-wide), run PageSpeed Insights scans, and scan for broken links. Use for WordPress app management, "which sites need updates", security scans, site performance, or broken links. For SSL see ssl; for site backups/domains/cache see sites; for server infra see servers.
+description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings (per site and team-wide), run PageSpeed Insights scans, and scan for broken links. Use for WordPress app management, "which sites need updates", security scans, PageSpeed scores, or broken links. Why a site is slow → performance; a site throwing errors → troubleshoot. For SSL see ssl; for site backups/domains/cache see sites; for server infra see servers.
 ---
 
 # xCloud WordPress

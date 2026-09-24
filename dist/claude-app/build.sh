@@ -2,14 +2,14 @@
 # build.sh — generate ONE consolidated claude.ai skill from the Claude Code plugin.
 #
 # claude.ai treats an uploaded zip as a SINGLE skill (one SKILL.md at the root).
-# So instead of seven separate skills we ship one `xcloud` skill whose SKILL.md
-# routes across all seven capability areas, with everything bundled:
+# So instead of nine separate skills we ship one `xcloud` skill whose SKILL.md
+# routes across all nine capability areas, with everything bundled:
 #
 #   xcloud/
 #     SKILL.md                     <- router (dist/claude-app/SKILL.template.md)
 #     scripts/xcloud.sh            <- shared wrapper
 #     reference/
-#       auth.md  conventions.md  mcp.md    <- shared layer
+#       auth.md  conventions.md  mcp.md  capability-map.md  <- shared layer
 #       servers.md sites.md ...    <- each area's SKILL.md body, as a reference doc
 #       servers-firewall.md ...    <- sub-resource files, namespaced by area
 #
@@ -23,7 +23,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 SRC="$ROOT/plugins/xcloud"
 OUT="$ROOT/dist/claude-app"
 SKILL="$OUT/xcloud"
-AREAS=(deploy servers sites wordpress ssl billing account)
+AREAS=(deploy troubleshoot performance servers sites wordpress ssl billing account)
 
 echo "Building consolidated claude.ai skill from $SRC"
 
@@ -40,6 +40,7 @@ chmod +x "$SKILL/scripts/xcloud.sh"
 sed "$strip_pluginroot" "$SRC/reference/auth.md"        > "$SKILL/reference/auth.md"
 sed "$strip_pluginroot" "$SRC/reference/conventions.md" > "$SKILL/reference/conventions.md"
 sed "$strip_pluginroot" "$SRC/reference/mcp.md"         > "$SKILL/reference/mcp.md"
+sed "$strip_pluginroot" "$SRC/reference/capability-map.md" > "$SKILL/reference/capability-map.md"
 
 # NOTE: no inline logo image. claude.ai chat renders an external markdown image as
 # a large click-to-reveal "Show Image" card (no width/height control), which

@@ -11,8 +11,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "plugins" / "xcloud"
 OUT = ROOT / "dist" / "agent-plugin" / "xcloud"
-AREAS = ("deploy", "servers", "sites", "wordpress", "ssl", "billing", "account")
-SHARED_REFERENCES = ("auth.md", "conventions.md", "mcp.md")
+AREAS = (
+    "deploy", "troubleshoot", "performance", "servers", "sites", "wordpress", "ssl", "billing", "account",
+)
+SHARED_REFERENCES = ("auth.md", "conventions.md", "mcp.md", "capability-map.md")
 PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
 MCP_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json"
 

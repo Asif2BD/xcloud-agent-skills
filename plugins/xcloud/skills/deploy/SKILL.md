@@ -83,7 +83,10 @@ every step's request body and the platform notes. Then:
    servers that can run the app: Node, PHP and static output run on `nginx` /
    `openlitespeed`; anything else (Go, Python, Rust, Compose, Dockerfile) needs a
    `docker_nginx` server; agentic stacks (OpenClaw, Paperclip, Hermes, DeepSeek
-   Harness) never take a second site. No suitable server → say so and offer
+   Harness) never take a second site. That refusal is `403` on the WordPress
+   and Git creates but `422` on the Docker and one-click paths — match on the
+   message, not the status, and never read it as a permission problem
+   (`reference/capability-map.md`). No suitable server → say so and offer
    `xcloud:servers` (buying a server is billable and needs its own approval).
 3. **Detect.** `git_detect` with the repository and the chosen `server_uuid`.
    Branch on `repository_access` first (an access problem is never fixed by
@@ -142,6 +145,7 @@ running** and hand over the `poll_url` — never call it deployed.
   or `runtime_version` failure is fixed with `servers_node-versions_default`
   (`xcloud:servers`), which affects every Node site on that server; say so.
 - Changing a live site's domain after creation is dashboard-only
-  (Site → Domain); choose the live domain at creation.
+  (Site → Domain); choose the live domain at creation. Every other
+  dashboard-only step is listed in `reference/capability-map.md`.
 - Never echo `env_file_content`, deploy-key private halves (xCloud never returns
   them), app credentials, or database passwords into summaries.

@@ -184,6 +184,8 @@ jobs:
           if [ -n "${XCLOUD_TEST_SITE_UUID:-}" ]; then
             echo "== sites =="; plugins/xcloud/skills/sites/tests/smoke.sh || rc=1
             echo "== ssl =="; plugins/xcloud/skills/ssl/tests/smoke.sh || rc=1
+            echo "== troubleshoot =="; plugins/xcloud/skills/troubleshoot/tests/smoke.sh || rc=1
+            echo "== performance =="; plugins/xcloud/skills/performance/tests/smoke.sh || rc=1
           fi
           echo "== account =="; plugins/xcloud/skills/account/tests/smoke.sh || rc=1
           echo "== deploy =="; plugins/xcloud/skills/deploy/tests/smoke.sh || rc=1

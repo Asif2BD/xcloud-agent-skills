@@ -1,6 +1,6 @@
 # API coverage audit
 
-Cross-check of every endpoint documented across the seven `xcloud:*` skills
+Cross-check of every endpoint documented across the nine `xcloud:*` skills
 against the **live** xCloud Public API OpenAPI spec **and the xCloud MCP
 server's tool surface**.
 

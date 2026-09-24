@@ -116,6 +116,31 @@ A private repository with no connected git provider needs a deploy key:
 4. Deploy, passing the key as `repository.deploy_key_uuid` next to the SSH
    `repository.url`.
 
+## Which compose file xCloud runs
+
+xCloud does **not** search for a compose file at deploy time.
+`docker.compose_file` defaults to `docker-compose.yml` at the repository root,
+the auto endpoint (`servers.sites.git.auto`) always uses that default, and the
+server-side deploy stops with "file not found in repository root" when it is
+missing. So a repository whose file is `compose.yaml`, `compose.yml` or
+`docker-compose.yaml`, or lives in a subdirectory, must deploy through
+`servers.sites.git.docker` with `docker.compose_file` set explicitly.
+
+`git.detect` looks at the repository **root** only (a `Dockerfile` or one of
+the four compose names). `git.compose-scan` is where the name gets resolved:
+send `compose_file` (a file, or a directory); when that file is missing it tries
+`compose.yaml`, `compose.yml`, `docker-compose.yml`, `docker-compose.yaml` in
+that order, says which one it scanned in `warnings`, and returns
+`compose_file_resolved`. **Read `compose_file_resolved` back and send exactly
+that path as `docker.compose_file`** — never the name you guessed. The
+deploy-key verify response's `compose` block carries the same field for a
+private SSH repository.
+
+The pinned `servers.sites.git.docker` dry run does not probe whether an HTTPS
+repository is reachable (it only proves an SSH URL with a deploy key), so a
+private HTTPS URL passes the preview and fails at clone — run `git.detect`
+first, always.
+
 ## Docker Compose host ports
 
 Run `git.compose-scan` before a Docker deploy — never guess the port. xCloud
@@ -132,6 +157,24 @@ A `${PORT:-8080}:8080` mapping is resolved against the `env_file_content` you
 send, exactly as `docker compose up` reads it — which is how two apps with the
 same default port share one server. When the file cannot be read (private repo,
 rate-limited host) the port is accepted and `warnings` say it was not checked.
+
+## Cloudflare-managed domains: the four refusals
+
+`cloudflare: true` on a live domain lets xCloud write the proxied DNS record and
+issue the certificate itself — never add the A record by hand on this path. It
+is refused with `422` before anything is created, identically in a dry run, on
+the WordPress, Git and Docker creates alike. Branch on `errors.code`:
+
+| `errors.code` | Means | Do |
+|---|---|---|
+| `cloudflare_zone_not_found` | The domain's zone is not on a Cloudflare account connected to this team | Connect the account (`integrations.cloudflare.index` shows what is connected) or drop the flag |
+| `cloudflare_ssl_unsupported_domain` | Two or more labels below the apex (`a.b.example.com`) | Use a one-label subdomain, or the `xcloud` certificate provider |
+| `cloudflare_ssl_provider_conflict` | `cloudflare: true` with `ssl_provider: custom`, or `ssl_provider: cloudflare` without the flag | Make the two agree |
+| `cloudflare_zone_lookup_failed` | Cloudflare could not be asked — **not** "no zone" | Retry later; do not tell the user the zone is missing |
+
+After the `202`, `servers.dns.check` reports `cloudflare_managed` and the next
+action, and `sites.status` → `ssl.serving_blocked: true` means visitors get a
+`526` even though the deploy succeeded.
 
 ## Polling
 

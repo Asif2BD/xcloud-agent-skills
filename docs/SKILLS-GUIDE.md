@@ -1,15 +1,17 @@
 # xCloud Skills — Install & Usage Guide
 
 A step-by-step guide to installing and using the **xCloud Public API skills**
-(plugin `xcloud` v4.3.0) inside Claude Code.
+(plugin `xcloud` v4.4.0) inside Claude Code.
 
-The plugin ships **seven skills**, each owning one capability area of the API.
+The plugin ships **nine skills**, each owning one capability area of the API.
 You don't call them directly — you describe what you want in plain language and
 Claude picks the right skill automatically.
 
 | Skill | Owns | Typical asks |
 |---|---|---|
 | `xcloud:deploy` | Deploy a Git repo, Docker Compose app, one-click app, Git staging environment or WordPress site end to end; diagnose and retry failed deploys; redeploys | "deploy github.com/acme/shop", "install Uptime Kuma", "my last deploy failed", "deploy latest commit" |
+| `xcloud:troubleshoot` | A site that errors: status, recent events, nginx access and error log, WordPress health, WP_DEBUG, services, temporary shell access | "example.com shows a 500", "my site has a critical error", "why is my site down" |
+| `xcloud:performance` | A slow site: site and server monitoring, cache layers, PageSpeed, traffic, the site's PHP version | "my site is slow", "is Redis on for shop.example.com", "why is TTFB so high" |
 | `xcloud:servers` | Servers: buy a server, services, Node/PHP versions, verified reboots, cron, firewall/fail2ban, sudo users, DNS checks | "reboot server X", "install Redis", "switch Node to 22", "ban this IP" |
 | `xcloud:sites` | Site lifecycle: status, backups (incl. Docker apps), staging, domains, cache, SSH, site cron, monitoring, deletion | "back up example.com", "show site events", "purge the cache" |
 | `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site/team vulnerabilities, PageSpeed, broken links | "update WooCommerce", "show team vulnerabilities", "find broken links" |
@@ -31,14 +33,15 @@ In Claude Code:
 /reload-plugins
 ```
 
-After reload, confirm the seven skills are present:
+After reload, confirm the nine skills are present:
 
 ```
 /plugin
 ```
 
-You should see `xcloud:deploy`, `xcloud:servers`, `xcloud:sites`,
-`xcloud:wordpress`, `xcloud:ssl`, `xcloud:billing`, and `xcloud:account`.
+You should see `xcloud:deploy`, `xcloud:troubleshoot`, `xcloud:performance`,
+`xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`,
+`xcloud:billing`, and `xcloud:account`.
 
 > Installing v3.0.0 renames the plugin to `xcloud` and shortens the skill IDs to
 > `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`, and
