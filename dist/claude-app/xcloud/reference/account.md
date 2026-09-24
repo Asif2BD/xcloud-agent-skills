@@ -1,6 +1,9 @@
 
 # xCloud Account
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 Identity and org-level endpoints. For auth, base URL, and response conventions
 read the shared layer first:
 
@@ -10,9 +13,8 @@ read the shared layer first:
   connected**: `user_show`, `teams_index`, `alerts_index`, `alerts_show`,
   `alerts_read`, `integrations_git_index`, `integrations_git_repositories`,
   `blueprints_index`, `integrations_cloudflare_index`.
-  **Exception:** `/health` and the API-token list are REST-only reads (`$XC`).
-  Revoking a token is dashboard-only: the MCP never exposes token management
-  and the bundled wrapper is read-only.
+  **Exception:** `/health` and API-token list/revoke are REST-only — the MCP
+  never exposes token management; always use `$XC` for those.
 
 ```bash
 XC="scripts/xcloud.sh"
@@ -45,7 +47,7 @@ block — once per conversation.
 | One alert | `GET /alerts/{alertUuid}` | `read:servers` or `read:sites` |
 | Mark an alert read / unread | `PUT /alerts/{alertUuid}/read` | `read:servers` or `read:sites` |
 | List API tokens | `GET /user/tokens` | token (`*`) |
-| Revoke a token | `DELETE /user/tokens/{tokenUuid}` — **dashboard only** (Profile → API Tokens) | token (`*`) |
+| Revoke a token | `DELETE /user/tokens/{tokenUuid}` | token (`*`) |
 | List Cloudflare integrations | `GET /integrations/cloudflare` | `read:servers` |
 | List connected Git providers | `GET /integrations/git` | `read:servers` |
 | Repositories a provider exposes | `GET /integrations/git/{provider_uuid}/repositories` | `read:servers` |
@@ -90,17 +92,19 @@ Who am I (verifies the token):
 "$XC" GET /user | jq '.data | {uuid, name, email, team: .team.name}'
 ```
 
-List API tokens — this read needs a full-access `*` token, which the
-read-only setup does not recommend giving an agent; when the runtime token has
-read scopes only, send the user to **Profile → API Tokens** instead:
+List API tokens (needs the `*` scope) — note each token's `uuid`, which is what
+the revoke call below takes:
 
 ```bash
 "$XC" GET /user/tokens | jq '(.data.items // .data.data // .data) | map({uuid, name, last_used_at})'
 ```
 
-Revoke a token: **dashboard only** — Profile → API Tokens → delete. Name the
-token (and when it was last used) so the user deletes the right one; treat any
-token that has appeared in a chat transcript as exposed.
+Revoke a token (pass the `uuid` from the list above — restate before running):
+
+```bash
+TOKEN_UUID='8c1f3a89-2c4e-4a73-9d4c-8b1f2a3d4e5f'
+"$XC" DELETE "/user/tokens/$TOKEN_UUID" | jq '.message'
+```
 
 Teams and unread error alerts:
 
@@ -108,12 +112,8 @@ Teams and unread error alerts:
 "$XC" GET /teams | jq '.data | map({uuid, name, role, is_default})'
 "$XC" GET "/alerts?unread=true&severity=error&per_page=20" \
   | jq '{unread: .data.unread_count, alerts: (.data.items | map({title, category, at: .recorded_at, resource: .resource.name}))}'
-```
-
-Mark an alert read (MCP; only for alerts the user confirms are handled):
-
-```text
-alerts_read  {"alertUuid": "<alert-uuid>", "is_read": true}
+ALERT_UUID='replace-me'
+"$XC" PUT "/alerts/$ALERT_UUID/read" '{"is_read":true}' | jq '.data | {title, is_read}'
 ```
 
 Cloudflare integrations on the team:
@@ -131,8 +131,9 @@ Blueprints (resolve a `blueprint_uuid` before creating a WordPress site):
 
 ## Pitfalls
 
-- `GET /user/tokens` returns `403` unless the token carries the `*` scope —
-  expected with the recommended read-only token; use the dashboard instead.
+- Token revocation is keyed by the token's **`uuid`** (from `GET /user/tokens`),
+  not a numeric id — `DELETE /user/tokens/{tokenUuid}`.
+- `GET /user/tokens` returns `403` unless the token carries the `*` scope.
 - `blueprints` requires `read:servers`, not `read:sites`.
 - Alerts are filtered by what the token may read: a `read:sites`-only token sees
   site alerts, not server ones.

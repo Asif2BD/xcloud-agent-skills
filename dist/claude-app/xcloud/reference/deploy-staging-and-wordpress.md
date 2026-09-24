@@ -1,5 +1,8 @@
 # Staging environments and new WordPress sites
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 `XC="scripts/xcloud.sh"` · scopes `write:sites` (staging),
 `write:servers` (WordPress create).
 
@@ -18,7 +21,7 @@
    staging or demo site's uuid answers `422` on both calls above — that means
    "not a production site", not "no staging".
 2. Supported for Git-backed sites only (Laravel, Node.js, custom PHP,
-   Lovable); WordPress staging is a dashboard action (**Site → Staging**).
+   Lovable); WordPress staging is a dashboard action (**Site overview → Add Staging**).
    Needs a paid plan and the `site:deploy-staging` team permission.
 3. Body: `environment_name` (lowercase, digits, hyphens), `branch`, `mode`.
    `demo` puts it on a free test hostname (`subdomain` + `demo_domain`
@@ -34,12 +37,13 @@
    a deploy, then fetch the URL before reporting it ready.
 
 Pushing staging to production (or pulling production down) is dashboard-only
-(**Site → Staging → Push / Pull**); `sites.deployment-logs` is where that
+(on the staging site: **Site → Manage Staging**); `sites.deployment-logs` is where that
 history is readable.
 
-```text
-sites_stagingSites_create  {"uuid": "<production-site-uuid>", "environment_name": "checkout",
-                            "branch": "feature/checkout", "mode": "demo", "env_init_mode": "copy_keys"}  # destructive: confirm: true after the user's yes
+```bash
+PROD_UUID='replace-me'
+jq -n '{environment_name:"checkout", branch:"feature/checkout", mode:"demo", env_init_mode:"copy_keys"}' \
+  | "$XC" POST "/sites/$PROD_UUID/staging-sites" - | jq '.data | {uuid, name, status}'
 ```
 
 ## New WordPress site
@@ -64,8 +68,8 @@ it":
    URL, and offer a magic login (`xcloud:wordpress`). Auto-generated admin
    credentials are returned once — hand them over once, never repeat them.
 
-```text
-servers_sites_wordpress_create  {"uuid": "<server-uuid>", "mode": "demo", "title": "Northwind", "dry_run": true}
-# show would_create + warnings; after the yes, the same arguments without dry_run, plus
-# "confirm": true and an "Idempotency-Key"
+```bash
+SERVER_UUID='replace-me'
+jq -n '{mode:"demo", title:"Northwind", dry_run:true}' \
+  | "$XC" POST "/servers/$SERVER_UUID/sites/wordpress" - | jq '.data | {would_create, warnings}'
 ```

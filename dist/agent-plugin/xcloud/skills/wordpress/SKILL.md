@@ -1,9 +1,12 @@
 ---
 name: wordpress
-description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings (per site and team-wide), run PageSpeed Insights scans, and scan for broken links. Use for WordPress app management, "which sites need updates", security scans, site performance, or broken links. For SSL see ssl; for site backups/domains/cache see sites; for server infra see servers.
+description: Manage WordPress on xCloud sites — list/update/activate plugins and themes, check WordPress health and update summaries, toggle WP_DEBUG, generate magic-login URLs, run vulnerability scans and manage findings (per site and team-wide), run PageSpeed Insights scans, and scan for broken links. Use for WordPress app management, "which sites need updates", security scans, PageSpeed scores, or broken links. Why a site is slow → performance; a site throwing errors → troubleshoot. For SSL see ssl; for site backups/domains/cache see sites; for server infra see servers.
 ---
 
 # xCloud WordPress
+
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
 
 Owns WordPress app management plus site vulnerability scanning, PageSpeed, and
 broken-link scans.
@@ -16,8 +19,7 @@ Read the shared layer first for auth, base URL, and conventions:
   activate/refresh), `sites_vulnerabilities_*`, `vulnerabilities_index`
   (team-wide), `sites_pagespeed_*`, `sites_broken-links_*`, `sites_wp-debug`,
   `sites_magic-login`;
-  the `$XC` calls
-  below are read-only REST fallbacks (`GET` only); changes run on the MCP.
+  the `$XC` calls below are the REST fallback.
 
 Resolve the absolute directory that contains this `SKILL.md` before running
 shell commands. Do not resolve scripts from the user's current working directory:
@@ -77,17 +79,16 @@ SITE_UUID='replace-me'
 "$XC" GET "/sites/$SITE_UUID/wordpress/updates" | jq '.data'
 ```
 
-Toggle WP_DEBUG (`enabled` required; MCP — the REST wrapper is read-only):
+Toggle WP_DEBUG (`enabled` required):
 
-```text
-sites_wp-debug  {"uuid": "<site-uuid>", "enabled": true}  # destructive: confirm: true after the user's yes
+```bash
+"$XC" POST "/sites/$SITE_UUID/wp-debug" '{"enabled":true}' | jq '.message'
 ```
 
-Generate a one-time admin magic-login URL (MCP; the first call installs the
-magic-login plugin over SSH):
+Generate a one-time admin magic-login URL:
 
-```text
-sites_magic-login  {"uuid": "<site-uuid>", "login_as": "admin"}  # destructive: confirm: true after the user's yes
+```bash
+"$XC" POST "/sites/$SITE_UUID/magic-login" '{"login_as":"admin"}' | jq -r '.data.url // .data'
 ```
 
 ## Fleet questions

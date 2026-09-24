@@ -25,6 +25,10 @@
 #                               the token are redacted from verbose output.
 #   XCLOUD_TEAM_ID              (optional) team uuid for a multi-team token, sent
 #                               as X-Team-Id. Omit for the token's default team.
+#   XCLOUD_IDEMPOTENCY_KEY      (optional) sent as Idempotency-Key so a retried
+#                               create cannot run twice. Use a fresh key per
+#                               distinct create; reuse it only to retry the same
+#                               request.
 #
 # Output: response body to stdout. Exit code 0 on 2xx, non-zero on 4xx/5xx.
 
@@ -72,8 +76,8 @@ EOF
     ;;
 esac
 
-METHOD="${1:?usage: xcloud.sh GET <PATH>}"
-RAW_PATH="${2:?usage: xcloud.sh GET <PATH>}"
+METHOD="${1:?usage: xcloud.sh <METHOD> <PATH> [JSON_BODY|-]}"
+RAW_PATH="${2:?usage: xcloud.sh <METHOD> <PATH> [JSON_BODY|-]}"
 BODY="${3:-}"
 
 # Enforce the fallback boundary before constructing or sending a request.
@@ -103,16 +107,23 @@ CURL_OPTS=(
   -w '\n%{http_code}'
 )
 
-# The team header comes from the environment; a strict charset keeps a stray
-# CR/LF from injecting extra headers. Set-but-empty is refused, not ignored: it is
-# what a failed `$(...)` leaves behind, and silently dropping the header would
-# read the default team instead of the one asked for.
+# Header values come from the environment; a strict charset keeps a stray CR/LF
+# from injecting extra headers. Set-but-empty is refused, not ignored: it is what
+# a failed `$(...)` leaves behind, and silently dropping the header would run the
+# call against the default team, or make a "safe to retry" create unsafe.
 if [[ -n "${XCLOUD_TEAM_ID+set}" ]]; then
   if [[ ! "${XCLOUD_TEAM_ID}" =~ ^[A-Za-z0-9-]{1,64}$ ]]; then
     echo "error: XCLOUD_TEAM_ID is set but is not a team uuid (letters, digits, hyphens); unset it for the default team" >&2
     exit 64
   fi
   CURL_OPTS+=(-H "X-Team-Id: ${XCLOUD_TEAM_ID}")
+fi
+if [[ -n "${XCLOUD_IDEMPOTENCY_KEY+set}" ]]; then
+  if [[ ! "${XCLOUD_IDEMPOTENCY_KEY}" =~ ^[A-Za-z0-9._:-]{1,255}$ ]]; then
+    echo "error: XCLOUD_IDEMPOTENCY_KEY is set but empty or invalid (letters, digits and . _ : - only); refusing to send the write without it" >&2
+    exit 64
+  fi
+  CURL_OPTS+=(-H "Idempotency-Key: ${XCLOUD_IDEMPOTENCY_KEY}")
 fi
 
 if [[ "${XCLOUD_VERBOSE:-0}" == "1" ]]; then

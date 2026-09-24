@@ -1,5 +1,8 @@
 # Git deployments
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 `XC="$SKILL_ROOT/scripts/xcloud.sh"` · scopes `read:servers` /
 `write:servers` to create, `read:sites` / `write:sites` for everything after.
 
@@ -32,30 +35,25 @@ diagnose, retry, redeploy — is owned here. On MCP, start with
 Compose app") — it returns this whole flow with every operation's body in one
 response.
 
-## The whole flow on MCP
-
-```text
-# 1. detect — side-effect free, but a POST: MCP only
-git_detect              {"repository_url": "https://github.com/acme/app", "server_uuid": "<server-uuid>"}
-# 2. preview — creates nothing, needs no confirm
-servers_sites_git_auto  {"uuid": "<server-uuid>", "repository": {"url": "https://github.com/acme/app"}, "dry_run": true}
-# 3. after the user's yes on would_create: the SAME arguments without dry_run
-servers_sites_git_auto  {"uuid": "<server-uuid>", "repository": {"url": "https://github.com/acme/app"},
-                         "Idempotency-Key": "<one key for this site>", "confirm": true}
-# keep data.uuid from the 202 — after a dropped response, list the server's
-# sites first and retry only with the same Idempotency-Key
-# 4. poll until terminal
-sites_status            {"uuid": "<new site uuid>"}
-```
-
-Without MCP the bundled wrapper can still follow a deploy someone else started —
-`GET /sites/{uuid}/status`, `/deploy-diagnosis`, `/deploy-config`, `/git`,
-`/events/{task_uuid}` and `GET /servers/{uuid}/staging-hostname` — but it cannot
-detect, create, retry or redeploy: offer to connect MCP
-(`references/shared/conventions.md` → A change is asked for and MCP is not connected).
+## REST fallback: the whole flow
 
 ```bash
-SITE_UUID='replace-me'
+SERVER_UUID='replace-me'
+REPO='https://github.com/acme/app'
+# 1. detect (side-effect free)
+jq -n --arg r "$REPO" --arg s "$SERVER_UUID" '{repository_url:$r, server_uuid:$s}' \
+  | "$XC" POST /git/detect - | jq '.data | {repository_access, detection, compatibility}'
+# 2. preview (creates nothing)
+jq -n --arg r "$REPO" '{repository:{url:$r}, dry_run:true}' \
+  | "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" - | jq '.data | {would_create, warnings}'
+# 3. after the user approves the preview: same body, no dry_run, idempotent
+KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
+NEW=$(jq -n --arg r "$REPO" '{repository:{url:$r}}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" -)
+printf '%s' "$NEW" | jq '.data | {uuid, domain, type, poll_url}'
+SITE_UUID=$(printf '%s' "$NEW" | jq -er '.data.uuid') \
+  || echo "create failed or no response — list the server's sites, then retry with the same KEY"
+# 4. poll until terminal
 "$XC" GET "/sites/$SITE_UUID/status" | jq '.data | {deploy_state, terminal, current_step, poll_after_seconds}'
 ```
 
@@ -121,6 +119,31 @@ A private repository with no connected git provider needs a deploy key:
 4. Deploy, passing the key as `repository.deploy_key_uuid` next to the SSH
    `repository.url`.
 
+## Which compose file xCloud runs
+
+xCloud does **not** search for a compose file at deploy time.
+`docker.compose_file` defaults to `docker-compose.yml` at the repository root,
+the auto endpoint (`servers.sites.git.auto`) always uses that default, and the
+server-side deploy stops with "file not found in repository root" when it is
+missing. So a repository whose file is `compose.yaml`, `compose.yml` or
+`docker-compose.yaml`, or lives in a subdirectory, must deploy through
+`servers.sites.git.docker` with `docker.compose_file` set explicitly.
+
+`git.detect` looks at the repository **root** only (a `Dockerfile` or one of
+the four compose names). `git.compose-scan` is where the name gets resolved:
+send `compose_file` (a file, or a directory); when that file is missing it tries
+`compose.yaml`, `compose.yml`, `docker-compose.yml`, `docker-compose.yaml` in
+that order, says which one it scanned in `warnings`, and returns
+`compose_file_resolved`. **Read `compose_file_resolved` back and send exactly
+that path as `docker.compose_file`** — never the name you guessed. The
+deploy-key verify response's `compose` block carries the same field for a
+private SSH repository.
+
+The pinned `servers.sites.git.docker` dry run does not probe whether an HTTPS
+repository is reachable (it only proves an SSH URL with a deploy key), so a
+private HTTPS URL passes the preview and fails at clone — run `git.detect`
+first, always.
+
 ## Docker Compose host ports
 
 Run `git.compose-scan` before a Docker deploy — never guess the port. xCloud
@@ -137,6 +160,24 @@ A `${PORT:-8080}:8080` mapping is resolved against the `env_file_content` you
 send, exactly as `docker compose up` reads it — which is how two apps with the
 same default port share one server. When the file cannot be read (private repo,
 rate-limited host) the port is accepted and `warnings` say it was not checked.
+
+## Cloudflare-managed domains: the four refusals
+
+`cloudflare: true` on a live domain lets xCloud write the proxied DNS record and
+issue the certificate itself — never add the A record by hand on this path. It
+is refused with `422` before anything is created, identically in a dry run, on
+the WordPress, Git and Docker creates alike. Branch on `errors.code`:
+
+| `errors.code` | Means | Do |
+|---|---|---|
+| `cloudflare_zone_not_found` | The domain's zone is not on a Cloudflare account connected to this team | Connect the account (`integrations.cloudflare.index` shows what is connected) or drop the flag |
+| `cloudflare_ssl_unsupported_domain` | Two or more labels below the apex (`a.b.example.com`) | Use a one-label subdomain, or the `xcloud` certificate provider |
+| `cloudflare_ssl_provider_conflict` | `cloudflare: true` with `ssl_provider: custom`, or `ssl_provider: cloudflare` without the flag | Make the two agree |
+| `cloudflare_zone_lookup_failed` | Cloudflare could not be asked — **not** "no zone" | Retry later; do not tell the user the zone is missing |
+
+After the `202`, `servers.dns.check` reports `cloudflare_managed` and the next
+action, and `sites.status` → `ssl.serving_blocked: true` means visitors get a
+`526` even though the deploy succeeded.
 
 ## Polling
 
@@ -206,14 +247,11 @@ recovery path for a failed deploy.
 ```bash
 SITE_UUID='replace-me'
 "$XC" GET "/sites/$SITE_UUID/git" | jq '.data'
+"$XC" PUT "/sites/$SITE_UUID/git" '{"git_branch":"main","enable_push_deploy":true}' | jq '.data'
 "$XC" GET "/sites/$SITE_UUID/deploy-config" | jq '.data'
+"$XC" POST "/sites/$SITE_UUID/git/deploy" | jq '.message'
 "$XC" GET "/sites/$SITE_UUID/status" | jq '.data | {deploy_state, terminal, poll_after_seconds}'
 "$XC" GET "/sites/$SITE_UUID/deploy-diagnosis" | jq '.data | {classification, explanation, correctable_fields, next}'
-```
-
-```text
-sites_git_update  {"uuid": "<site-uuid>", "git_branch": "main", "enable_push_deploy": true}  # destructive: confirm: true after the user's yes
-sites_git_deploy  {"uuid": "<site-uuid>"}  # destructive: confirm: true after the user's yes
 ```
 
 `git_branch` is required on the update; every other field keeps its current

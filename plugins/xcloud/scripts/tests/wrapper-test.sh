@@ -9,8 +9,7 @@
 #   - non-verbose behavior (envelope, exit codes) is unchanged
 #   - X-Team-Id / Idempotency-Key are sent only when set, and CR/LF or other
 #     unexpected characters in them are refused (no header injection)
-#   - a set-but-empty XCLOUD_TEAM_ID stops the call; an Idempotency-Key is
-#     never sent (the wrapper is read-only; creates run on MCP)
+#   - a set-but-empty XCLOUD_TEAM_ID / XCLOUD_IDEMPOTENCY_KEY stops the call
 #
 # Usage: ./wrapper-test.sh   (exit 0 = all pass)
 set -uo pipefail
@@ -123,14 +122,14 @@ else
   ok "get-404-exit-1"
 fi
 
-# --- 7. multi-team header; no write-only headers ---------------------------
+# --- 7. multi-team + idempotency headers ------------------------------------
 TEAM='2ff5443e-42f5-4dfa-a50c-122ca948b00e'
 resp=$(XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
        XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_TEAM_ID="${TEAM}" \
-       XCLOUD_IDEMPOTENCY_KEY='left-over-from-an-old-guide' \
+       XCLOUD_IDEMPOTENCY_KEY='deploy-7f3a:retry.1' \
        "${XC}" GET /servers 2>/dev/null)
-echo "${resp}" | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["team"]==sys.argv[1] and d["idem"] is None else 1)' "${TEAM}" \
-  && ok "team header sent; Idempotency-Key never sent" || bad "team header sent; Idempotency-Key never sent"
+echo "${resp}" | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["team"]==sys.argv[1] and d["idem"]=="deploy-7f3a:retry.1" else 1)' "${TEAM}" \
+  && ok "team-and-idempotency-headers sent" || bad "team-and-idempotency-headers sent"
 resp=$(XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
        XCLOUD_ALLOW_INSECURE_HTTP=1 "${XC}" GET /user 2>/dev/null)
 echo "${resp}" | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["team"] is None and d["idem"] is None else 1)' \
@@ -144,16 +143,33 @@ for bad_value in $'abc\r\nX-Evil: 1' 'team id' 'x;y'; do
     ok "team-header-injection refused (${bad_value@Q})"
   fi
 done
+if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+   XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_IDEMPOTENCY_KEY=$'k\r\nX-Evil: 1' \
+   "${XC}" GET /x >/dev/null 2>&1; then
+  bad "idempotency-header-injection refused"
+else
+  ok "idempotency-header-injection refused"
+fi
 
-# --- 8. a set-but-empty team is refused, never silently dropped -------------
+# --- 8. set-but-empty selectors are refused, never silently dropped ----------
+# A key generator that is missing leaves an empty value behind; the write must
+# stop rather than go out without its Idempotency-Key.
 : > "${LOG_FILE}"
 if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
-   XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_TEAM_ID="$(no-such-team-lookup 2>/dev/null)" \
+   XCLOUD_ALLOW_INSECURE_HTTP=1 \
+   XCLOUD_IDEMPOTENCY_KEY="$(no-such-key-generator 2>/dev/null)" \
+   "${XC}" GET /servers >/dev/null 2>&1; then
+  bad "empty-idempotency-key refused"
+else
+  [[ -s "${LOG_FILE}" ]] && bad "empty-idempotency-key refused (but the request was sent)" \
+    || ok "empty-idempotency-key refused (request never sent)"
+fi
+if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+   XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_TEAM_ID='' \
    "${XC}" GET /servers >/dev/null 2>&1; then
   bad "empty-team-id refused (would fall back to the default team)"
 else
-  [[ -s "${LOG_FILE}" ]] && bad "empty-team-id refused (but the request was sent)" \
-    || ok "empty-team-id refused before any request (no silent default-team fallback)"
+  ok "empty-team-id refused (no silent default-team fallback)"
 fi
 
 echo; echo "Wrapper tests: ${PASS} passed, ${FAIL} failed"

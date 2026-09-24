@@ -1,5 +1,8 @@
 # Server cron jobs
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 `XC="scripts/xcloud.sh"` · scope `read:servers` / `write:servers`.
 
 | Operation | Method + path |
@@ -14,19 +17,21 @@
 Create body — required `user`, `frequency`, `command`; `pattern` holds a custom
 cron expression when `frequency=custom`:
 
-```text
-servers_cron-jobs_create  {"uuid": "<server-uuid>", "user": "xcloud", "frequency": "custom",
-                           "pattern": "*/15 * * * *", "command": "php /home/xcloud/cleanup.php"}  # destructive: confirm: true after the user's yes
+```bash
+SERVER_UUID='replace-me'
+"$XC" POST "/servers/$SERVER_UUID/cron-jobs" '{
+  "user": "xcloud",
+  "frequency": "custom",
+  "pattern": "*/15 * * * *",
+  "command": "php /home/xcloud/cleanup.php"
+}' | jq '.data'
 ```
 
 ```bash
 CRON_UUID='replace-me'
-"$XC" GET "/servers/$SERVER_UUID/cron-jobs/$CRON_UUID/output" | jq '.data'
-```
-
-```text
-servers_cron-jobs_execute  {"uuid": "<server-uuid>", "cronJobUuid": "<cron-uuid>"}  # destructive: confirm: true after the user's yes
-servers_cron-jobs_destroy  {"uuid": "<server-uuid>", "cronJobUuid": "<cron-uuid>"}  # destructive: confirm: true after the user's yes
+"$XC" POST "/servers/$SERVER_UUID/cron-jobs/$CRON_UUID/execute" | jq '.message'
+"$XC" GET  "/servers/$SERVER_UUID/cron-jobs/$CRON_UUID/output"  | jq '.data'
+"$XC" DELETE "/servers/$SERVER_UUID/cron-jobs/$CRON_UUID" | jq '.message'
 ```
 
 > Site-scoped cron is a different resource — see `xcloud:sites` (`reference/servers-cron-jobs.md`).

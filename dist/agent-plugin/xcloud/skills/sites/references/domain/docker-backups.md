@@ -1,5 +1,8 @@
 # Docker app backups
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 `XC="$SKILL_ROOT/scripts/xcloud.sh"` · scope `read:sites` / `write:sites`.
 For sites on a Docker server (Compose deploys and one-click apps).
 
@@ -17,13 +20,9 @@ For sites on a Docker server (Compose deploys and one-click apps).
 
 ```bash
 SITE_UUID='replace-me'
-B='uuid-from-sites_docker_backup'
+B=$("$XC" POST "/sites/$SITE_UUID/docker/backup" '{}' | jq -r '.data.uuid')
 "$XC" GET "/sites/$SITE_UUID/docker/backups/$B" | jq '.data'   # poll until status is terminal
-```
-
-```text
-sites_docker_backup              {"uuid": "<site-uuid>"}   # 202 with the running backup's uuid
-sites_docker_backup_note_update  {"uuid": "<site-uuid>", "backupUuid": "<backup-uuid>", "user_note": "before upgrade"}  # destructive: confirm: true after the user's yes
+"$XC" PUT "/sites/$SITE_UUID/docker/backups/$B/note" '{"user_note":"before upgrade"}' | jq '.message'
 ```
 
 - The app is **briefly cold-stopped** while its volumes are captured — say so
