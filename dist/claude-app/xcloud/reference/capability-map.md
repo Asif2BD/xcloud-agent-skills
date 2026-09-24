@@ -92,7 +92,7 @@ status code alone:
 | Situation | Status | What the response says |
 |---|---|---|
 | WordPress create on an agentic server | `403` | "OpenClaw servers support only one site, created automatically during provisioning" (OpenClaw) or "Agentic servers support only the site created automatically during provisioning" |
-| Git create or auto-deploy on an agentic server | `403` | "Agentic servers support only the site created during provisioning" |
+| Git create or auto-deploy on an agentic server | `422` | The agentic one-site refusal (every create except WordPress answers `422`) |
 | Docker deploy (`servers.sites.git.docker`) on any non-Docker server, agentic included | `422` | `errors.code: incompatible_server` |
 | One-click install on a server of the wrong stack | `422` | "This app requires a … server. This server is on the … stack." |
 | WordPress create on a Docker server | `422` | "WordPress is not supported on Docker servers" |

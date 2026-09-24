@@ -97,7 +97,7 @@ every step's request body and the platform notes. Then:
    `openlitespeed`; anything else (Go, Python, Rust, Compose, Dockerfile) needs a
    `docker_nginx` server; agentic stacks (OpenClaw, Paperclip, Hermes, DeepSeek
    Harness) never take a second site. That refusal is `403` on the WordPress
-   and Git creates but `422` on the Docker and one-click paths — match on the
+   create but `422` on every other path (Git, Docker, one-click) — match on the
    message, not the status, and never read it as a permission problem
    (`references/shared/capability-map.md`). No suitable server → say so and offer
    the `servers` skill (buying a server is billable and needs its own approval).

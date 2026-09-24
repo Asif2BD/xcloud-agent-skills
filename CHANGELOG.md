@@ -31,6 +31,9 @@ new skills to the same read-only REST rule.
 - Capability map, status codes: WordPress staging is refused with `422`; the
   free-plan `403` belongs to Git-backed staging (the spec: staging "requires a
   paid plan"), so it has its own row and is read as a plan limit.
+- Agentic-server refusals: `403` on the WordPress create only, `422` on every
+  other path, Git included (xCloud's agent guidance XC-AGT-000/007). The
+  capability map and the deploy skill had the Git creates at `403`.
 - The API-token page is named **Account → API Tokens** everywhere, as in
   xCloud's own documentation (was "Profile → API Tokens"), including the
   portable package's token section (generated from `dist/agent-plugin/build.py`)
