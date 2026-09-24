@@ -280,8 +280,9 @@ sites_sslCertificates_create  {"uuid": "<site-uuid>", "provider": "xcloud"}  # d
 **Renew before expiry**
 > "Renew the SSL cert for example.com."
 ```text
-sites_ssl_renew  {"uuid": "<site-uuid>"}   # only fires if within 7 days
-sites_ssl_renew  {"uuid": "<site-uuid>", "force": true}   # force now
+# a no-op unless the cert expires within 7 days; "force": true renews now
+sites_ssl_renew  {"uuid": "<site-uuid>"}  # destructive: confirm: true after the user's yes
+sites_ssl_renew  {"uuid": "<site-uuid>", "force": true}  # destructive: confirm: true after the user's yes
 ```
 
 **Check cert status**
