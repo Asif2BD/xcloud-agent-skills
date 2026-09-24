@@ -66,7 +66,7 @@ Big domain — detailed per-sub-resource guidance lives in `reference/`:
 | Install / enable / restart / disable a service | `POST /servers/{uuid}/services/{install,enable,restart,disable}` |
 | Node.js versions (read, change default) | `GET /servers/{uuid}/node-versions` · `POST /servers/{uuid}/node-versions/{version}/default` |
 | Recent tasks | `GET /servers/{uuid}/tasks` |
-| Snapshots | `GET /servers/{uuid}/snapshots` |
+| Site snapshots on this server (not server backups) | `GET /servers/{uuid}/snapshots` |
 | Supervisor processes | `GET /servers/{uuid}/supervisor-processes` |
 | **Verified reboot** (preferred) | `POST /servers/{uuid}/reboots` → `GET /servers/{uuid}/reboots/{operationUuid}` |
 | Recheck an unconfirmed reboot | `POST /servers/{uuid}/reboots/{operationUuid}/check` |

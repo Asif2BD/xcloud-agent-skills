@@ -33,7 +33,7 @@ guidance.
 | Change a native site's backup schedule, retention or destination | api_read | **Site → Backups → Backup settings** | `sites.backupSettings` reads; Docker sites are the exception — `sites.docker.backupSettings.update` writes |
 | Apply backup settings to many sites at once | ui | **Team settings → Global backup settings** | — |
 | Add or change a backup storage provider | ui | **User → Storage providers** | Backup settings return the provider's uuid and status, never its credentials |
-| Create, schedule or roll back to a server snapshot | api_read | **Server → Backups** | `servers.snapshots`, `sites.snapshots` list them |
+| Enable, schedule or restore a server backup (the cloud provider's image of the whole server) | ui | **Server → Backups** | — `servers.snapshots` lists the **site** snapshots taken on that server, and `sites.snapshots` one site's; neither is a server backup |
 | Push staging to production, pull production to staging | api_read | **Site → Staging → Push / Pull** | `sites.deployment-logs` is the push/pull history |
 | Create a **WordPress** staging environment | ui | **Site → Staging** | `sites.stagingSites.create` covers Git sites only (Laravel, Node.js, custom PHP, Lovable); WordPress answers `422` |
 | Databases and database users | ui | **Server → Database** | — (withheld from the public API) |

@@ -144,7 +144,7 @@ SERVER_UUID=$("$XC" GET "/sites/$SITE_UUID" | jq -er '.data.server_uuid')
 |---|---|---|
 | **No cache, or the cache is off** | `sites.cacheSettings` shows page, object and edge cache off; PageSpeed shows a slow server response (TTFB). The single most common answer on WordPress. | Turning a layer on — **dashboard-only: Site → Cache** |
 | **PHP-FPM saturation** | High CPU on `servers.monitoring` while the site's own sample is modest; many concurrent uncached requests in the access log; php-fpm running but pegged. Often the same root cause as an uncached site. An old PHP version makes it worse. | Cache first; then a newer PHP version for the site — **dashboard-only: Site → Settings → PHP version** |
-| **Disk full, usually backups** | `servers.monitoring` disk near 100%. Everything on the box slows, MySQL first. | Check the site's backup count and the server's snapshots before blaming the app (`xcloud:sites` backups) |
+| **Disk full, usually backups** | `servers.monitoring` disk near 100%. Everything on the box slows, MySQL first. | Check the site's backup count and the site snapshots on the server (`servers.snapshots`) before blaming the app (`xcloud:sites` backups) |
 | **Bot traffic** | The access log shows a crawl, a scraper or one client hammering a path, starting the hour the slowness started. | Rate limiting or blocking — firewall and fail2ban (`xcloud:servers`); cache will not fix it |
 
 ## What you cannot do, and must not offer

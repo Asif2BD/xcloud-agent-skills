@@ -24,6 +24,10 @@ new skills to the same read-only REST rule.
   "GET through the wrapper, changes in the dashboard", and revoking an API
   token is listed as dashboard-only — the wrapper refuses the `DELETE` and no
   MCP tool offers it.
+- Capability map: a **server backup** (the provider's image of the whole
+  server) is dashboard-only under **Server → Backups**. `servers.snapshots`
+  lists the site snapshots taken on the server, not server backups, as the API
+  spec says; the servers and performance skills now label it that way.
 - The API-token page is named **Account → API Tokens** everywhere, as in
   xCloud's own documentation (was "Profile → API Tokens"), including the
   portable package's token section (generated from `dist/agent-plugin/build.py`)
