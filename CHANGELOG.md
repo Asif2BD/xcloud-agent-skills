@@ -2,6 +2,15 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.3.1] - 2026-09-24
+
+### Documentation and distribution
+- Rewrite the README around plain-language deployment and all seven capabilities, with separate ClawHub, Claude Code and portable-agent setup paths.
+- Explain GitHub/GitLab/Bitbucket, private deploy keys, Docker/native compatibility, dry runs, explicit approvals, polling and same-site recovery without claiming universal Git/app compatibility.
+- Replace categorical false-positive claims with accurate security boundaries, network destinations, credential/process visibility, destructive operations and billing risks.
+- Add visible LICENSE.txt and SHA256SUMS.txt to the minimal ClawHub package; align the root name with the existing `xcloud` slug and resolve the bundled plugin root explicitly.
+- Preserve upstream 4.3.0 capabilities and guards; no live infrastructure changes are required for this release.
+
 ## [4.3.0] - 2026-09-24
 
 **Full sync with the latest xCloud MCP server and Public API (xCloud v2.8.8).**

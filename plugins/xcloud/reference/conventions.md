@@ -302,7 +302,7 @@ terminal). It is ~35 cols wide, so it fits an 80-column terminal without wrappin
                       #*******
                         #******
 
-   v4.3.0 · Managed hosting, from your terminal
+   v4.3.1 · Managed hosting, from your terminal
 ```
 ````
 
