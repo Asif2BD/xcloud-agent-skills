@@ -9,9 +9,10 @@ live in `docs/adr/`.
 ### Skill structure
 
 **Domain skill**:
-A skill owning one *capability* area of the API. There are seven:
-`xcloud:deploy`, `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`,
-`xcloud:ssl`, `xcloud:billing`, `xcloud:account`.
+A skill owning one *capability* area of the API. There are nine:
+`xcloud:deploy`, `xcloud:troubleshoot`, `xcloud:performance`,
+`xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`,
+`xcloud:billing`, `xcloud:account`.
 _Avoid_: module, package, sub-skill.
 
 **Shared layer**:

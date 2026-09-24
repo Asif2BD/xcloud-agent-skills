@@ -1,5 +1,8 @@
 # Databases & database users
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 > **⚠️ Not available on the current public API.** As of 2026-06-29 every endpoint
 > below returns **HTTP 404 "Resource not found"** on all tested servers — while
 > sibling endpoints (`php-versions`, `firewall-rules`) return `200` on the same
@@ -29,13 +32,15 @@
 | Update | `PUT /servers/{uuid}/database-users` | `username`, `databases` |
 | Delete | `DELETE /servers/{uuid}/database-users` | `username` |
 
-```text
-POST /servers/{uuid}/databases       {"database_name": "app_prod"}
-POST /servers/{uuid}/database-users  {"username": "app_user", "password": "<strong>", "databases": ["app_prod"]}
+```bash
+SERVER_UUID='replace-me'
+"$XC" POST "/servers/$SERVER_UUID/databases" '{"database_name":"app_prod"}' | jq '.message'
+"$XC" POST "/servers/$SERVER_UUID/database-users" '{
+  "username": "app_user",
+  "password": "<strong-password>",
+  "databases": ["app_prod"]
+}' | jq '.data'
 ```
-
-These write bodies are kept as a record of the documented contract only: the
-endpoints answer `404` today and have no MCP tool, so there is nothing to run.
 
 - Database create/delete and user mutations are keyed by **name** in the body,
   not by a UUID in the path.

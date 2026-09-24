@@ -8,13 +8,15 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent / "xcloud"
-AREAS = ("deploy", "servers", "sites", "wordpress", "ssl", "billing", "account")
+AREAS = (
+    "deploy", "troubleshoot", "performance", "servers", "sites", "wordpress", "ssl", "billing", "account",
+)
 FORBIDDEN = {
     "client-specific product text": re.compile(r"\b(?:Claude|claude)\b"),
     "client-specific environment path": re.compile(r"CLAUDE_PLUGIN_ROOT|~?/\.claude/"),
     "client-specific MCP namespace": re.compile(r"mcp__"),
     "client-specific skill namespace": re.compile(
-        r"xcloud:(?:deploy|servers|sites|wordpress|ssl|billing|account)"
+        r"xcloud:(?:deploy|troubleshoot|performance|servers|sites|wordpress|ssl|billing|account)"
     ),
     "stale singular reference path": re.compile(r"reference/"),
     "duplicated article": re.compile(

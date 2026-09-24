@@ -1,5 +1,8 @@
 # xCloud MCP (shared)
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 Shared by every xCloud domain skill. The **xCloud MCP server** exposes every
 authenticated Public API operation as a native MCP tool, plus two search tools.
 On 2026-09-24 the default profile listed **190 tools: 188 operation tools and
@@ -90,17 +93,16 @@ token's abilities and team.
 
 ## Transport preference (the rule)
 
-> **If tools from the MCP server named `xcloud` are available in this session, use them for
-> everything they cover.** The bundled `$SKILL_ROOT/scripts/xcloud.sh` is **read-only**
-> (`GET`, no body): use it only when the MCP server is not connected, or for the
-> REST-only reads (`GET /health`, `GET /user/tokens`). Every change needs the
-> MCP — when it is missing, offer to connect it and then continue the job
-> (`references/shared/conventions.md` → A change is asked for and MCP is not connected).
+> **If tools from the MCP server named `xcloud` are available in this session, use them —
+> do not shell out to `$SKILL_ROOT/scripts/xcloud.sh` for operations the MCP covers.**
+> Fall back to the REST wrapper only when (a) the MCP server is not connected,
+> or (b) the operation is REST-only (`/health`, `GET /user/tokens`,
+> `DELETE /user/tokens/{tokenUuid}`).
 
-Why MCP: typed parameters, contract validation before the call, a
-confirm-before-destructive gate xCloud enforces server-side, team-scoped OAuth
-instead of a raw token in the environment, `dashboard_url` links on every
-server and site, and the two searches.
+Why MCP first: typed parameters, contract validation before the call, a
+built-in confirm-before-destructive gate, team-scoped OAuth instead of a raw
+token in the environment, `dashboard_url` links on every server and site, and
+the two searches.
 
 ## Tool naming (flat profile)
 
@@ -151,9 +153,8 @@ Two more habits the server rewards:
   `would_create`, get the yes on that, then send the **same** body without
   `dry_run` and with `confirm: true`.
 - **Idempotency.** `servers.store`, the four site creates, `oneclickApps.install`
-  and `sites.provision-retry` accept an idempotency key (the `Idempotency-Key`
-  argument on flat tools, `idempotency_key` on the compact executors). Make one
-  per create and reuse it only to retry that same create. Send one so a retry
+  and `sites.provision-retry` accept an `Idempotency-Key` header (the
+  `idempotency_key` argument on the compact executors). Send one so a retry
   after a timeout cannot do the work twice.
 
 ## Which team a call runs against
@@ -164,12 +165,8 @@ or the team uuid passed as the `team` argument (every flat tool except
 `teams_index` carries it; the compact executors take it next to `path_params`).
 Call `teams_index` first — a team the token was not granted is refused with
 `403 "Team not found or not granted to this token"`, never silently replaced by
-the default. On REST reads the same selector is the `X-Team-Id` header, which
-the wrapper sends when `XCLOUD_TEAM_ID` is set.
-
-The **default team** is fixed at authorization: it is the team active in the
-xCloud dashboard when the user connected (or created the token). To change it,
-switch team in the dashboard and reconnect; it cannot be edited afterwards.
+the default. On REST the same selector is the `X-Team-Id` header, which the
+wrapper sends when `XCLOUD_TEAM_ID` is set.
 
 **Turning on multi-team for an existing connection.** Grants are chosen when the
 connection is authorized, so an older single-team connection keeps working
@@ -198,13 +195,13 @@ xCloud?").
 
 ## REST-only operations
 
-The MCP does **not** expose these:
+The MCP does **not** expose these — always use `$SKILL_ROOT/scripts/xcloud.sh` for them:
 
-| Operation | Method + path | How |
+| Operation | Method + path | Why |
 |---|---|---|
-| API health | `GET /health` | `$SKILL_ROOT/scripts/xcloud.sh` (unauthenticated probe) |
-| List API tokens | `GET /user/tokens` | `$SKILL_ROOT/scripts/xcloud.sh` (needs a `*`-scope token) |
-| Revoke a token | `DELETE /user/tokens/{tokenUuid}` | **dashboard only** — Profile → API Tokens (the wrapper is read-only and the MCP keeps token management out) |
+| API health | `GET /health` | unauthenticated probe |
+| List API tokens | `GET /user/tokens` | token management stays out of MCP |
+| Revoke a token | `DELETE /user/tokens/{tokenUuid}` | token management stays out of MCP |
 
 Eight more operations have no tool and are **not for agents at all**: the xCloud
 mobile app's sign-in (`/auth/config`, `/auth/token`, `/auth/session`) and its

@@ -2,55 +2,109 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
-## [4.3.3] - 2026-09-24
+## [4.4.2] - 2026-09-24
 
-**The read-only REST wrapper and the docs now agree, and a missing MCP
-connection is no longer a dead end.** 4.3.2 made `scripts/xcloud.sh` GET-only
-but left the guides full of REST write examples under a pasted warning banner;
-this release reconciles the content itself.
+- Sync official xCloud v4.4.1 (commit d469ad045c0090a7c2ee0da45e04acbb9de1b64c): nine capability skills, including troubleshoot/performance, corrected capability map and Git/Docker deployment guidance.
+- Retain the published v4.3.2 ClawHub GET-only/no-body REST enforcement. Mutations use approved MCP tools or the dashboard; no REST write bypass.
+- Refresh the marketplace router, README and security documentation; include the shared capability map and both new skills in the portable and ClawHub distributions.
+- Preserve MIT license and verify package integrity. Registry review is checked after publication, not assumed from these files.
 
-### Changed
+## [4.4.1] - 2026-09-24
 
-- **One transport rule** (`reference/conventions.md` → Transports): the MCP
-  does every read and every change; the bundled wrapper only looks (`GET`, no
-  body). Replaces the 32 copies of the boundary banner in the skills, README and
-  root `SKILL.md`.
-- **Offer to connect instead of stopping.** Asked for a change without MCP, the
-  agent finishes the looking, gives the one connect step for the user's client,
-  continues the same job once the tools appear, and falls back to a dashboard
-  path only if the user will not connect. The paths for common changes are
-  listed in the skills themselves (checked against xCloud's docs), because
-  looking one up needs the MCP. The deploy playbook starts with this branch.
-- **Every write example is an MCP call.** 59 write examples across 24 skill
-  files, and the install guide's use cases, are now written as tool name +
-  arguments, with argument names checked against the live spec
-  (`cronJobUuid`, `sudo_user_uuid`, `vulnerabilityUuid`, `version`, …) and
-  destructive tools marked for `confirm: true`. REST reads stay runnable.
-- **Tokens:** REST tokens are recommended with read scopes only. Revoking an
-  API token is documented as dashboard-only (Profile → API Tokens), since the
-  wrapper is read-only and the MCP keeps token management out.
-- **Default team:** documented that it is fixed at authorization to the team
-  active in the dashboard, and how to change it (switch team, reconnect).
-
-### Removed
-
-- `XCLOUD_IDEMPOTENCY_KEY` from the GET-only wrapper, where it could never
-  apply; creates send the `Idempotency-Key` argument on the MCP tool. A wrapper
-  test asserts the header is never sent.
+**The "what you cannot do" list, re-checked against xCloud v2.8.8.** Every row
+of `reference/capability-map.md` was compared with the v2.8.8 routes
+(`routes/public-api.php`), controllers and dashboard navigation. Wrong claims
+are fixed, dashboard paths now match the dashboard's own menu labels, and
+missing dashboard-only and impossible jobs are added.
 
 ### Fixed
 
-- The deploy smoke suite still called `POST /git/detect` through the GET-only
-  wrapper, so it would fail against a live token; it now asserts the wrapper
-  refuses the POST (detection is MCP-only). The install guide's smoke-test
-  section now says detection is not covered.
-- The vulnerability "ignore" example sent a `reason` field the API does not
-  accept.
+- **Server PHP default does not move sites.** `servers.php-versions.default`
+  runs `update-alternatives --set php` and sets the version new sites get; no
+  existing site's PHP version changes. The capability map, `xcloud:performance`
+  and `servers/reference/php-versions.md` said it "moves every site that
+  follows the default".
+- **Logs.** There is no separate PHP-FPM error log: the site's web server error
+  log (where a PHP fatal lands) is read by `sites.access-logs?type=nginx`,
+  together with the 7G **and 8G** firewall logs. Dashboard-only logs are the
+  WordPress `debug.log`, the Laravel log, PM2, docker-compose, agentic-stack
+  journals and server logs (fail2ban, auth.log).
+- **`servers.snapshots` lists site snapshots**, not a server image (it
+  returns the site snapshots across a server). A server's provider backup at
+  **Server → Backup** is dashboard-only, and nothing on the API reads it.
+- **Staging free-plan `403`** applies to Git sites; a WordPress site gets the
+  `422` first.
+- **Dashboard paths** now use the dashboard's menu labels: Site → WordPress →
+  Caching, Site → Site Settings (PHP version), Site → Site Monitoring → Logs,
+  Site → Domain → Domain / Redirection, Site → Tools → Site Rules / Nginx
+  Customization, Site → Site Backup → Previous Backups / Backup Settings,
+  Site → Manage Staging, Site overview → Add Staging, Server → Backup,
+  Account → Global Settings → Site Backup, Account → Integrations → Storage
+  Provider, Account → Developers → API Tokens, Account → Billing → Bills &
+  Payment, Servers → Create server → Bring and Manage Your Own Server.
 
-### CI
+### Added
 
-- New step "Docs match the read-only REST wrapper": fails on any documented
-  `"$XC"` write or on the retired idempotency variable.
+- A **"Not on this list: these are API jobs"** section: Git-site staging,
+  the 7G/8G and error logs, correct-and-retry of a failed deploy, server PHP
+  and Node versions, Docker backup settings, firewall/fail2ban, sudo users,
+  cron, services, deploy keys, SSL, verified reboots, vulnerability ignore,
+  magic login and mailboxes.
+- Dashboard-only rows: page-cache duration and exclusions, PHP settings and
+  extensions, per-site IP allow/deny (`sites.ipAccess` reads), basic
+  authentication, clone and migrate, supervisor processes
+  (`servers.supervisorProcesses` reads), resize or delete a server.
+- Impossible row: a compose file that binds 80/443, publishes no port or pulls
+  a private-registry image, as-is.
+- Status table rows: the free-plan staging `403` and the PageSpeed `409`
+  (a scan still running, not a cooldown).
+
+## [4.4.0] - 2026-09-24
+
+**Two diagnosis skills for the two most common support jobs.** Both are
+derived from the xCloud brain's agent guides (XC-AGT-005 "Troubleshoot a 500
+error" and XC-AGT-012 "Diagnose a slow site"), and every operation they name,
+every field and every status code was checked against the xCloud Public API
+contract and the v2.8.8 source.
+
+### Added
+
+- **`xcloud:troubleshoot`** — a site returning 500/502/503, a critical error,
+  a site that is down. A fixed read order, cheapest first: `sites.status` (a
+  site mid-deploy explains a 500 by itself) → `sites.events` → the nginx
+  access **and** error log (`sites.access-logs?type=nginx`, bounded with
+  `limit`) → staging push history → `sites.wordpress.status` → `sites.wp-debug`
+  (confirmed, turned back off) → `servers.services`. Says plainly that the
+  PHP-FPM error log and `debug.log` are **Site → Logs** only; temporary sudo
+  access is revoked when the investigation ends; never restarts or reboots to
+  "clear" an error before the cause is known.
+- **`xcloud:performance`** — a slow site. Site and server monitoring (and
+  their history, a `403` plan limit on free plans), `sites.cacheSettings`
+  (which of page, object and edge cache are on — always read before saying
+  anything about caching), PageSpeed (latest first; a scan is spent only after
+  telling the user), the access log for spikes and bots, services, and the
+  site's PHP version. Four usual causes with what each looks like in the data.
+  Enabling a cache layer (**Site → Cache**) and changing one site's PHP version
+  (**Site → Settings → PHP version**) are dashboard-only — the skill hands
+  them off with the site's `dashboard_url` and never offers them as API
+  actions.
+- **`reference/capability-map.md`** (shared) — every dashboard-only and
+  impossible job in one table with its dashboard path and what the API does
+  instead, plus **status codes are not uniform**: an agentic-server refusal is
+  `403` on the WordPress and Git creates and `422` on the Docker and one-click
+  paths, a free-plan monitoring `403` is a plan limit — match on the message.
+- `xcloud:deploy` (`reference/git.md`): **which compose file xCloud runs** —
+  `docker-compose.yml` unless `docker.compose_file` says otherwise (the auto
+  endpoint always uses the default), with `git.compose-scan` resolving
+  `compose.yaml` / subdirectories and returning `compose_file_resolved` to send
+  back; the pinned Docker dry run does not probe HTTPS reachability; and the
+  four `cloudflare_*` `422` refusal codes with what to do for each.
+- Read-only smoke suites for both new skills; CI runs them.
+
+### Fixed
+
+- `xcloud:wordpress` PageSpeed: a `409` on a scan means one is still pending
+  or running for the site, not a one-hour cooldown.
 
 ## [4.3.2] — 2026-09-24
 

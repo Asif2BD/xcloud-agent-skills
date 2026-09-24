@@ -1,6 +1,9 @@
 # xCloud Agent Skills
 
-[![Version](https://img.shields.io/badge/version-4.3.3-brightgreen.svg)](CHANGELOG.md)
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
+[![Version](https://img.shields.io/badge/version-4.4.2-brightgreen.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-0EA5E9.svg)](https://clawhub.ai/asif2bd/xcloud)
 
@@ -10,9 +13,17 @@ Deploy a Git repository, launch a Docker app, create a WordPress site, check you
 
 Built by [xCloud](https://xcloud.host). Works with **OpenClaw, Claude Code and other compatible repository/skill-capable agents** through the xCloud MCP server or the bundled REST wrapper. The agent needs an authorized xCloud connection; installing these instructions alone does not grant infrastructure access.
 
-> **How changes happen:** every change — deploys, SSL, backups, purchases — runs through the **xCloud MCP connection**, where xCloud itself asks for approval before anything destructive. The bundled REST wrapper is **read-only** (`GET` only) for agents without MCP. If you ask for a change without MCP connected, the agent offers to connect it and then carries on with the same job.
-
 [Dashboard](https://app.xcloud.host) · [MCP documentation](https://app.xcloud.host/mcp/docs) · [API reference](https://app.xcloud.host/api/v1/docs) · [Installation guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md) · [User guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/USER_GUIDE.md)
+
+## New in this release: diagnosis and accurate capability boundaries
+
+- **Troubleshoot:** investigate 500/502/503 errors from status, events, bounded web-server error/access logs, WordPress health and services. Do not restart a service just to clear an unexplained error. Debug toggles and temporary access require authorization and cleanup.
+- **Performance:** diagnose slowness using site/server history, cache state, existing PageSpeed results, traffic and the site's PHP version. Treat free-plan monitoring limits and scan-in-progress responses accurately.
+- **Capability map:** distinguish API reads, approved MCP changes, dashboard-only jobs and unsupported configurations. Use the dashboard URL returned by xCloud, not a guessed URL.
+- **Corrections:** changing the server PHP default does not change existing sites; `servers.snapshots` lists site snapshots, not server images. WordPress debug/Laravel/PM2/container and server logs require the appropriate dashboard views. Cache-layer activation and per-site PHP changes are dashboard-only.
+- **Git/Docker:** resolve the selected Compose filename, check published ports and Cloudflare refusal codes, and explain private-registry/port incompatibilities before provisioning.
+
+Read the [capability map](plugins/xcloud/reference/capability-map.md), [troubleshooting guide](plugins/xcloud/skills/troubleshoot/SKILL.md) and [performance guide](plugins/xcloud/skills/performance/SKILL.md).
 
 ## Start with one request
 
@@ -63,13 +74,15 @@ My last deploy failed. Diagnose it and propose a correction before retrying.
 
 See the [complete Git deployment guide](plugins/xcloud/skills/deploy/reference/git.md).
 
-## Seven capabilities in one package
+## Nine capabilities in one package
 
 | Area | What you can ask for |
 |---|---|
 | **Deploy** | Git deployment and redeployment, repository detection, Docker/Compose, one-click apps, branch staging, new WordPress sites, diagnosis and recovery |
-| **Servers** | Inventory, monitoring, disk usage, services, Node/PHP, databases, firewall/fail2ban, cron, snapshots, reboots and approved server purchases |
-| **Sites** | Domains, cache, backups and Docker app backups, restore/rescue, deployment events, SSH/SFTP, access logs, cron and staging environments |
+| **Troubleshoot** | Evidence-based investigation of errors/outages using status, events, bounded logs, WordPress health and services |
+| **Performance** | Diagnose slow sites from monitoring, cache state, existing PageSpeed results, traffic and PHP version |
+| **Servers** | Inventory, monitoring, disk usage, services, Node/PHP, firewall/fail2ban, cron, site-snapshot listings, reboots and approved server purchases |
+| **Sites** | Domain inspection, cache, backups and Docker app backups, rescue and dashboard handoff for restores, deployment events, SSH/SFTP, access logs, cron and staging environments |
 | **WordPress** | Health, plugin/theme updates, vulnerability checks and fleet summaries, broken-link scans, PageSpeed polling, WP_DEBUG and magic-login URLs |
 | **SSL** | Certificate status, HTTPS checks, Let's Encrypt/xCloud, custom and Cloudflare certificates, installation and renewal |
 | **Billing** | Plans, prices, invoices, bills, subscriptions, masked payment methods, approved invoice payments and mailbox/mail-delivery add-ons |
@@ -95,7 +108,7 @@ Connect the xCloud MCP server through your client's MCP settings if supported:
 https://app.xcloud.host/mcp
 ```
 
-Otherwise configure the REST fallback below. The ClawHub package contains the root router, seven capability skills, shared references and API wrapper. It does not automatically configure MCP or supply credentials.
+Otherwise configure the REST fallback below. The ClawHub package contains the root router, nine capability skills, shared references and API wrapper. It does not automatically configure MCP or supply credentials.
 
 ### Claude Code
 
@@ -116,7 +129,7 @@ Complete authorization through the client. Skill names include `xcloud:deploy`, 
 
 ### Other compatible agents
 
-Use the portable **Agent Plugins** package from [GitHub Releases](https://github.com/xCloudDev/xcloud-agent-skills/releases), or the source at [`dist/agent-plugin/xcloud`](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/dist/agent-plugin/xcloud). It contains `plugin.json`, `mcp.json` and seven self-contained skills. Import support and OAuth behavior depend on the client; see the [installation guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md).
+Use the portable **Agent Plugins** package from [GitHub Releases](https://github.com/xCloudDev/xcloud-agent-skills/releases), or the source at [`dist/agent-plugin/xcloud`](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/dist/agent-plugin/xcloud). It contains `plugin.json`, `mcp.json` and nine self-contained skills. Import support and OAuth behavior depend on the client; see the [installation guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md).
 
 For hosts that accept individual skills, use the generated directories under `dist/agent-plugin/xcloud/skills/`. They resolve their own `SKILL_ROOT` rather than requiring Claude Code's plugin variable. Do not copy only SKILL.md and omit its references/wrapper.
 
@@ -133,7 +146,8 @@ The source documents OAuth discovery/write-grant limitations in some clients. If
 Optional runtime settings:
 
 - `XCLOUD_API_BASE_URL`: normally `https://app.xcloud.host`. Change only to a trusted xCloud host; credentials are sent there.
-- `XCLOUD_TEAM_ID`: select the authorized team for REST reads (`X-Team-Id`).
+- `XCLOUD_TEAM_ID`: select the authorized team for REST calls (`X-Team-Id`).
+- `XCLOUD_IDEMPOTENCY_KEY`: reuse for a retry of the same supported create request; use a new key for a different create.
 
 Verify the authenticated identity and available teams before operations. Keep secrets and raw sensitive responses out of logs. See [authentication details](plugins/xcloud/reference/auth.md).
 
@@ -151,7 +165,7 @@ Read [SECURITY.md](SECURITY.md) for executable-file behavior, network destinatio
 
 ## Release and verification
 
-v4.3.3 reconciles every guide with the read-only REST wrapper: changes are written as MCP tool calls, and a missing MCP connection becomes an offer to connect rather than a dead end. v4.3.2 made the wrapper read-only; v4.3.1 brought the v4.1–v4.3 upstream capabilities to the ClawHub distribution. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
+v4.4.2 brings the v4.4.1 upstream capabilities to the ClawHub distribution and rewrites onboarding/security explanations. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
 
 The development checks include shell syntax/ShellCheck, offline wrapper tests, legacy JSON-safety tests, portable package validation, version consistency and generated-artifact checks. Live smoke tests are read-only and require scoped credentials; a skipped smoke job is not a live-operation pass. This documentation release does not need a production deployment or purchase to validate packaging.
 

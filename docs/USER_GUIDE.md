@@ -12,12 +12,14 @@ Claude does it.
 
 ## What you get
 
-Seven skills, each owning one area. You never name them — Claude picks the right
+Nine skills, each owning one area. You never name them — Claude picks the right
 one from what you ask.
 
 | If you want to… | Just say something like | Skill |
 |---|---|---|
 | Put an app online: a GitHub URL, Docker app, one-click app, staging, WordPress | "deploy https://github.com/acme/shop" | `xcloud:deploy` |
+| Find out why a site shows a 500 or a critical error | "example.com is throwing 500s" | `xcloud:troubleshoot` |
+| Find out why a site is slow, and whether its cache is on | "why is shop.example.com so slow?" | `xcloud:performance` |
 | Manage servers, PHP/Node, services, firewall, buy a server | "reboot my Hermes server" | `xcloud:servers` |
 | Work with a site: backups, cache, domains, SSH, staging | "back up example.com before I update it" | `xcloud:sites` |
 | Update WordPress, scan vulnerabilities, check speed | "show team-wide critical vulnerabilities" | `xcloud:wordpress` |

@@ -48,13 +48,15 @@ a REST fallback:
 ### → [Connect the xCloud MCP](${XCLOUD_MCP_DOCS_URL})
 ### → [xCloud API](${XCLOUD_API_DOCS_URL})
 
-## The seven skills
+## The nine skills
 
 You never name them — the agent picks the right one from what you ask.
 
 | Skill | Owns |
 |---|---|
 | \`xcloud:deploy\` | Deploy a GitHub URL, Docker Compose app, one-click app, Git staging environment or WordPress site end to end; diagnose and retry failed deploys |
+| \`xcloud:troubleshoot\` | A site that errors (500/502, critical error): status, events, nginx logs, WordPress health, WP_DEBUG, services |
+| \`xcloud:performance\` | A slow site: monitoring, cache layers, PageSpeed, traffic, the site's PHP version |
 | \`xcloud:servers\` | Servers: buy a server, services, Node/PHP versions, verified reboots, cron, firewall/fail2ban, sudo users, DNS checks |
 | \`xcloud:sites\` | Site lifecycle: status, backups (incl. Docker apps), staging, domains, cache, SSH, site cron, deletion |
 | \`xcloud:wordpress\` | WP plugins/themes/updates, WP_DEBUG, magic login, vulnerabilities, PageSpeed, broken links |

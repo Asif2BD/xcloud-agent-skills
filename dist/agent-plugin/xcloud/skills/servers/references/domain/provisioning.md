@@ -1,5 +1,8 @@
 # Buying a server
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 `XC="$SKILL_ROOT/scripts/xcloud.sh"` · scopes `read:servers` /
 `write:servers`; checking the card on file needs `read:billing`.
 
@@ -16,8 +19,8 @@
 `POST /servers` buys an **xCloud-managed (Vultr)** server on the team's billing
 account and charges the team's default card. Connecting a machine from the
 user's own Hetzner, DigitalOcean, AWS or other account — and enrolling a
-self-managed server — is dashboard-only (**Dashboard → Servers → Create
-server**).
+self-managed server — is dashboard-only (**Servers → Create server → Bring and
+Manage Your Own Server**).
 
 ## "Create a server on the smallest plan in Singapore — show me the price first"
 
@@ -28,7 +31,7 @@ server**).
    offer the region; show slug, vCPU/RAM/disk, price for the renewal period, and
    region. Say which app minimum you sized against, if any.
 3. **Card check.** `GET /billing/payment-methods` — no card means `402` before
-   anything is created; send the user to **Dashboard → Billing**.
+   anything is created; send the user to **Account → Billing → Bills & Payment**.
 4. **Approve.** Restate name, plan, region, stack (`nginx` or `openlitespeed`),
    database (`none`, `mysql8`, `mysql84`, `mariadb10`, `mariadb11`, …), renewal
    period (`monthly`, `yearly`, `two_yearly`) and price. Wait for a yes.
@@ -45,17 +48,14 @@ server**).
 ```bash
 "$XC" GET /servers/plans \
   | jq '.data.plans | map({slug, name, specs, pricing, regions: [.regions[].id]})'
-```
-
-Buying the server runs on MCP. Keep the new server's `uuid` from the response and
-poll with it; after a dropped response, list servers before retrying, and retry
-only with the same key:
-
-```text
-servers_store  {"name": "sg-app-1", "size": "vc2-1c-1gb", "region": "sgp", "stack": "nginx",
-                "database_type": "mysql8", "renewal_period": "monthly", "backups": false,
-                "Idempotency-Key": "<one key for this purchase>"}  # destructive: confirm: true after the user's yes
-servers_provisioning-progress  {"uuid": "<uuid from servers_store>"}   # poll: percent_complete, stages
+KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
+NEW=$(jq -n '{name:"sg-app-1", size:"vc2-1c-1gb", region:"sgp", stack:"nginx",
+              database_type:"mysql8", renewal_period:"monthly", backups:false}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST /servers -)
+printf '%s' "$NEW" | jq '.data | {uuid, name, status, ip_address, region}'
+SERVER_UUID=$(printf '%s' "$NEW" | jq -er '.data.uuid') \
+  || echo "create failed or no response — read GET /servers, then retry with the same KEY"
+"$XC" GET "/servers/$SERVER_UUID/provisioning-progress" | jq '.data | {percent_complete}'
 ```
 
 A declined card or a 3-D Secure challenge leaves an unpaid invoice: settle it

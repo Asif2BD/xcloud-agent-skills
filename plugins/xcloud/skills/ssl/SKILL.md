@@ -5,6 +5,9 @@ description: SSL certificates and HTTPS for xCloud sites — view, list, install
 
 # xCloud SSL
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 Owns every SSL/certificate operation in the xCloud Public API. For auth, base
 URL, the response envelope, pagination, and rate limits, read the shared layer
 first — this skill does not repeat it:
@@ -14,8 +17,7 @@ first — this skill does not repeat it:
 - `${CLAUDE_PLUGIN_ROOT}/reference/mcp.md` — **prefer the MCP tools when
   connected**: `sites_ssl`, `sites_sslCertificates`, `sites_sslCertificates_create`,
   `sites_ssl_renew`, `ssl-certificates_show`, `ssl-certificates_status`,
-  `ssl-certificates_destroy`; the `$XC` calls
-  below are read-only REST fallbacks (`GET` only); changes run on the MCP.
+  `ssl-certificates_destroy`; the `$XC` calls below are the REST fallback.
 
 All calls go through the shared wrapper:
 
@@ -90,33 +92,54 @@ CERT_UUID='replace-me'
 "$XC" GET "/ssl-certificates/$CERT_UUID/status" | jq '.data'
 ```
 
-## Changes (MCP)
+## Writes
 
-Installs, renewals and deletions run on the MCP tools below; the REST wrapper is
-read-only. Without MCP, offer to connect it (`reference/conventions.md` →
-Transports). Every call here is destructive-class — restate the domain and the
-effect, get the yes, then send `confirm: true`.
+Install a Let's Encrypt (xCloud-managed) certificate:
 
-```text
-# Let's Encrypt via xCloud
-sites_sslCertificates_create  {"uuid": "<site-uuid>", "provider": "xcloud"}  # destructive: confirm: true after the user's yes
-# the team's Cloudflare integration
-sites_sslCertificates_create  {"uuid": "<site-uuid>", "provider": "cloudflare"}  # destructive: confirm: true after the user's yes
-# switch providers when one is already configured — force is required
-sites_sslCertificates_create  {"uuid": "<site-uuid>", "provider": "cloudflare", "force": true}  # destructive: confirm: true after the user's yes
-# WordPress site adopting HTTPS for the first time — DB search-replace
-sites_sslCertificates_create  {"uuid": "<site-uuid>", "provider": "xcloud", "ssl_search_replace": true}  # destructive: confirm: true after the user's yes
-# renew — a no-op unless the cert expires within 7 days, unless forced
-sites_ssl_renew               {"uuid": "<site-uuid>"}  # destructive: confirm: true after the user's yes
-sites_ssl_renew               {"uuid": "<site-uuid>", "force": true}  # destructive: confirm: true after the user's yes
-# delete a certificate
-ssl-certificates_destroy      {"uuid": "<certificate-uuid>"}  # destructive: confirm: true after the user's yes
+```bash
+"$XC" POST "/sites/$SITE_UUID/ssl-certificates" '{"provider":"xcloud"}' | jq '.data'
 ```
 
-A custom certificate needs `provider: "custom"` with the PEM `certificate` and
-`private_key`. The private key is a secret: read both from the files the user
-points to, pass them only as tool arguments, and never paste the key into the
-chat or echo it back.
+Install a custom certificate (PEM body + key required). The private key is a
+secret — build the JSON with `jq -n` from files and pipe it on **stdin** (`-`)
+so it never appears in any process argument list:
+
+```bash
+jq -n --rawfile cert cert.pem --rawfile key key.pem \
+  '{provider: "custom", certificate: $cert, private_key: $key}' \
+  | "$XC" POST "/sites/$SITE_UUID/ssl-certificates" - | jq '.data'
+```
+
+Use the team's Cloudflare integration:
+
+```bash
+"$XC" POST "/sites/$SITE_UUID/ssl-certificates" '{"provider":"cloudflare"}' | jq '.data'
+```
+
+Switch providers when one is already configured — `force` is required:
+
+```bash
+"$XC" POST "/sites/$SITE_UUID/ssl-certificates" '{"provider":"cloudflare","force":true}' | jq '.data'
+```
+
+WordPress site adopting HTTPS for the first time — opt into the DB search-replace:
+
+```bash
+"$XC" POST "/sites/$SITE_UUID/ssl-certificates" '{"provider":"xcloud","ssl_search_replace":true}' | jq '.data'
+```
+
+Renew (only fires if the cert expires within 7 days unless forced):
+
+```bash
+"$XC" POST "/sites/$SITE_UUID/ssl/renew" '{}'            | jq '.data'   # guarded
+"$XC" POST "/sites/$SITE_UUID/ssl/renew" '{"force":true}' | jq '.data'  # skip the 7-day guard
+```
+
+Delete a certificate (restate the target before running):
+
+```bash
+"$XC" DELETE "/ssl-certificates/$CERT_UUID" | jq '.message'
+```
 
 ## Request notes (from the spec)
 

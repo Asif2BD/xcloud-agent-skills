@@ -25,7 +25,7 @@ xcloud/                  xcloud-agent-skill.zip
 ```
 
 claude.ai treats an uploaded zip as **one skill** (a single `SKILL.md` at the
-root), so all seven capability areas ship as **one `xcloud` skill**: a router
+root), so all nine capability areas ship as **one `xcloud` skill**: a router
 `SKILL.md` that dispatches to per-area reference files
 (`reference/servers.md`, `reference/sites.md`, …), with the shared wrapper
 (`scripts/xcloud.sh`) and shared reference (`reference/auth.md`,

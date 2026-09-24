@@ -1,5 +1,8 @@
 # One-click apps
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 `XC="scripts/xcloud.sh"` · scopes `read:sites` to browse,
 `write:servers` to install, `write:sites` for lifecycle actions.
 
@@ -31,8 +34,8 @@
    **skipped**, not passed — say it was inconclusive. A server that is too small
    stays too small: suggest a larger server rather than retrying.
 4. **Approve and install.** Restate app, server and address; on yes send
-   `title` + `fields` (+ domain block) with `confirm: true` and one
-   `Idempotency-Key` for this install.
+   `title` + `fields` (+ domain block) with `confirm: true` on MCP and an
+   `Idempotency-Key` (`XCLOUD_IDEMPOTENCY_KEY` on REST).
 5. **Poll** `oneclickApps.status` every 5–10 seconds until `is_terminal`. A
    failure names its `failed_phase` (`pre_install`, `install`, `post_install`,
    `provisioning`).
@@ -44,16 +47,10 @@
 SERVER_UUID='replace-me'
 "$XC" GET "/oneclick-apps?search=ghost&per_page=5" | jq '.data.items | map({slug, name, requirements})'
 "$XC" GET "/servers/$SERVER_UUID/oneclick-apps/ghost/compatibility" | jq '.data'
-```
-
-The install runs on MCP (one key per install, reused only to retry that same
-install):
-
-```text
-oneclickApps_install  {"uuid": "<server-uuid>", "slug": "ghost", "title": "Ghost blog",
-                       "domain_parking_method": "staging_env", "fields": {},
-                       "Idempotency-Key": "<one key for this install>"}  # destructive: confirm: true after the user's yes
-oneclickApps_status   {"uuid": "<site_uuid from the install>"}   # poll until is_terminal
+KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
+jq -n '{title:"Ghost blog", domain_parking_method:"staging_env", fields:{}}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SERVER_UUID/sites/oneclick/ghost" - \
+  | jq '.data | {site_uuid, installation_status, status_url}'
 ```
 
 ## Dashboard-only apps

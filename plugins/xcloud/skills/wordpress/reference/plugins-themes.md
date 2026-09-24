@@ -1,5 +1,8 @@
 # WordPress plugins & themes
 
+> **Packaged REST boundary (v4.4.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
 `XC="${CLAUDE_PLUGIN_ROOT}/scripts/xcloud.sh"` · scope `read:sites` / `write:sites`.
 
 | Operation | Method + path |
@@ -20,22 +23,28 @@ SITE_UUID='replace-me'
 Update — required `type` (`plugin`|`theme`|`core`); `slugs` targets specific
 items (omit for all of that type); `backup_before_update` is recommended:
 
-```text
-sites_wordpress_update  {"uuid": "<site-uuid>", "type": "plugin", "slugs": ["woocommerce", "akismet"],
-                         "backup_before_update": true}  # destructive: confirm: true after the user's yes
+```bash
+"$XC" POST "/sites/$SITE_UUID/wordpress/update" '{
+  "type": "plugin",
+  "slugs": ["woocommerce","akismet"],
+  "backup_before_update": true
+}' | jq '.message'
 ```
 
 Activate — required `type` and `slugs`:
 
-```text
-sites_wordpress_activate  {"uuid": "<site-uuid>", "type": "plugin", "slugs": ["woocommerce"],
-                           "backup_before_action": true}  # destructive: confirm: true after the user's yes
+```bash
+"$XC" POST "/sites/$SITE_UUID/wordpress/activate" '{
+  "type": "plugin",
+  "slugs": ["woocommerce"],
+  "backup_before_action": true
+}' | jq '.message'
 ```
 
 Refresh the cached plugin/theme inventory before reading it:
 
-```text
-sites_wordpress_refresh  {"uuid": "<site-uuid>"}
+```bash
+"$XC" POST "/sites/$SITE_UUID/wordpress/refresh" | jq '.message'
 ```
 
 - Updates/activations are async — confirm via `GET /sites/{uuid}/events`.
