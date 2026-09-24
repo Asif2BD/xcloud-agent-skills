@@ -24,7 +24,15 @@ export XCLOUD_API_BASE_URL="https://app.xcloud.host"  # default (live)
 # Local development (plaintext http needs the explicit override):
 export XCLOUD_API_BASE_URL="http://xcloud.test"
 export XCLOUD_ALLOW_INSECURE_HTTP=1
+# Per call, optional:
+XCLOUD_TEAM_ID="team-uuid"          # run against a non-default granted team (X-Team-Id)
+XCLOUD_IDEMPOTENCY_KEY="$(uuidgen)" # make a create safe to retry (Idempotency-Key)
 ```
+
+A token can be granted several teams when it is created; `GET /teams` lists
+them, and `XCLOUD_TEAM_ID` selects one per call. Set both per call (prefix the
+command), not globally, so a later request never runs against the wrong team or
+reuses a key.
 
 The base URL is the **only** thing that changes between local and live — never
 hardcode a host in a skill body.
@@ -107,7 +115,10 @@ xCloud dashboard → **Profile → API Tokens → Generate New Token** → choos
 | `read:sites` | All `GET` under `/sites/*` and `/ssl-certificates/*` |
 | `write:sites` | All write methods under `/sites/*` |
 | `read:servers` | All `GET` under `/servers/*` |
-| `write:servers` | All write methods under `/servers/*` |
+| `write:servers` | All write methods under `/servers/*` (incl. buying a server) |
+| `read:billing` | Plan, overview, invoices, bills, subscriptions, payment methods |
+| `read:addons` | Mailbox and mail-delivery reads |
+| `write:addons` | Add-on purchases and deletion, paying an invoice |
 | `*` | Full access (incl. token management) |
 
 ## Fine-grained authorization

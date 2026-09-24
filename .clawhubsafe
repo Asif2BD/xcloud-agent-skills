@@ -1,8 +1,8 @@
 # ClawHub Safety Attestation
 # Skill: xcloud
-# Version: 4.2.0
+# Version: 4.3.0
 # Publisher: xCloudDev / Asif2BD
-# Date: 2026-09-22
+# Date: 2026-09-24
 # Source: https://github.com/xCloudDev/xcloud-agent-skills
 #
 # Marketplace package excludes repository-only docs, generated dist output, legacy source helpers, work-step notes, and smoke tests.
@@ -11,37 +11,45 @@
 # sha256sum -c .clawhubsafe
 
 # ## SHA256 Checksums
-21540b5c4468f3cba4dedf6fa73fe62ce8f8c4ac096425b78729759acd2db673  CHANGELOG.md
-da72f4c23ae57ce07fca56393de88c522882b0babcf25fad5c10dbd9a84bdef3  CONTEXT.md
-0f4cb434839e0d8e6d4aa86beb8905179b62ac8f07e73b59caf5ec796c83e1aa  plugins/xcloud/reference/auth.md
-f4ffbda7a0ee7e04a812d08aefcd9c2a5a73ac0bbd1c9ce6d34b1e6a2b7ce3ca  plugins/xcloud/reference/conventions.md
-9c6a4e607c221b80851302210bd2499551c9cd7ec2e6aa91251746e1d8818bd1  plugins/xcloud/reference/mcp.md
+da678710869440a76e59c05cdf68022dba9bff0e86b96db3b7723555eea095db  CHANGELOG.md
+454345eec0f06dbbc49367b5e8cdb12834d2bd29775f63b33694cf58500de8f9  CONTEXT.md
+41b389edee08f481e91c26ca9c49a4059e867c170ae1a85d0b2dbc567c39ea80  plugins/xcloud/reference/auth.md
+bd1fa2cd8f20d73c5fea253ddcc0d8daaa74d40672d06fc542b3cc2b850a122e  plugins/xcloud/reference/conventions.md
+6e67b1a3ee7ad8657d2c152a4e30f56d951874b159b2d74bafa654dc6b74ab5d  plugins/xcloud/reference/mcp.md
 b4a612f6481a1f9279861d577e4b56f17987ce560e00fa6cbdd3cd63a53b7e18  plugins/xcloud/resources/logo/xcloud-icon.svg
 187ecc332d5950e517bb9b2f49bf34f325ae0d6dfc9cd57766a59ccabc0eccc8  plugins/xcloud/resources/logo/xcloud-logo-ascii-art.txt
-f44be144097e84ddd8770316dde856670b0ae9c719508fc7f47b5998f5c51b0b  plugins/xcloud/scripts/xcloud.sh
-d6c1bd0ee69392e115291b92560658032337ddb83a7e7bddcde8e3944266e4be  plugins/xcloud/skills/account/SKILL.md
+bc8a580a140ea40c87e314594e7aa47c5ace966abb4d502e9a6dfb9fd5eaefa0  plugins/xcloud/scripts/xcloud.sh
+da4d887aa357476cedf7ae1300f400be9402055ac488216adeac366d21814d30  plugins/xcloud/skills/account/SKILL.md
+52d0fecfa72121a789a51ca1c3054dbda9db3e229799021c6b13381c0e919898  plugins/xcloud/skills/billing/reference/addons.md
+ff87cdca2273f9b773315e6ef909d41b2a7a2f6326cf7b6f71367f6c841dac9a  plugins/xcloud/skills/billing/SKILL.md
+116fd43fb90d250ded9bd917167a80e3a476810af1df7ae338381922a231659f  plugins/xcloud/skills/deploy/reference/git.md
+09e36e42aefb2beb4a18a29a2fa9289381d2aaec535b557c7ba92922fd2c413a  plugins/xcloud/skills/deploy/reference/one-click-apps.md
+8d3cf6fb5722ea1a3c3b9666472d5602fa28de850e6fa7fe2aa6a2642f12ac04  plugins/xcloud/skills/deploy/reference/staging-and-wordpress.md
+f3a2d564f0a1d729f74dc4b156023db5a6ec28f016028b9952fea63db2384e17  plugins/xcloud/skills/deploy/SKILL.md
 9cf4a21b86cfc75bc2f06d348ddc17e80febfbb2793dae142a61cfec052dc1a3  plugins/xcloud/skills/servers/reference/cron-jobs.md
 24d84f8a50cf6c3be15f6c557d2551d594df4bb6493dbf48b2b631112b203305  plugins/xcloud/skills/servers/reference/databases.md
 5c40b685370a708422c1bd1c031e177b1bce53ff0db8cbefd93b260c0a04314d  plugins/xcloud/skills/servers/reference/firewall.md
 2b7c4093fe4c2c74bd49ab2372a9c0d4f6d0c00b4e81a87311ca5c0c3e14c64d  plugins/xcloud/skills/servers/reference/php-versions.md
+8eb578c7c8b39a8563a47c8c1561aa2cd4deea34e9afebc4f21a4a6fa6b11b3d  plugins/xcloud/skills/servers/reference/provisioning.md
 ebef763b4fda004a31e8f3b2192451c40d562c121364cec2044dbc482515a031  plugins/xcloud/skills/servers/reference/sudo-users.md
-451e08452d8af2e714d2bc11cfb281c3574241651a1f95ee8709c989070cb088  plugins/xcloud/skills/servers/SKILL.md
-dd559d740159845803485934506134c83bd9327ed50fd1da5dbd3ee38bc1e35c  plugins/xcloud/skills/sites/reference/backups.md
+5c023ea2b7d7c33fd57d6e692c1a07d40862f5c8bf1677f97bc98b016bf4b2a6  plugins/xcloud/skills/servers/SKILL.md
+f5b65835d225ad9c176f1f233446ec961bbba5dfed23a0ce029c50a16dc24fe1  plugins/xcloud/skills/sites/reference/backups.md
 59367fe32fd0f45278a79255fccfee7e3b1be3830b081198e073d1909312c339  plugins/xcloud/skills/sites/reference/cache.md
 0f6006ad7817df2fb4ce7e92eb307ba4c6e6e53fb2accb1bb710561fbbde6e45  plugins/xcloud/skills/sites/reference/cron-jobs.md
+5badf435fb538b0e4cf6b0d3fd1e227c18cc22d6ecc798dabeb816509d06c3cd  plugins/xcloud/skills/sites/reference/docker-backups.md
 1878ef29254e0f452b52071a498852f37b90b5a4dbfb817c37d229c5d521ba86  plugins/xcloud/skills/sites/reference/domains.md
-8d8367a23ebe850ffe659de38e02f9fa5afbd82144c956f69631476d76729d28  plugins/xcloud/skills/sites/reference/git.md
 e333b33a4b0014700bd1c01ed23d873444c3bcedcb3a5ea704bad9d5c2be4edf  plugins/xcloud/skills/sites/reference/ssh.md
-e5acc0792e0595dcd5cebb8896cc7c91114c5b1fa8ef3774aaf87c4bc5cc5373  plugins/xcloud/skills/sites/SKILL.md
+f952c4107371dd2fd662c31f28736b61d59fbe038dcc1db107c9e0e821b71eed  plugins/xcloud/skills/sites/SKILL.md
 401ce31e50cacd504e72c95da910a6776afacddfbf5fee31789e1545fbe9097d  plugins/xcloud/skills/ssl/SKILL.md
-aa6b0d4bdce3b907f55f952bb6335b1db50d61382a3781d545b90b62970ed7ec  plugins/xcloud/skills/wordpress/reference/pagespeed.md
+248faaff686c4f225b88e72ca6be02c477ddf2660e9d5a11d96aa0e01e982d23  plugins/xcloud/skills/wordpress/reference/broken-links.md
+c60d19743ffbcdb00981dd4e5ad13857755285f1289b9d76241e4b7e2f788861  plugins/xcloud/skills/wordpress/reference/pagespeed.md
 6f38830da8e47420e086cd8b946f2f60c98f542697e9dcf5a3cfb0f28c3425be  plugins/xcloud/skills/wordpress/reference/plugins-themes.md
 f12f50434c64f33bcd8b8e85c621fc3d78cf0e343c05a103aaa51b50f2d7e9b7  plugins/xcloud/skills/wordpress/reference/vulnerabilities.md
-311f41af6983102888b718849b3f0000f61fe18e50501902a87d820a8c4365ef  plugins/xcloud/skills/wordpress/SKILL.md
-d44affac5ab342f1f20842336cfd9835373c18edddfaca5a242f806de3733897  README.md
+c617e51be2d7b6a2016616be900437edbc6af5ff061378d11d29f093237fd10c  plugins/xcloud/skills/wordpress/SKILL.md
+42e8c7a89245f41dcbf274337afbd0770ff5d4bf30f5aad4b7130dea2343d80e  README.md
 2480a2c76001b7265da466193ea4e1f885ec99abe15a772e6bfa0ef132b5c84f  requirements.txt
 e997de249c707c35a4e9baf68e78477f61b6582a77a438f41b7578e0af4e654b  SECURITY.md
-fbffab5db6aea2c10547f43f98c89dd02ef6a454fa3eb69f9640720d31022cdd  SKILL.md
+ae3bf8b0328b9bc7942a41c2462fbb35c5746642c83c6e4d205de13709e55dbc  SKILL.md
 
 # ## Security Attestation
 # This ClawHub package contains marketplace metadata, installable xCloud skill instructions, runtime references, assets, and the shared REST wrapper. It ships no real API tokens and does not run network calls during installation.

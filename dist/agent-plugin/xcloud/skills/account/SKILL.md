@@ -1,6 +1,6 @@
 ---
 name: account
-description: xCloud account, identity, and org-level reads — current user, API token listing and revocation, Cloudflare integrations, WordPress blueprints, and API health. Use for "who am I", token management, listing blueprints, or checking integrations. NOT server or site operations (see servers / sites).
+description: xCloud account, teams, and org-level reads — current user, the teams this connection may act on (multi-team), incident alerts (list, read, mark as read), API token listing and revocation, connected Git providers and their repositories, Cloudflare integrations, WordPress blueprints, and API health. Use for "who am I", "which teams can you see", "switch to the Acme team", "any open alerts?", "mark resolved alerts as read", token management, or checking integrations. NOT server or site operations (see servers / sites), NOT billing (see billing).
 ---
 
 # xCloud Account
@@ -11,7 +11,9 @@ read the shared layer first:
 - `references/shared/auth.md`
 - `references/shared/conventions.md`
 - `references/shared/mcp.md` — **prefer the MCP tools when
-  connected**: `user_show`, `blueprints_index`, `integrations_cloudflare_index`.
+  connected**: `user_show`, `teams_index`, `alerts_index`, `alerts_show`,
+  `alerts_read`, `integrations_git_index`, `integrations_git_repositories`,
+  `blueprints_index`, `integrations_cloudflare_index`.
   **Exception:** `/health` and API-token list/revoke are REST-only — the MCP
   never exposes token management; always use `$XC` for those.
 
@@ -45,12 +47,41 @@ block — once per conversation.
 |---|---|---|
 | API health | `GET /health` | none |
 | Current user | `GET /user` | token |
+| Teams this token may act on | `GET /teams` | token |
+| Incident alerts (filter `unread`, `severity`, `category`) | `GET /alerts` | `read:servers` or `read:sites` |
+| One alert | `GET /alerts/{alertUuid}` | `read:servers` or `read:sites` |
+| Mark an alert read / unread | `PUT /alerts/{alertUuid}/read` | `read:servers` or `read:sites` |
 | List API tokens | `GET /user/tokens` | token (`*`) |
 | Revoke a token | `DELETE /user/tokens/{tokenUuid}` | token (`*`) |
 | List Cloudflare integrations | `GET /integrations/cloudflare` | `read:servers` |
+| List connected Git providers | `GET /integrations/git` | `read:servers` |
+| Repositories a provider exposes | `GET /integrations/git/{provider_uuid}/repositories` | `read:servers` |
 | List blueprints | `GET /blueprints` | `read:servers` |
 
-**Not here:** server management → the `servers` skill; site management → the `sites` skill.
+**Not here:** server management → the `servers` skill; site management →
+the `sites` skill; deploying → the `deploy` skill; plans and invoices →
+the `billing` skill.
+
+## Teams
+
+`GET /teams` lists the default team and every extra team granted to this token
+or connection, with the user's `role` in each. When the user names a team,
+match it here and pass its uuid as `team` (MCP) or `XCLOUD_TEAM_ID` (REST) on
+every call of that task — see `references/shared/conventions.md` → **Teams**. One team
+listed while the user expects more means the connection was authorized for one
+team: explain how to re-authorize it with more (`references/shared/mcp.md`).
+
+## Incident alerts
+
+`GET /alerts` is the team's incident-notification **history** (availability,
+resources, deployments, backups, SSL, security), newest first, with an
+`unread_count`. It is not a list of currently open incidents: before calling
+something "still broken", check the resource itself (site status, SSL, backup
+status). Summarise one line per alert — what, which resource, when — and group
+repeats ("3 failed backups on `shop.example.com` since Monday"). Offer the fix
+through the owning skill. Marking read (`PUT … {"is_read": true}`) only changes
+this user's read state; do it when asked, or for alerts the user confirms are
+resolved.
 
 ## Examples
 
@@ -80,6 +111,16 @@ TOKEN_UUID='8c1f3a89-2c4e-4a73-9d4c-8b1f2a3d4e5f'
 "$XC" DELETE "/user/tokens/$TOKEN_UUID" | jq '.message'
 ```
 
+Teams and unread error alerts:
+
+```bash
+"$XC" GET /teams | jq '.data | map({uuid, name, role, is_default})'
+"$XC" GET "/alerts?unread=true&severity=error&per_page=20" \
+  | jq '{unread: .data.unread_count, alerts: (.data.items | map({title, category, at: .recorded_at, resource: .resource.name}))}'
+ALERT_UUID='replace-me'
+"$XC" PUT "/alerts/$ALERT_UUID/read" '{"is_read":true}' | jq '.data | {title, is_read}'
+```
+
 Cloudflare integrations on the team:
 
 ```bash
@@ -99,3 +140,5 @@ Blueprints (resolve a `blueprint_uuid` before creating a WordPress site):
   not a numeric id — `DELETE /user/tokens/{tokenUuid}`.
 - `GET /user/tokens` returns `403` unless the token carries the `*` scope.
 - `blueprints` requires `read:servers`, not `read:sites`.
+- Alerts are filtered by what the token may read: a `read:sites`-only token sees
+  site alerts, not server ones.

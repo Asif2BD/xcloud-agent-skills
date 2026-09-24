@@ -41,7 +41,7 @@ curl -sS -X POST \
     "title": "My WordPress Site",
     "php_version": "'"$PHP_VERSION"'",
     "ssl": {
-      "provider": "letsencrypt"
+      "provider": "xcloud"
     },
     "cache": {
       "full_page": true,
@@ -217,7 +217,7 @@ curl -sS -X POST \
     "domain": "'"$DOMAIN"'",
     "blueprint_uuid": "'"$BLUEPRINT_UUID"'",
     "ssl": {
-      "provider": "letsencrypt"
+      "provider": "xcloud"
     }
   }' | jq '.data.uuid'
 

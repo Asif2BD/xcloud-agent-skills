@@ -1,19 +1,21 @@
 # xCloud Skills — Install & Usage Guide
 
 A step-by-step guide to installing and using the **xCloud Public API skills**
-(plugin `xcloud` v4.0.1) inside Claude Code.
+(plugin `xcloud` v4.3.0) inside Claude Code.
 
-The plugin ships **five skills**, each owning one capability area of the API.
+The plugin ships **seven skills**, each owning one capability area of the API.
 You don't call them directly — you describe what you want in plain language and
 Claude picks the right skill automatically.
 
 | Skill | Owns | Typical asks |
 |---|---|---|
-| `xcloud:servers` | Servers, PHP, databases, cron, firewall/fail2ban, sudo users, services, WordPress provisioning | "reboot server X", "install PHP 8.3", "disable Redis", "ban this IP" |
-| `xcloud:sites` | Site lifecycle: status, backups, domains, cache, SSH, site cron, git settings, manual deploys | "back up example.com", "deploy latest commit", "show site events" |
-| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site/team vulnerabilities, PageSpeed | "update WooCommerce", "show team vulnerabilities", "PageSpeed score" |
+| `xcloud:deploy` | Deploy a Git repo, Docker Compose app, one-click app, Git staging environment or WordPress site end to end; diagnose and retry failed deploys; redeploys | "deploy github.com/acme/shop", "install Uptime Kuma", "my last deploy failed", "deploy latest commit" |
+| `xcloud:servers` | Servers: buy a server, services, Node/PHP versions, verified reboots, cron, firewall/fail2ban, sudo users, DNS checks | "reboot server X", "install Redis", "switch Node to 22", "ban this IP" |
+| `xcloud:sites` | Site lifecycle: status, backups (incl. Docker apps), staging, domains, cache, SSH, site cron, monitoring, deletion | "back up example.com", "show site events", "purge the cache" |
+| `xcloud:wordpress` | WP plugins/themes/updates, WP_DEBUG, magic login, site/team vulnerabilities, PageSpeed, broken links | "update WooCommerce", "show team vulnerabilities", "find broken links" |
 | `xcloud:ssl` | SSL certificates: view, install, renew, status, delete | "renew SSL for example.com", "install a Let's Encrypt cert" |
-| `xcloud:account` | Current user, API tokens, Cloudflare integrations, blueprints, health | "who am I", "list my API tokens", "list blueprints" |
+| `xcloud:billing` | Plan, invoices, bills, prices, paying an invoice, mailboxes and mail delivery | "what plan am I on", "last month's invoice", "buy a mailbox" |
+| `xcloud:account` | Current user, teams, incident alerts, API tokens, Git/Cloudflare integrations, blueprints, health | "who am I", "switch to the Acme team", "any unread alerts?" |
 
 ---
 
@@ -29,14 +31,14 @@ In Claude Code:
 /reload-plugins
 ```
 
-After reload, confirm the five skills are present:
+After reload, confirm the seven skills are present:
 
 ```
 /plugin
 ```
 
-You should see `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`,
-`xcloud:ssl`, and `xcloud:account`.
+You should see `xcloud:deploy`, `xcloud:servers`, `xcloud:sites`,
+`xcloud:wordpress`, `xcloud:ssl`, `xcloud:billing`, and `xcloud:account`.
 
 > Installing v3.0.0 renames the plugin to `xcloud` and shortens the skill IDs to
 > `xcloud:servers`, `xcloud:sites`, `xcloud:wordpress`, `xcloud:ssl`, and
@@ -154,11 +156,11 @@ makes under the hood (`$XC` = the shared wrapper, `$SITE`/`$SRV` = a resolved UU
 
 Server infrastructure and server-level security.
 
-**Reboot a server**
+**Reboot a server** (verified: xCloud confirms the machine came back)
 > "Reboot my Hermes server."
 ```bash
-"$XC" POST "/servers/$SRV/reboot"
-# then poll: "$XC" GET "/servers/$SRV/tasks"
+OP=$("$XC" POST "/servers/$SRV/reboots" | jq -r '.data.uuid')
+"$XC" GET "/servers/$SRV/reboots/$OP"
 ```
 
 **Install and default a PHP version**
@@ -199,7 +201,7 @@ Site lifecycle and delivery.
 **Back up a site**
 > "Back up example.com before I deploy."
 ```bash
-"$XC" POST "/sites/$SITE/backup" '{"label":"pre-deploy"}'
+"$XC" POST "/sites/$SITE/backup" '{"type":"local"}'
 "$XC" GET  "/sites/$SITE/backup-status"
 ```
 
@@ -215,19 +217,6 @@ Site lifecycle and delivery.
 > "Clear the cache on example.com."
 ```bash
 "$XC" POST "/sites/$SITE/cache/purge-all"
-```
-
-**Trigger a Git deployment**
-> "Deploy the latest Git commit for example.com."
-```bash
-"$XC" POST "/sites/$SITE/git/deploy"
-# then poll deployment logs/events
-```
-
-**Update Git deployment settings**
-> "Set example.com to deploy from the main branch and enable push deploy."
-```bash
-"$XC" PUT "/sites/$SITE/git" '{"git_branch":"main","enable_push_deploy":true}'
 ```
 
 **Switch SSH to key auth**
@@ -300,17 +289,83 @@ Identity and org-level reads.
 "$XC" GET /user
 ```
 
-**List and revoke tokens** (needs `*` scope)
-> "List my API tokens and revoke token 123."
+**List and revoke tokens** (needs `*` scope; revoke by the token's `uuid`)
+> "List my API tokens and revoke the old CI token."
 ```bash
 "$XC" GET /user/tokens
-"$XC" DELETE /user/tokens/123
+"$XC" DELETE "/user/tokens/$TOKEN_UUID"
+```
+
+**Teams and alerts**
+> "Which teams can you see? Any unread error alerts on the Acme team?"
+```bash
+"$XC" GET /teams
+XCLOUD_TEAM_ID="$ACME_TEAM_UUID" "$XC" GET "/alerts?unread=true&severity=error"
 ```
 
 **List blueprints** (before creating a WordPress site)
 > "Show me my WordPress blueprints."
 ```bash
 "$XC" GET "/blueprints?per_page=100"
+```
+
+### 5.6 `xcloud:deploy`
+
+Getting code and apps live, and recovering failed deploys. On MCP the skill
+runs `xcloud_agent_search` first and follows the returned steps.
+
+**Deploy a GitHub URL**
+> "Deploy https://github.com/acme/shop to my Frankfurt server."
+```bash
+jq -n --arg r "https://github.com/acme/shop" --arg s "$SRV" '{repository_url:$r, server_uuid:$s}' \
+  | "$XC" POST /git/detect -                                   # what is it? can this server run it?
+jq -n --arg r "https://github.com/acme/shop" '{repository:{url:$r}, dry_run:true}' \
+  | "$XC" POST "/servers/$SRV/sites/git/auto" -                # preview — creates nothing
+# after "yes": same body without dry_run, safe to retry
+jq -n --arg r "https://github.com/acme/shop" '{repository:{url:$r}}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$(uuidgen)" "$XC" POST "/servers/$SRV/sites/git/auto" -
+"$XC" GET "/sites/$SITE/status"                                # poll until terminal, then open the URL
+```
+
+**Recover a failed deploy**
+> "The last deploy of the API site failed — fix it."
+```bash
+"$XC" GET "/sites/$SITE/deploy-diagnosis"     # classification, explanation, correctable_fields
+jq -n '{corrections:{build_command:"npm run build"}}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$(uuidgen)" "$XC" POST "/sites/$SITE/provision-retry" -
+```
+
+**Ship the latest commit / change deploy settings**
+> "Deploy the latest Git commit for example.com."
+```bash
+"$XC" PUT  "/sites/$SITE/git" '{"git_branch":"main","enable_push_deploy":true}'
+"$XC" POST "/sites/$SITE/git/deploy"
+```
+
+**Install a one-click app**
+> "Install Uptime Kuma on my Docker server."
+```bash
+"$XC" GET "/oneclick-apps?search=uptime"
+"$XC" GET "/servers/$SRV/oneclick-apps/$SLUG/compatibility"
+```
+
+### 5.7 `xcloud:billing`
+
+Plans, invoices, prices and paid add-ons. Every purchase or payment waits for
+an explicit yes with the price.
+
+**Latest invoice**
+> "Show me last month's invoice and its total."
+```bash
+"$XC" GET "/billing/invoices?per_page=5"
+"$XC" GET "/billing/invoices/$INVOICE_NUMBER"
+```
+
+**Mailbox DNS**
+> "Which DNS records do I still need for hello@example.com?"
+```bash
+"$XC" GET /addons/mailbox
+"$XC" POST "/addons/mailbox/$MAILBOX/verify-dns"
 ```
 
 ---
@@ -350,7 +405,7 @@ count, PageSpeed score — without naming a single endpoint.
 
 ```bash
 # 1. snapshot first (xcloud:sites)
-"$XC" POST "/sites/$SITE/backup" '{"label":"pre-woo-update"}'
+"$XC" POST "/sites/$SITE/backup" '{"type":"local"}'
 "$XC" GET  "/sites/$SITE/backup-status"          # wait for "completed"
 # 2. update with built-in pre-update backup (xcloud:wordpress)
 "$XC" POST "/sites/$SITE/wordpress/update" \
@@ -394,6 +449,11 @@ endpoint lives in the URL. A few rules to keep in mind:
   separate security skill.
 - **Cron** exists on both servers and sites — say "server cron" or "site cron"
   if it's ambiguous.
+- **Creating anything that runs code** — a Git site, Docker app, one-click app,
+  staging environment or WordPress site — and fixing a failed deploy is
+  `xcloud:deploy`, even though the create URLs live under `/servers/...`.
+- **Money** (plans, invoices, add-on purchases) is `xcloud:billing`; buying a
+  server itself is `xcloud:servers`.
 
 If Claude picks the wrong skill, name it explicitly: *"Using xcloud:ssl, renew
 the cert for example.com."*
@@ -416,7 +476,8 @@ export XCLOUD_TEST_SERVER_UUID="<a-real-server-uuid>"
 bash plugins/xcloud/skills/sites/tests/smoke.sh
 ```
 
-The tests only perform `GET` requests — they never mutate anything.
+The tests never mutate anything: they perform `GET` requests, plus the deploy
+suite's side-effect-free repository detection (`POST /git/detect`).
 
 ---
 

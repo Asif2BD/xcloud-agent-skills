@@ -27,6 +27,12 @@
 #   XCLOUD_VERBOSE              (optional) set to 1 for verbose curl output.
 #                               The Authorization header and any occurrence of
 #                               the token are redacted from verbose output.
+#   XCLOUD_TEAM_ID              (optional) team uuid for a multi-team token, sent
+#                               as X-Team-Id. Omit for the token's default team.
+#   XCLOUD_IDEMPOTENCY_KEY      (optional) sent as Idempotency-Key so a retried
+#                               create cannot run twice. Use a fresh key per
+#                               distinct create; reuse it only to retry the same
+#                               request.
 #
 # Output: response body to stdout. Exit code 0 on 2xx, non-zero on 4xx/5xx.
 
@@ -104,6 +110,23 @@ CURL_OPTS=(
   -H "Content-Type: application/json"
   -w '\n%{http_code}'
 )
+
+# Header values come from the environment; a strict charset keeps a stray CR/LF
+# from injecting extra headers.
+if [[ -n "${XCLOUD_TEAM_ID:-}" ]]; then
+  if [[ ! "${XCLOUD_TEAM_ID}" =~ ^[A-Za-z0-9-]{1,64}$ ]]; then
+    echo "error: XCLOUD_TEAM_ID must be a team uuid (letters, digits, hyphens)" >&2
+    exit 64
+  fi
+  CURL_OPTS+=(-H "X-Team-Id: ${XCLOUD_TEAM_ID}")
+fi
+if [[ -n "${XCLOUD_IDEMPOTENCY_KEY:-}" ]]; then
+  if [[ ! "${XCLOUD_IDEMPOTENCY_KEY}" =~ ^[A-Za-z0-9._:-]{1,255}$ ]]; then
+    echo "error: XCLOUD_IDEMPOTENCY_KEY may only contain letters, digits and . _ : -" >&2
+    exit 64
+  fi
+  CURL_OPTS+=(-H "Idempotency-Key: ${XCLOUD_IDEMPOTENCY_KEY}")
+fi
 
 if [[ "${XCLOUD_VERBOSE:-0}" == "1" ]]; then
   CURL_OPTS+=(-v)

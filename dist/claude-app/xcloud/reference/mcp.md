@@ -2,10 +2,11 @@
 
 Shared by every `xcloud:*` domain skill. The **xCloud MCP server** exposes every
 authenticated Public API operation as a native MCP tool, plus two search tools.
-On 2026-09-22 the default profile listed **190 tools: 188 operation tools and
-the two searches** (110 read, 17 write, 61 destructive). The count grows with
-each API release — treat it as a snapshot, never as a contract. Only `/health`
-and API-token management stay REST-only (see below).
+On 2026-09-24 the default profile listed **190 tools: 188 operation tools and
+the two searches**, against 199 operations in the live OpenAPI. The count grows
+with each API release — treat it as a snapshot, never as a contract. The 11
+operations without a tool are `/health`, API-token management, and the xCloud
+mobile app's own sign-in and push-notification endpoints (see below).
 
 - **Endpoint:** `https://app.xcloud.host/mcp` (Streamable HTTP)
 - **Docs:** <https://app.xcloud.host/mcp/docs>
@@ -161,7 +162,18 @@ or the team uuid passed as the `team` argument (every flat tool except
 `teams_index` carries it; the compact executors take it next to `path_params`).
 Call `teams_index` first — a team the token was not granted is refused with
 `403 "Team not found or not granted to this token"`, never silently replaced by
-the default.
+the default. On REST the same selector is the `X-Team-Id` header, which the
+wrapper sends when `XCLOUD_TEAM_ID` is set.
+
+**Turning on multi-team for an existing connection.** Grants are chosen when the
+connection is authorized, so an older single-team connection keeps working
+unchanged but only ever sees its one team. To manage several teams from one
+connection, the user re-authorizes it (disconnect and connect again, or remove
+and re-add it) and ticks every team on the xCloud approval screen; API tokens
+get the same team picker when they are created. If `teams_index` returns one
+team while the user talks about another, say this once, then continue with the
+connection that has the team. Docs:
+<https://xcloud.host/docs/multi-team-api-tokens-and-mcp-access/>
 
 ## Connecting (tell the user, per client)
 
@@ -208,6 +220,11 @@ The MCP does **not** expose these — always use `scripts/xcloud.sh` for them:
 | API health | `GET /health` | unauthenticated probe |
 | List API tokens | `GET /user/tokens` | token management stays out of MCP |
 | Revoke a token | `DELETE /user/tokens/{tokenUuid}` | token management stays out of MCP |
+
+Eight more operations have no tool and are **not for agents at all**: the xCloud
+mobile app's sign-in (`/auth/config`, `/auth/token`, `/auth/session`) and its
+push-notification registration (`/notifications/…`). Incident alerts themselves
+are available to agents through `alerts_index`, `alerts_show` and `alerts_read`.
 
 ## Accepted is not finished
 

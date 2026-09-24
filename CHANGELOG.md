@@ -2,6 +2,85 @@
 
 All notable changes to the xCloud Public API skill are documented in this file.
 
+## [4.3.0] - 2026-09-24
+
+**The proactive deploy release.** Paste a repository URL and say "deploy" — the
+agent now finishes the job. Built on xCloud v2.8.8 (multi-team access, deploy
+diagnosis and retry, dry-run previews, Git staging, Cloudflare-assisted deploys)
+and verified against the live server on 2026-09-24: 199 API operations, 191 of
+them agent-facing, 190 MCP tools. The end-to-end flow was exercised read-only
+with a real dry run (a public Express repository → Node.js site preview on a
+staging hostname; nothing created).
+
+### Added
+
+- **`xcloud:deploy`** — a new skill that owns getting code live: any GitHub,
+  GitLab or Bitbucket URL (public, connected provider, or private with a deploy
+  key), Docker Compose / Dockerfile apps, one-click apps, Git staging
+  environments from a branch, and new WordPress sites. One playbook: team →
+  server (never picked silently) → `git.detect` → staging hostname or live
+  domain (Cloudflare when connected) → dry run → one approval → create with an
+  idempotency key → poll → fetch the live URL → offer the next step. Failed
+  deploys go straight to `deploy-diagnosis` → corrections → `provision-retry`
+  on the same site. `reference/git.md` moved here from `xcloud:sites`; new
+  `reference/one-click-apps.md` and `reference/staging-and-wordpress.md`.
+- **`xcloud:billing`** — plan, overview, invoices, bills, subscriptions,
+  packages, products, payment methods, paying an invoice, public prices, and
+  email add-ons (`reference/addons.md`: mailbox plans, purchase, DNS
+  verification, IMAP/POP/SMTP settings, deletion; mail-delivery subscriptions).
+  Money rules: explicit approval with item, price, period and card; no blind
+  retries of non-idempotent purchases; 3-D Secure links handed to the user.
+- **Multi-team access.** Shared conventions teach team selection (`teams_index`
+  → `team` on MCP, `X-Team-Id` on REST), cross-team lookups when a resource is
+  missing from the default team, and how to re-authorize a single-team
+  connection to add teams. `mcp.md` documents several xCloud connections in one
+  session and recognising the server by tool names, not prefix.
+- **Proactive mode** in `reference/conventions.md`: finish the whole job,
+  search first, preview then ask once, recover instead of report, verify the end
+  state, surface alerts and risks without acting unasked, give dashboard paths
+  for dashboard-only steps. The confirmation policy now covers purchases, site
+  creation, retries, redeploys, service installs and runtime changes.
+- `xcloud:servers`: buying a server (`reference/provisioning.md`: plans,
+  prices, regions, card check, idempotent create, provisioning progress),
+  verified reboots (`/reboots`), service install/enable, Node.js defaults, DNS
+  checks, fleet disk checks.
+- `xcloud:account`: teams, incident alerts (list, filter, mark read), connected
+  Git providers and their repositories.
+- `xcloud:sites`: Docker app backups (`reference/docker-backups.md`), staging
+  environment create, events by task.
+- `xcloud:wordpress`: broken-link scans (`reference/broken-links.md`), PageSpeed
+  scan polling, fleet update questions.
+- REST wrapper: `XCLOUD_TEAM_ID` → `X-Team-Id` and `XCLOUD_IDEMPOTENCY_KEY` →
+  `Idempotency-Key`, both validated against a strict character set so a stray
+  CR/LF cannot inject headers; six new offline tests (14 total).
+- Read-only smoke suites for `deploy` (catalog, Git integrations, side-effect-free
+  repository detection, staging hostname, deploy keys) and `billing` (403 on an
+  unscoped token counts as skip); account suite checks teams and alerts; CI runs
+  all seven.
+
+### Fixed
+
+- `servers` listed `POST /servers/{uuid}/staging-hostname/suggest`; the live
+  operation is `GET /servers/{uuid}/staging-hostname?label=…`.
+- WordPress creation examples sent `ssl.provider: letsencrypt`, which the API
+  rejects — the values are `xcloud` (free Let's Encrypt), `custom`, `cloudflare`.
+  Fixed in the skill, `docs/DEPLOY.md`, `docs/WORKFLOWS.md`,
+  `docs/DECISION-TREES.md`, and the legacy SDK default
+  (`src/xcloud_sdk.py`).
+- Site backups sent a `label` field the API does not take; the body is `type:
+  local|remote` and progress is polled via `data.task_uuid`.
+- `GET /sites/{uuid}/pagespeed/scans/{scan_uuid}` (poll one scan) was
+  undocumented. Every agent-facing operation is now documented (191/191).
+- The startup banner still said v4.0.1.
+- `.clawhubinfo.json` listed the Agent Plugins release as v4.2.0; it is v4.1.0,
+  and the actual v4.2.0 entry was missing.
+
+### Distribution
+
+- Both builders (`dist/agent-plugin/build.py`, `dist/claude-app/build.sh`) and
+  the portable validator now cover seven areas; the claude.ai router lists
+  Deploy and Billing. Regenerated `dist/`.
+
 ## [4.2.0] - 2026-09-22
 
 **The search, profiles and deploy-flow release.** Everything below was verified

@@ -283,7 +283,7 @@ class XCloudAPI:
     
     def create_wordpress_site(self, server_uuid: str, domain: str = None,
                             title: str = None, php_version: str = "8.2",
-                            ssl_provider: str = "letsencrypt",
+                            ssl_provider: str = "xcloud",
                             blueprint_uuid: str = None,
                             cache_full_page: bool = True,
                             cache_object: bool = True) -> Dict:
@@ -295,7 +295,7 @@ class XCloudAPI:
             domain: Domain name (required for live mode)
             title: Site title
             php_version: PHP version (8.1, 8.2, 8.3, etc.)
-            ssl_provider: SSL provider (letsencrypt, custom, none)
+            ssl_provider: SSL provider (xcloud = free Let's Encrypt, custom, cloudflare)
             blueprint_uuid: Pre-configured blueprint
             cache_full_page: Enable full-page caching
             cache_object: Enable object caching

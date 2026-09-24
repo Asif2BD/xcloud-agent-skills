@@ -61,12 +61,12 @@ This produces **one** self-contained skill zip in `dist/claude-app/`:
 xcloud-agent-skill.zip
 ```
 
-It bundles everything — a router `SKILL.md` covering all five capability areas
-(servers, sites, WordPress, SSL, account), the wrapper script, and all reference
+It bundles everything — a router `SKILL.md` covering all seven capability areas
+(deploy, servers, sites, WordPress, SSL, billing, account), the wrapper script, and all reference
 files. **One upload installs everything.**
 
 > claude.ai treats a zip as a single skill, so all capabilities ship as one
-> `xcloud` skill (not five). That's why there's one zip, not five.
+> `xcloud` skill (not seven). That's why there's one zip, not seven.
 
 ---
 
@@ -90,8 +90,8 @@ files. **One upload installs everything.**
    **Skills** section. Make sure **code execution** is enabled.
 3. Click **Add Skill → Upload** (or *Upload skill*).
 4. Select **`dist/claude-app/xcloud-agent-skill.zip`**.
-5. Confirm. The skill appears as **`xcloud`** and covers all five areas — servers,
-   sites, WordPress, SSL, and account. One upload, everything installed.
+5. Confirm. The skill appears as **`xcloud`** and covers all seven areas — deploy, servers,
+   sites, WordPress, SSL, billing, and account. One upload, everything installed.
 
 > **Don't** use "Import from GitHub" for these — that imports the *Claude Code
 > plugin* structure, whose shared wrapper lives outside each skill folder and

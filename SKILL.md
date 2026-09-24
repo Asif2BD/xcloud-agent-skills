@@ -1,7 +1,7 @@
 ---
 name: xcloud-agent-skills
-description: "Official xCloud plugin for agents: manage servers, sites, WordPress, SSL, and account data — MCP-first via the xCloud MCP server, with a bundled REST fallback."
-version: 4.2.0
+description: "Official xCloud plugin for agents: deploy any GitHub repo, Docker app, one-click app or WordPress site end to end, and manage servers, sites, WordPress, SSL, billing, teams and alerts — MCP-first via the xCloud MCP server, with a bundled REST fallback."
+version: 4.3.0
 author: xCloudDev
 homepage: https://xcloud.host
 category: deployment
@@ -74,9 +74,9 @@ metadata:
   }
 ---
 
-# xCloud Agent Skills v4.2.0
+# xCloud Agent Skills v4.3.0
 
-[![Version](https://img.shields.io/badge/version-4.2.0-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-4.3.0-brightgreen.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/CHANGELOG.md)
 [![MCP](https://img.shields.io/badge/MCP-app.xcloud.host%2Fmcp-0EA5E9.svg)](https://app.xcloud.host/mcp/docs)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/LICENSE)
 [![xCloud](https://img.shields.io/badge/xCloud-hosting-0EA5E9.svg)](https://xcloud.host)
@@ -93,24 +93,26 @@ This root skill describes the official xCloud Public API plugin bundle for agent
 
 The runnable skills live under `plugins/xcloud/skills/` and are invoked as:
 
+- `xcloud:deploy`
 - `xcloud:servers`
 - `xcloud:sites`
 - `xcloud:wordpress`
 - `xcloud:ssl`
+- `xcloud:billing`
 - `xcloud:account`
 
 ## What It Provides
 
 Use this package when an agent needs to operate xCloud hosting infrastructure. It pairs with the **xCloud MCP server** (`https://app.xcloud.host/mcp` — one native tool per authenticated Public API operation plus `xcloud_agent_search` and `xcloud_docs_search`, a five-tool compact profile, OAuth, per-action confirmation on destructive operations) and falls back to the bundled REST wrapper on agents without MCP support:
 
-- Manage servers, services, monitoring, PHP versions, databases, firewall rules, fail2ban, and snapshots
-- Provision WordPress sites and Git-deployed sites (Laravel, Node.js, custom PHP, Lovable) onto servers
-- Manage sites, domains, cache, backups, deployment logs, rescue workflows, SSH/SFTP, cron jobs, access logs, and safe site deletion
-- Manage Git deployment settings and trigger manual Git deployments for xCloud sites
-- Manage WordPress health, updates, plugins, themes, vulnerabilities, PageSpeed, WP_DEBUG, and magic-login URLs
-- Run team-wide vulnerability rollups across all xCloud sites
+- Deploy any GitHub, GitLab or Bitbucket URL end to end — detect the app, preview with a dry run, ask once, provision, poll, verify the live URL — and diagnose and retry a failed deploy on the same site
+- Deploy Docker Compose and Dockerfile apps, install one-click apps (Ghost, Uptime Kuma, Vaultwarden, …), create Git staging environments from a branch, and create WordPress sites
+- Buy xCloud-managed servers (plans, prices, regions, provisioning progress); manage services, Node.js and PHP versions, verified reboots, monitoring, firewall rules, fail2ban, sudo users, cron, and DNS checks
+- Manage sites, domains, cache, backups (including Docker app backups), staging, rescue workflows, SSH/SFTP, cron jobs, access logs, and safe site deletion
+- Manage WordPress health, updates, plugins, themes, vulnerabilities (per site and team-wide), PageSpeed, broken links, WP_DEBUG, and magic-login URLs
 - Manage SSL certificates, renewals, custom certificates, certificate status, and Cloudflare certificates
-- Read account identity, API health, API tokens, Cloudflare integrations, and WordPress blueprints
+- Read plan, invoices, bills and prices; pay invoices and buy mailboxes or mail delivery — only after explicit approval
+- Work across several teams from one connection; read and clear incident alerts; read identity, API tokens, Git and Cloudflare integrations, and WordPress blueprints
 
 ## Agent Experience
 

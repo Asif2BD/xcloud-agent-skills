@@ -8,6 +8,8 @@
 #   - JSON bodies reach the API intact via stdin (`-`) and via the argv form,
 #     and in both cases the body never appears in curl's argv
 #   - non-verbose behavior (envelope, exit codes) is unchanged
+#   - X-Team-Id / Idempotency-Key are sent only when set, and CR/LF or other
+#     unexpected characters in them are refused (no header injection)
 #
 # Usage: ./wrapper-test.sh   (exit 0 = all pass)
 set -uo pipefail
@@ -34,7 +36,9 @@ class H(BaseHTTPRequestHandler):
         with open(log_file, 'a') as f:
             f.write(json.dumps({"path": self.path, "method": self.command, "body": body}) + "\n")
         code = 404 if self.path.endswith('/missing') else 200
-        out = json.dumps({"success": code == 200, "echo": body}).encode()
+        out = json.dumps({"success": code == 200, "echo": body,
+                          "team": self.headers.get('X-Team-Id'),
+                          "idem": self.headers.get('Idempotency-Key')}).encode()
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', str(len(out)))
@@ -112,6 +116,35 @@ if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
   bad "get-404-exit-1"
 else
   ok "get-404-exit-1"
+fi
+
+# --- 7. multi-team + idempotency headers ------------------------------------
+TEAM='2ff5443e-42f5-4dfa-a50c-122ca948b00e'
+resp=$(XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+       XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_TEAM_ID="${TEAM}" \
+       XCLOUD_IDEMPOTENCY_KEY='deploy-7f3a:retry.1' \
+       "${XC}" POST /servers/x/sites/git/auto '{"repository":{"url":"https://example.com/r"}}' 2>/dev/null)
+echo "${resp}" | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["team"]==sys.argv[1] and d["idem"]=="deploy-7f3a:retry.1" else 1)' "${TEAM}" \
+  && ok "team-and-idempotency-headers sent" || bad "team-and-idempotency-headers sent"
+resp=$(XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+       XCLOUD_ALLOW_INSECURE_HTTP=1 "${XC}" GET /user 2>/dev/null)
+echo "${resp}" | python3 -c 'import json,sys; d=json.load(sys.stdin); sys.exit(0 if d["team"] is None and d["idem"] is None else 1)' \
+  && ok "no-team-header-by-default" || bad "no-team-header-by-default"
+for bad_value in $'abc\r\nX-Evil: 1' 'team id' 'x;y'; do
+  if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+     XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_TEAM_ID="${bad_value}" \
+     "${XC}" GET /user >/dev/null 2>&1; then
+    bad "team-header-injection refused (${bad_value@Q})"
+  else
+    ok "team-header-injection refused (${bad_value@Q})"
+  fi
+done
+if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+   XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_IDEMPOTENCY_KEY=$'k\r\nX-Evil: 1' \
+   "${XC}" POST /x '{}' >/dev/null 2>&1; then
+  bad "idempotency-header-injection refused"
+else
+  ok "idempotency-header-injection refused"
 fi
 
 echo; echo "Wrapper tests: ${PASS} passed, ${FAIL} failed"

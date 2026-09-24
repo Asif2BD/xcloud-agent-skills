@@ -1,6 +1,7 @@
 # Git deployments
 
-`XC="$SKILL_ROOT/scripts/xcloud.sh"` · scope `read:sites` / `write:sites`.
+`XC="scripts/xcloud.sh"` · scopes `read:servers` /
+`write:servers` to create, `read:sites` / `write:sites` for everything after.
 
 | Operation | Operation id | Method + path |
 |---|---|---|
@@ -14,12 +15,42 @@
 | Retry a failed deploy | `sites.provision-retry` | `POST /sites/{uuid}/provision-retry` |
 | Full output of one step | `sites.events.show` | `GET /sites/{uuid}/events/{task_uuid}` |
 | Server-side repair | `sites.rescue` | `POST /sites/{uuid}/rescue` |
+| Analyse a repository | `git.detect` | `POST /git/detect` |
+| Scan a compose file | `git.compose-scan` | `POST /git/compose-scan` |
+| Deploy from Git (auto-detect) | `servers.sites.git.auto` | `POST /servers/{uuid}/sites/git/auto` |
+| Deploy from Git (explicit settings) | `servers.sites.git.create` | `POST /servers/{uuid}/sites/git` |
+| Deploy to a Docker server (pinned) | `servers.sites.git.docker` | `POST /servers/{uuid}/sites/git/docker` |
+| Staging hostname a create would mint | `servers.staging-hostname.suggest` | `GET /servers/{uuid}/staging-hostname?label=…` |
+| Deploy keys: list, prepare | `servers.git.deploy-keys.index` · `.store` | `GET\|POST /servers/{uuid}/git/deploy-keys` |
+| Deploy keys: verify, delete | `servers.git.deploy-keys.verify` · `.destroy` | `POST /servers/{uuid}/git/deploy-keys/{key_uuid}/verify` · `DELETE /servers/{uuid}/git/deploy-keys/{key_uuid}` |
+| Connected Git providers and their repos | `integrations.git.index` · `.repositories` | `GET /integrations/git` · `GET /integrations/git/{provider_uuid}/repositories` |
+| Does the domain resolve to the server yet? | `servers.dns.check` | `POST /servers/{server}/dns/check` |
 
-**Creating** a Git-deployed site happens server-side (the `servers` skill) and
-follows the flow below; "Polling" onwards applies to this skill's sites too.
-On MCP, start with `xcloud_agent_search` ("deploy a Node app from GitHub",
-"deploy a Docker Compose app") — it returns this whole flow with every
-operation's body in one response.
+The create URLs live under `/servers/…`, but the whole flow — create, poll,
+diagnose, retry, redeploy — is owned here. On MCP, start with
+`xcloud_agent_search` ("deploy a Node app from GitHub", "deploy a Docker
+Compose app") — it returns this whole flow with every operation's body in one
+response.
+
+## REST fallback: the whole flow
+
+```bash
+SERVER_UUID='replace-me'
+REPO='https://github.com/acme/app'
+# 1. detect (side-effect free)
+jq -n --arg r "$REPO" --arg s "$SERVER_UUID" '{repository_url:$r, server_uuid:$s}' \
+  | "$XC" POST /git/detect - | jq '.data | {repository_access, detection, compatibility}'
+# 2. preview (creates nothing)
+jq -n --arg r "$REPO" '{repository:{url:$r}, dry_run:true}' \
+  | "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" - | jq '.data | {would_create, warnings}'
+# 3. after the user approves the preview: same body, no dry_run, idempotent
+jq -n --arg r "$REPO" '{repository:{url:$r}}' \
+  | XCLOUD_IDEMPOTENCY_KEY="$(uuidgen)" "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" - \
+  | jq '.data | {uuid, domain, type, poll_url}'
+# 4. poll until terminal
+SITE_UUID='uuid-from-step-3'
+"$XC" GET "/sites/$SITE_UUID/status" | jq '.data | {deploy_state, terminal, current_step, poll_after_seconds}'
+```
 
 ## Detect first
 
