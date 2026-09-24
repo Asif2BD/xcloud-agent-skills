@@ -73,12 +73,15 @@ files. **One upload installs everything.**
 ## 3. Create an xCloud API token
 
 1. Open the **xCloud dashboard**.
-2. Go to **Profile → API Tokens → Generate New Token**.
-3. Choose the scopes you need:
+2. Go to **Account → API Tokens → Generate New Token**.
+3. Choose **read** scopes only:
    - `read:servers` — list/inspect servers
    - `read:sites` — list/inspect sites
-   - `write:servers` / `write:sites` — make changes
-   - `*` — full access
+   - `read:billing`, `read:addons` — billing and add-on reads, if you need them
+
+   The bundled wrapper sends `GET` requests only, so write scopes add risk and
+   no capability. Changes (deploys, SSL, backups, purchases) run through the
+   xCloud MCP connector, which has its own approval step.
 4. **Copy the token immediately** — it's shown only once.
 
 ---

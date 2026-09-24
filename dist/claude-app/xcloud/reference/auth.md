@@ -114,7 +114,7 @@ echo "export XCLOUD_API_TOKEN='your-token-here'" >> ~/.zshrc && source ~/.zshrc
 > unavailable, stop authenticated operations and explain the limitation.
 >
 > **If a token is exposed (pasted in the wrong place, shared transcript,
-> committed):** revoke it immediately — xCloud dashboard → **Profile → API
+> committed):** revoke it immediately — xCloud dashboard → **Account → API
 > Tokens** → delete it (`GET /user/tokens` helps find it; revoking is
 > dashboard-only — neither the read-only wrapper nor the MCP can revoke a
 > token). Then generate a fresh read-scoped token and update the runtime.

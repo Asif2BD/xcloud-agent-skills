@@ -25,7 +25,9 @@ new skills to the same read-only REST rule.
   token is listed as dashboard-only — the wrapper refuses the `DELETE` and no
   MCP tool offers it.
 - The API-token page is named **Account → API Tokens** everywhere, as in
-  xCloud's own documentation (was "Profile → API Tokens").
+  xCloud's own documentation (was "Profile → API Tokens"), including the
+  portable package's token section (generated from `dist/agent-plugin/build.py`)
+  and the claude.ai install guide, which now ask for read scopes only.
 - README, root `SKILL.md`, `SECURITY.md` and the ClawHub manifest list nine
   capabilities; the integrity files cover the two new skills and the capability
   map (42 files).

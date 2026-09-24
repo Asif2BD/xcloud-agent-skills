@@ -69,9 +69,11 @@ original task.
 
 ## Setting the token in a portable client
 
-**Step 1 — generate the token.** In the xCloud dashboard, open **Profile → API
-Tokens → Generate New Token**. Select the narrowest required scopes and copy the
-token immediately.
+**Step 1 — generate the token.** In the xCloud dashboard, open **Account → API
+Tokens → Generate New Token**. Select **read** scopes only (for example
+`read:servers`, `read:sites`) and copy the token immediately. The bundled
+wrapper sends `GET` requests only, so a write scope adds risk and no capability;
+changes run on the xCloud MCP connection.
 
 **Step 2 — store the token.** Put `XCLOUD_API_TOKEN` in the client environment or
 its secure secret store. Do not put a token in `plugin.json`, `mcp.json`, a skill
@@ -94,7 +96,7 @@ storage. Restart the client if it does not reload environment changes.
 > unavailable, stop authenticated operations and explain the limitation.
 >
 > **If a token is exposed (pasted in the wrong place, shared transcript,
-> committed):** revoke it immediately — xCloud dashboard → **Profile → API
+> committed):** revoke it immediately — xCloud dashboard → **Account → API
 > Tokens** → delete it (`GET /user/tokens` helps find it; revoking is
 > dashboard-only — neither the read-only wrapper nor the MCP can revoke a
 > token). Then generate a fresh read-scoped token and update the runtime.
