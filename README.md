@@ -1,6 +1,9 @@
 # xCloud Agent Skills
 
-[![Version](https://img.shields.io/badge/version-4.3.1-brightgreen.svg)](CHANGELOG.md)
+> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
+
+[![Version](https://img.shields.io/badge/version-4.3.2-brightgreen.svg)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.txt)
 [![ClawHub](https://img.shields.io/badge/ClawHub-xcloud-0EA5E9.svg)](https://clawhub.ai/asif2bd/xcloud)
 
@@ -126,7 +129,7 @@ For Claude's web app, the separate consolidated package and guide are in [`dist/
 
 The source documents OAuth discovery/write-grant limitations in some clients. If authorization discovery fails, add the MCP URL manually; if a connection only grants read access, do not assume writes work. Consult the [current connection notes](plugins/xcloud/reference/mcp.md) and [installation guide](https://github.com/xCloudDev/xcloud-agent-skills/blob/main/docs/SKILLS-GUIDE.md).
 
-**REST fallback:** create a scoped token in [xCloud API Tokens](https://app.xcloud.host/settings/api-tokens) and store `XCLOUD_API_TOKEN` in the agent runtime's secret store/environment. Do not paste production tokens into chat or commit them. The fallback needs `bash`, `curl` and `jq`; MCP-only use does not need the shell wrapper.
+**Read-only REST fallback:** create a read-scoped token in [xCloud API Tokens](https://app.xcloud.host/settings/api-tokens) and store `XCLOUD_API_TOKEN` in the agent runtime's secret store/environment. Do not paste production tokens into chat or commit them. The fallback needs `bash`, `curl` and `jq`; MCP-only use does not need the shell wrapper.
 
 Optional runtime settings:
 
@@ -150,7 +153,7 @@ Read [SECURITY.md](SECURITY.md) for executable-file behavior, network destinatio
 
 ## Release and verification
 
-v4.3.1 brings the v4.1–v4.3 upstream capabilities to the ClawHub distribution and rewrites onboarding/security explanations. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
+v4.3.2 brings the v4.1–v4.3 upstream capabilities to the ClawHub distribution and rewrites onboarding/security explanations. The 4.3.0 changelog records the upstream API/MCP coverage audit; operation counts are a dated snapshot, not a permanent service contract.
 
 The development checks include shell syntax/ShellCheck, offline wrapper tests, legacy JSON-safety tests, portable package validation, version consistency and generated-artifact checks. Live smoke tests are read-only and require scoped credentials; a skipped smoke job is not a live-operation pass. This documentation release does not need a production deployment or purchase to validate packaging.
 

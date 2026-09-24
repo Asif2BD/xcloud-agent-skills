@@ -1,8 +1,8 @@
 {
   "name": "xcloud",
-  "version": "4.3.1",
+  "version": "4.3.2",
   "display_name": "xCloud Agent Skills",
-  "description": "Deploy Git repositories, Docker apps and WordPress to xCloud and manage servers, sites, SSL, billing and teams. Seven capabilities, MCP-first with a scoped REST fallback and explicit approval for destructive or paid actions.",
+  "description": "Deploy Git repositories, Docker apps and WordPress to xCloud and manage servers, sites, SSL, billing and teams. Seven capabilities, MCP-first with a GET-only REST fallback and explicit approval for destructive or paid actions.",
   "long_description": "The xCloud agent skills let any AI agent (Claude Code and others) operate xCloud in plain language and finish the job: paste a GitHub URL and say deploy \u2014 the agent detects the app, previews the site with a dry run, asks once, provisions, polls, checks the live URL, and diagnoses and retries a failed deploy on the same site. The same proactive flow covers Docker Compose apps, one-click apps, Git staging environments, new WordPress sites and new servers, alongside day-2 work: SSL, backups, WordPress updates, vulnerability and broken-link scans, billing, mailboxes, incident alerts, and multi-team accounts. v4 is MCP-first: connect the xCloud MCP server (https://app.xcloud.host/mcp \u2014 OAuth, one tool per API operation plus two search tools, with per-action confirmation on destructive operations) and the skills use it automatically; agents without MCP fall back to the shared auth + curl layer. A legacy Python SDK and CLI remain under src/ for direct scripting.",
   "category": "deployment",
   "subcategories": [
@@ -150,6 +150,13 @@
         "Initial release with API documentation",
         "curl examples for all operations",
         "Troubleshooting guide"
+      ]
+    },
+    "v4.3.2": {
+      "date": "2026-09-24",
+      "changes": [
+        "Technically enforce GET-only REST fallback; no bodies or write override. Mutations require confirmation-gated MCP or dashboard.",
+        "Clarify the same boundary across capability references and add pre-network rejection tests."
       ]
     }
   },

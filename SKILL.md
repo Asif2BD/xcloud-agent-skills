@@ -1,14 +1,17 @@
 ---
 name: xcloud
-description: "Deploy Git repositories, Docker apps and WordPress to xCloud, then manage servers, sites, SSL, backups, billing and teams. Seven capability skills; MCP-first with a scoped REST fallback, deployment previews and explicit approval for destructive or paid actions."
-version: 4.3.1
+description: "Deploy Git repositories, Docker apps and WordPress to xCloud, then manage servers, sites, SSL, backups, billing and teams. Seven capability skills; MCP-first with a read-only REST fallback, deployment previews and explicit approval for destructive or paid actions."
+version: 4.3.2
 author: xCloudDev
 license: MIT
 homepage: https://xcloud.host
 metadata: {"openclaw":{"emoji":"☁️"}}
 ---
 
-# xCloud Agent Skills v4.3.1
+# xCloud Agent Skills v4.3.2
+
+> **Packaged REST boundary (v4.3.2):** `xcloud.sh` enforces GET-only requests with no body and has no write override. Non-GET examples below describe upstream API operations, not executable commands for this fallback. For mutations, use the corresponding connected xCloud MCP tool only after the required concrete user approval and server confirmation. If that tool/confirmation is unavailable, stop and direct the user to the dashboard; do not bypass this boundary with direct curl, SDKs, alternate scripts or by editing the wrapper. Configure REST credentials with read-only scopes.
+
 
 **Operate xCloud in plain language from a compatible AI agent.** This is the official xCloud skill bundle, not a hosting account or an API credential. It supports OpenClaw, Claude Code and other clients that can load the instructions and call connected MCP tools or the bundled REST wrapper.
 
