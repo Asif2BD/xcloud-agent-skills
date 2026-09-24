@@ -19,5 +19,5 @@ SITE_UUID='replace-me'
 - Async — confirm via `GET /sites/{uuid}/events`.
 - `cache/settings` reads which layers are on (`page_cache`, `object_cache` with
   `redis` / `object_cache_pro`, `cloudflare_edge_cache`); **turning a layer on
-  or off is dashboard-only (Site → Cache)** — no operation enables one. A slow
+  or off is dashboard-only (Site → WordPress → Caching)** — no operation enables one. A slow
   site or "should caching be on" → `xcloud:performance`.

@@ -29,5 +29,5 @@ TASK=$("$XC" POST "/sites/$SITE_UUID/backup" '{"type":"local"}' | jq -r '.data.t
 - "Which sites have no backup schedule?" → read `backup-settings` per site and
   list the ones without automatic backups; mention unread `backups` incident
   alerts (`xcloud:account`) alongside.
-- Restoring a backup is dashboard-only (**Site → Backups → Restore**) for every
+- Restoring a backup is dashboard-only (**Site → Site Backup → Previous Backups → Restore Backup**) for every
   site type; the API triggers, lists and configures backups.

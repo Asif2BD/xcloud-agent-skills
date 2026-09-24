@@ -139,26 +139,27 @@ SERVER_UUID=$("$XC" GET "/sites/$SITE_UUID" | jq -er '.data.server_uuid')
 
 | Cause | What the data shows | What fixes it |
 |---|---|---|
-| **No cache, or the cache is off** | `sites.cacheSettings` shows page, object and edge cache off; PageSpeed shows a slow server response (TTFB). The single most common answer on WordPress. | Turning a layer on — **dashboard-only: Site → Cache** |
-| **PHP-FPM saturation** | High CPU on `servers.monitoring` while the site's own sample is modest; many concurrent uncached requests in the access log; php-fpm running but pegged. Often the same root cause as an uncached site. An old PHP version makes it worse. | Cache first; then a newer PHP version for the site — **dashboard-only: Site → Settings → PHP version** |
+| **No cache, or the cache is off** | `sites.cacheSettings` shows page, object and edge cache off; PageSpeed shows a slow server response (TTFB). The single most common answer on WordPress. | Turning a layer on — **dashboard-only: Site → WordPress → Caching** |
+| **PHP-FPM saturation** | High CPU on `servers.monitoring` while the site's own sample is modest; many concurrent uncached requests in the access log; php-fpm running but pegged. Often the same root cause as an uncached site. An old PHP version makes it worse. | Cache first; then a newer PHP version for the site — **dashboard-only: Site → Site Settings** |
 | **Disk full, usually backups** | `servers.monitoring` disk near 100%. Everything on the box slows, MySQL first. | Check the site's backup count and the server's snapshots before blaming the app (`xcloud:sites` backups) |
 | **Bot traffic** | The access log shows a crawl, a scraper or one client hammering a path, starting the hour the slowness started. | Rate limiting or blocking — firewall and fail2ban (`xcloud:servers`); cache will not fix it |
 
 ## What you cannot do, and must not offer
 
 - **Enabling or disabling page cache, object cache (Redis) or Cloudflare edge
-  cache is dashboard-only: Site → Cache.** The API reads the switches
+  cache is dashboard-only: Site → WordPress → Caching.** The API reads the switches
   (`sites.cacheSettings`) and purges (`sites.cache.purge*`); no operation
   turns a layer on. Never offer to enable Redis yourself.
-- **Changing one site's PHP version is dashboard-only: Site → Settings → PHP
-  version.** The API reads it (`sites.wordpress.status`) and manages PHP at the
-  **server** level only. Installing 8.3 on the server does not move a site onto
-  it, and changing the server default moves **every** site that follows the
-  default — never a substitute for the per-site change the human asked for.
+- **Changing one site's PHP version is dashboard-only: Site → Site Settings.**
+  The API reads it (`sites.show`, `sites.wordpress.status`) and manages PHP at
+  the **server** level only. Neither server operation moves a site: installing
+  8.3 on the server adds the version, and changing the server default changes
+  only the command-line `php` and the version new sites get. Never offer either
+  as a substitute for the per-site change the human asked for.
 
 The honest answer is the useful one: *"Redis object cache is off for this site —
 xCloud can see it but cannot switch it on from here. Turn it on under Site →
-Cache: <dashboard_url>."* Give the `dashboard_url` from `sites.show`; never
+WordPress → Caching: <dashboard_url>."* Give the `dashboard_url` from `sites.show`; never
 construct one. More rows like these: `reference/capability-map.md`.
 
 ## Writes in this job
@@ -175,8 +176,9 @@ construct one. More rows like these: `reference/capability-map.md`.
   is the full-page-only version (`xcloud:sites`, cache).
 - **Server PHP** (only when the human asks for a server-level change):
   `servers.php-versions.install` when the version is missing (asynchronous,
-  does not move any site), `servers.php-versions.default` (moves every site
-  that follows the default), `servers.php-versions.opcache` when opcache is off
+  does not move any site), `servers.php-versions.default` (the command-line
+  `php` and new sites only — no existing site moves; installs the version first
+  when it is missing), `servers.php-versions.opcache` when opcache is off
   on the version the site runs. All destructive-class — restate the server and
   the effect, get the yes. Details: `xcloud:servers`.
 

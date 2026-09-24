@@ -22,5 +22,9 @@ SERVER_UUID='replace-me'
 ```
 
 - `php_version` is required for install/uninstall.
+- **Set default** changes the server's command-line `php` and the version new
+  sites get. It moves **no existing site** — each site keeps its own PHP
+  version, which only the dashboard changes (**Site → Site Settings**). When the
+  version is not installed yet, the call installs it first (asynchronous).
 - `enabled` is required for the opcache toggle.
 - Install/patch are async — confirm via `GET /servers/{uuid}/tasks`.

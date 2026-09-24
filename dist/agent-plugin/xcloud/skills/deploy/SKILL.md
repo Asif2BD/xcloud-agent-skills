@@ -149,7 +149,7 @@ running** and hand over the `poll_url` — never call it deployed.
   or `runtime_version` failure is fixed with `servers_node-versions_default`
   (the `servers` skill), which affects every Node site on that server; say so.
 - Changing a live site's domain after creation is dashboard-only
-  (Site → Domain); choose the live domain at creation. Every other
+  (Site → Domain → Domain); choose the live domain at creation. Every other
   dashboard-only step is listed in `references/shared/capability-map.md`.
 - Never echo `env_file_content`, deploy-key private halves (xCloud never returns
   them), app credentials, or database passwords into summaries.

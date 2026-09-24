@@ -85,8 +85,8 @@ this chain with every request body and the platform notes.
    `sites.events.show` reads one task's full output. A failed **git build**
    shows up here too.
 3. **The web server logs.** `sites.access-logs` with `type=nginx` reads every
-   log file of the site — the access log, the **error log** and the 7G
-   firewall log — on nginx and OpenLiteSpeed stacks alike. The error log is
+   log file of the site — the access log, the **error log** and the 7G and
+   8G firewall logs — on nginx and OpenLiteSpeed stacks alike. The error log is
    where a PHP fatal surfaces as a 502/500 upstream error. The default
    `type=access` reads the access log only, so always send `type=nginx` here.
    Every call reads the files over SSH, so it is slow: pass a `limit` (1–1000,
@@ -120,9 +120,11 @@ unless a log line or an event you actually retrieved shows it.
 
 ## What only the dashboard shows
 
-The PHP-FPM error log, the contents of the WordPress `debug.log`, and
+The contents of the WordPress `debug.log`, the Laravel log, and
 docker-compose, PM2 and OpenClaw logs are readable **only** in the dashboard log
-viewer: **Site → Logs**. Say so and give the site's
+viewer: **Site → Site Monitoring → Logs**. Server logs (fail2ban, auth.log) are
+at **Server → Monitoring → Logs**. The web server error log — where a PHP fatal
+lands — is not on this list: step 3 reads it. Say so and give the site's
 `dashboard_url` (from `sites.show` — never construct one). Do not imply you can
 fetch them. See `reference/capability-map.md`.
 
@@ -166,7 +168,7 @@ SERVER_UUID=$("$XC" GET "/sites/$SITE_UUID" | jq -er '.data.server_uuid')
   an explicit yes naming the site or server — on MCP, `confirm: true` only
   after that yes.
 - **Where to stop.** When the checks above do not show a clear, evidenced
-  cause, say what you checked and what each showed, point to **Site → Logs**
+  cause, say what you checked and what each showed, point to **Site → Site Monitoring → Logs**
   for the logs the API cannot read, and route the case to xCloud support with
   that evidence. An honest "not found yet, here is what I ruled out" beats an
   invented cause.

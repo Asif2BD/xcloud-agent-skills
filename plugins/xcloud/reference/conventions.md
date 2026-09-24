@@ -153,7 +153,7 @@ Act like an operator who finishes the job, not a lookup tool:
   disk, a failed backup, pending security updates), mention it in one line with
   the fix you can run. Offering is free; running it still needs a yes.
 - **Say what cannot be done here.** When a step is dashboard-only, give the exact
-  dashboard path (for example **Site → Domain**) instead of guessing an API.
+  dashboard path (for example **Site → Domain → Domain**) instead of guessing an API.
   `reference/capability-map.md` lists every dashboard-only and impossible job
   in one place.
 
@@ -304,7 +304,7 @@ terminal). It is ~35 cols wide, so it fits an 80-column terminal without wrappin
                       #*******
                         #******
 
-   v4.4.0 · Managed hosting, from your terminal
+   v4.4.1 · Managed hosting, from your terminal
 ```
 ````
 
