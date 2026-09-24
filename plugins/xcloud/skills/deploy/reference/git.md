@@ -44,8 +44,9 @@ jq -n --arg r "$REPO" --arg s "$SERVER_UUID" '{repository_url:$r, server_uuid:$s
 jq -n --arg r "$REPO" '{repository:{url:$r}, dry_run:true}' \
   | "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" - | jq '.data | {would_create, warnings}'
 # 3. after the user approves the preview: same body, no dry_run, idempotent
+KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
 jq -n --arg r "$REPO" '{repository:{url:$r}}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$(uuidgen)" "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" - \
+  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SERVER_UUID/sites/git/auto" - \
   | jq '.data | {uuid, domain, type, poll_url}'
 # 4. poll until terminal
 SITE_UUID='uuid-from-step-3'

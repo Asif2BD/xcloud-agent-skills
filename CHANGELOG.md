@@ -58,7 +58,11 @@ preview on a staging hostname; nothing created).
   scan polling, fleet update questions.
 - REST wrapper: `XCLOUD_TEAM_ID` → `X-Team-Id` and `XCLOUD_IDEMPOTENCY_KEY` →
   `Idempotency-Key`, both validated against a strict character set so a stray
-  CR/LF cannot inject headers; six new offline tests (14 total).
+  CR/LF cannot inject headers. A set-but-empty value (what a failed `$(...)`
+  leaves) stops the call instead of silently dropping the header — no quiet
+  fallback to the default team, no create that is no longer safe to retry.
+  Examples generate the key once with `od` + `/dev/urandom` (no `uuidgen`
+  dependency) and reuse it on retry. Eight new offline tests (16 total).
 - Read-only smoke suites for `deploy` (catalog, Git integrations, side-effect-free
   repository detection, staging hostname, deploy keys) and `billing` (403 on an
   unscoped token counts as skip); account suite checks teams and alerts; CI runs
@@ -78,6 +82,9 @@ preview on a staging hostname; nothing created).
 - `GET /sites/{uuid}/pagespeed/scans/{scan_uuid}` (poll one scan) was
   undocumented. Every agent-facing operation is now documented (191/191).
 - The startup banner still said v4.0.1.
+- `docs/scalar/build.mjs` still generated the five-skill landing page; it now
+  carries the seven-skill copy, reads its version from `plugin.json`, and CI
+  fails when the committed page drifts from the generator.
 - `.clawhubinfo.json` listed the Agent Plugins release as v4.2.0; it is v4.1.0,
   and the actual v4.2.0 entry was missing.
 

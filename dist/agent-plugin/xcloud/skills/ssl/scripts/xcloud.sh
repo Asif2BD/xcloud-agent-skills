@@ -105,17 +105,19 @@ CURL_OPTS=(
 )
 
 # Header values come from the environment; a strict charset keeps a stray CR/LF
-# from injecting extra headers.
-if [[ -n "${XCLOUD_TEAM_ID:-}" ]]; then
+# from injecting extra headers. Set-but-empty is refused, not ignored: it is what
+# a failed `$(...)` leaves behind, and silently dropping the header would run the
+# call against the default team, or make a "safe to retry" create unsafe.
+if [[ -n "${XCLOUD_TEAM_ID+set}" ]]; then
   if [[ ! "${XCLOUD_TEAM_ID}" =~ ^[A-Za-z0-9-]{1,64}$ ]]; then
-    echo "error: XCLOUD_TEAM_ID must be a team uuid (letters, digits, hyphens)" >&2
+    echo "error: XCLOUD_TEAM_ID is set but is not a team uuid (letters, digits, hyphens); unset it for the default team" >&2
     exit 64
   fi
   CURL_OPTS+=(-H "X-Team-Id: ${XCLOUD_TEAM_ID}")
 fi
-if [[ -n "${XCLOUD_IDEMPOTENCY_KEY:-}" ]]; then
+if [[ -n "${XCLOUD_IDEMPOTENCY_KEY+set}" ]]; then
   if [[ ! "${XCLOUD_IDEMPOTENCY_KEY}" =~ ^[A-Za-z0-9._:-]{1,255}$ ]]; then
-    echo "error: XCLOUD_IDEMPOTENCY_KEY may only contain letters, digits and . _ : -" >&2
+    echo "error: XCLOUD_IDEMPOTENCY_KEY is set but empty or invalid (letters, digits and . _ : - only); refusing to send the write without it" >&2
     exit 64
   fi
   CURL_OPTS+=(-H "Idempotency-Key: ${XCLOUD_IDEMPOTENCY_KEY}")

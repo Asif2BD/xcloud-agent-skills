@@ -44,8 +44,9 @@
 SERVER_UUID='replace-me'
 "$XC" GET "/oneclick-apps?search=ghost&per_page=5" | jq '.data.items | map({slug, name, requirements})'
 "$XC" GET "/servers/$SERVER_UUID/oneclick-apps/ghost/compatibility" | jq '.data'
+KEY=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')   # keep it: a retry must reuse this key
 jq -n '{title:"Ghost blog", domain_parking_method:"staging_env", fields:{}}' \
-  | XCLOUD_IDEMPOTENCY_KEY="$(uuidgen)" "$XC" POST "/servers/$SERVER_UUID/sites/oneclick/ghost" - \
+  | XCLOUD_IDEMPOTENCY_KEY="$KEY" "$XC" POST "/servers/$SERVER_UUID/sites/oneclick/ghost" - \
   | jq '.data | {site_uuid, installation_status, status_url}'
 ```
 

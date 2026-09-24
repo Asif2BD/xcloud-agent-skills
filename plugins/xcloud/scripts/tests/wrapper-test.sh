@@ -10,6 +10,7 @@
 #   - non-verbose behavior (envelope, exit codes) is unchanged
 #   - X-Team-Id / Idempotency-Key are sent only when set, and CR/LF or other
 #     unexpected characters in them are refused (no header injection)
+#   - a set-but-empty XCLOUD_TEAM_ID / XCLOUD_IDEMPOTENCY_KEY stops the call
 #
 # Usage: ./wrapper-test.sh   (exit 0 = all pass)
 set -uo pipefail
@@ -145,6 +146,27 @@ if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
   bad "idempotency-header-injection refused"
 else
   ok "idempotency-header-injection refused"
+fi
+
+# --- 8. set-but-empty selectors are refused, never silently dropped ----------
+# A key generator that is missing leaves an empty value behind; the write must
+# stop rather than go out without its Idempotency-Key.
+: > "${LOG_FILE}"
+if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+   XCLOUD_ALLOW_INSECURE_HTTP=1 \
+   XCLOUD_IDEMPOTENCY_KEY="$(no-such-key-generator 2>/dev/null)" \
+   "${XC}" POST /servers '{}' >/dev/null 2>&1; then
+  bad "empty-idempotency-key refused"
+else
+  [[ -s "${LOG_FILE}" ]] && bad "empty-idempotency-key refused (but the request was sent)" \
+    || ok "empty-idempotency-key refused (request never sent)"
+fi
+if XCLOUD_API_TOKEN="${FAKE_TOKEN}" XCLOUD_API_BASE_URL="${LOCAL_URL}" \
+   XCLOUD_ALLOW_INSECURE_HTTP=1 XCLOUD_TEAM_ID='' \
+   "${XC}" GET /servers >/dev/null 2>&1; then
+  bad "empty-team-id refused (would fall back to the default team)"
+else
+  ok "empty-team-id refused (no silent default-team fallback)"
 fi
 
 echo; echo "Wrapper tests: ${PASS} passed, ${FAIL} failed"
